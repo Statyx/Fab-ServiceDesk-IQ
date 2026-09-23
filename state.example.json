@@ -1,0 +1,19 @@
+{
+  "_comment": "Deployment state TEMPLATE. Copy to state.json (git-ignored); the phase-2 deploy scripts fill it idempotently.",
+  "workspace_id": "",
+  "lakehouse_id": "",
+  "setup_notebook_id": "",
+  "eventhouse_id": "",
+  "kql_database_id": "",
+  "kusto_query_uri": "",
+  "ontology_id": "",
+  "graph_model_id": "",
+  "semantic_model_id": "",
+  "report_id": "",
+  "rti_dashboard_id": "",
+  "activator_id": "",
+  "operations_agent_id": "",
+  "data_agent_id": "",
+  "data_agent_mcp_url": "",
+  "app_id": ""
+}

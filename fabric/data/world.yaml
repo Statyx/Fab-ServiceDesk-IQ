@@ -1,0 +1,263 @@
+# Zava Service Desk — the synthetic world.
+#
+# Everything here is FICTIONAL: Zava is a fictional managed-service operator and its
+# customers are Microsoft's fictional companies. No real customer, partner or third-party
+# product appears anywhere in this repository; tools are named generically (ITSM, DEM,
+# Contact Center, CSAT tool, Corporate VPN).
+#
+# This file is committed on purpose and is the ONLY input of the generator, together
+# with the seed: the dataset must be byte-identical on every machine, whatever the local
+# config.yaml says. Tenant-specific values never belong here.
+
+seed: 42
+# Last day of history (UTC), a Sunday: the incident week is the last full ISO week.
+# Phase 2 shifts every timestamp by a WHOLE number of weeks so ISO weeks stay aligned.
+reference_date: "2026-06-14"
+history_days: 90          # Lakehouse facts (tickets, CSAT, daily experience)
+dem_history_days: 8       # dem_telemetry preload (hourly, 07:00–19:00 UTC)
+trace_history_days: 14    # tickets_events / conversations / agent_traces / gateway_logs / csat_events
+
+tickets_per_user_per_week: 0.30
+persona_mix: {VIP: 0.05, Office: 0.50, Remote: 0.25, Frontline: 0.20}
+
+customers:
+  - id: CUS-CON
+    name: Contoso Retail
+    industry: Retail
+    country: US
+    language: en
+    monthly_fee_eur: 140000
+    zero_touch_band: [0.42, 0.48]
+    vpn_version: "6.0.4"
+    sites:
+      - {id: CON-SEA, city: Seattle, country: US, type: HQ, users: 40}
+      - {id: CON-CHI, city: Chicago, country: US, type: Regional office, users: 40}
+      - {id: CON-DAL, city: Dallas, country: US, type: Distribution hub, users: 40}
+  - id: CUS-FAB
+    name: Fabrikam Industries
+    industry: Manufacturing
+    country: FR
+    language: fr
+    monthly_fee_eur: 185000
+    zero_touch_band: [0.44, 0.48]
+    vpn_version: "6.0.4"
+    sites:
+      - {id: FAB-PAR, city: Paris, country: FR, type: HQ, users: 60}
+      - {id: FAB-LYO, city: Lyon, country: FR, type: Regional office, users: 60}
+      - {id: FAB-LIL, city: Lille, country: FR, type: Plant, users: 30}
+      - {id: FAB-NAN, city: Nantes, country: FR, type: Plant, users: 30}
+  - id: CUS-LIT
+    name: Litware Insurance
+    industry: Insurance
+    country: GB
+    language: en
+    monthly_fee_eur: 120000
+    zero_touch_band: [0.44, 0.48]
+    vpn_version: "6.0.4"
+    sites:
+      - {id: LIT-LON, city: London, country: GB, type: HQ, users: 60}
+      - {id: LIT-MAN, city: Manchester, country: GB, type: Regional office, users: 50}
+  - id: CUS-NOR
+    name: Northwind Logistics
+    industry: Logistics
+    country: DE
+    language: de
+    monthly_fee_eur: 110000
+    zero_touch_band: [0.38, 0.46]
+    vpn_version: "5.9.2"
+    sites:
+      - {id: NOR-HAM, city: Hamburg, country: DE, type: HQ, users: 50}
+      - {id: NOR-MUC, city: Munich, country: DE, type: Distribution hub, users: 50}
+  - id: CUS-TAI
+    name: Tailspin Airlines
+    industry: Aviation
+    country: ES
+    language: es
+    monthly_fee_eur: 95000
+    zero_touch_band: [0.36, 0.44]
+    vpn_version: "5.9.2"
+    sites:
+      - {id: TAI-MAD, city: Madrid, country: ES, type: HQ, users: 50}
+      - {id: TAI-BCN, city: Barcelona, country: ES, type: Airport operations, users: 40}
+  - id: CUS-WOO
+    name: Woodgrove Bank
+    industry: Banking
+    country: BE
+    language: fr
+    monthly_fee_eur: 160000
+    zero_touch_band: [0.36, 0.44]
+    vpn_version: "6.0.4"
+    sites:
+      - {id: WOO-BRU, city: Brussels, country: BE, type: HQ, users: 50}
+      - {id: WOO-LUX, city: Luxembourg, country: LU, type: Branch, users: 50}
+
+# Contracts with XLA (eXperience Level Agreement) commitments. Deliberately divergent:
+# Fabrikam and Litware share the same zero-touch threshold, but only Fabrikam's contract
+# carries a service credit — same gap, different consequence. Clauses are fictional.
+# Metrics: zero_touch_rate (%), csat_avg (1–5), experience_score_avg (0–100),
+# time_lost_min_per_user (minutes lost per seat over the window).
+contracts:
+  - customer_id: CUS-FAB
+    id: CTR-FAB-2026
+    name: Fabrikam Digital Workplace Services
+    start: "2026-01-01"
+    end: "2028-12-31"
+    penalty_cap_pct: 15
+    xlas:
+      - {metric: zero_touch_rate, comparator: ">=", threshold: 40, window: weekly, penalty_pct: 5,
+         clause: "If the zero-touch resolution rate falls below 40.0% in any ISO week, Zava credits 5% of the monthly service fee for the month containing that week, within the monthly cap of 15%."}
+      - {metric: csat_avg, comparator: ">=", threshold: 3.8, window: monthly, penalty_pct: 2,
+         clause: "If the average CSAT score of a calendar month is below 3.8 out of 5, Zava credits 2% of that month's service fee."}
+      - {metric: time_lost_min_per_user, comparator: "<=", threshold: 120, window: monthly, penalty_pct: 2,
+         clause: "If the time lost to IT incidents exceeds 120 minutes per seat in a calendar month, Zava credits 2% of that month's service fee."}
+  - customer_id: CUS-LIT
+    id: CTR-LIT-2026
+    name: Litware Service Desk Agreement
+    start: "2025-07-01"
+    end: "2027-06-30"
+    penalty_cap_pct: 0
+    xlas:
+      - {metric: zero_touch_rate, comparator: ">=", threshold: 40, window: weekly, penalty_pct: 0,
+         clause: "If the zero-touch resolution rate falls below 40.0% in any ISO week, Zava delivers a written remediation plan within 10 business days. No service credit applies."}
+      - {metric: csat_avg, comparator: ">=", threshold: 3.8, window: monthly, penalty_pct: 0,
+         clause: "The monthly average CSAT score is reported against a 3.8 target. No service credit applies."}
+  - customer_id: CUS-CON
+    id: CTR-CON-2026
+    name: Contoso Store Support Services
+    start: "2026-03-01"
+    end: "2029-02-28"
+    penalty_cap_pct: 10
+    xlas:
+      - {metric: zero_touch_rate, comparator: ">=", threshold: 35, window: weekly, penalty_pct: 3,
+         clause: "If the zero-touch resolution rate falls below 35.0% in any ISO week, Zava credits 3% of the monthly service fee, within the monthly cap of 10%."}
+      - {metric: csat_avg, comparator: ">=", threshold: 3.6, window: monthly, penalty_pct: 1,
+         clause: "If the monthly average CSAT score is below 3.6 out of 5, Zava credits 1% of that month's service fee."}
+  - customer_id: CUS-NOR
+    id: CTR-NOR-2026
+    name: Northwind Workplace Operations
+    start: "2025-10-01"
+    end: "2028-09-30"
+    penalty_cap_pct: 8
+    xlas:
+      - {metric: csat_avg, comparator: ">=", threshold: 3.8, window: monthly, penalty_pct: 3,
+         clause: "If the monthly average CSAT score is below 3.8 out of 5, Zava credits 3% of that month's service fee."}
+      - {metric: experience_score_avg, comparator: ">=", threshold: 70, window: monthly, penalty_pct: 2,
+         clause: "If the average device experience score of a calendar month is below 70 out of 100, Zava credits 2% of that month's service fee."}
+  - customer_id: CUS-TAI
+    id: CTR-TAI-2026
+    name: Tailspin Operations Support
+    start: "2026-02-01"
+    end: "2028-01-31"
+    penalty_cap_pct: 6
+    xlas:
+      - {metric: experience_score_avg, comparator: ">=", threshold: 72, window: weekly, penalty_pct: 2,
+         clause: "If the average device experience score of any ISO week is below 72 out of 100, Zava credits 2% of the monthly service fee."}
+      - {metric: zero_touch_rate, comparator: ">=", threshold: 30, window: monthly, penalty_pct: 2,
+         clause: "If the zero-touch resolution rate of a calendar month is below 30.0%, Zava credits 2% of that month's service fee."}
+  - customer_id: CUS-WOO
+    id: CTR-WOO-2026
+    name: Woodgrove Managed Workplace
+    start: "2025-04-01"
+    end: "2028-03-31"
+    penalty_cap_pct: 12
+    xlas:
+      - {metric: zero_touch_rate, comparator: ">=", threshold: 30, window: monthly, penalty_pct: 3,
+         clause: "If the zero-touch resolution rate of a calendar month is below 30.0%, Zava credits 3% of that month's service fee."}
+      - {metric: time_lost_min_per_user, comparator: "<=", threshold: 120, window: monthly, penalty_pct: 4,
+         clause: "If the time lost to IT incidents exceeds 120 minutes per seat in a calendar month, Zava credits 4% of that month's service fee."}
+      - {metric: csat_avg, comparator: ">=", threshold: 3.7, window: monthly, penalty_pct: 2,
+         clause: "If the monthly average CSAT score is below 3.7 out of 5, Zava credits 2% of that month's service fee."}
+
+applications:
+  - {id: APP-TEAMS,    name: Microsoft Teams,  category: Collaboration, critical: true}
+  - {id: APP-OUTLOOK,  name: Outlook,          category: Messaging,     critical: true}
+  - {id: APP-VPN,      name: Corporate VPN,    category: Network,       critical: true}
+  - {id: APP-IDP,      name: Identity Portal,  category: Identity,      critical: true}
+  - {id: APP-ERP,      name: ERP,              category: Business,      critical: true}
+  - {id: APP-CRM,      name: CRM,              category: Business,      critical: false}
+  - {id: APP-HR,       name: HR Portal,        category: Business,      critical: false}
+  - {id: APP-OFFICE,   name: Office Suite,     category: Productivity,  critical: false}
+  - {id: APP-INTRANET, name: Intranet,         category: Collaboration, critical: false}
+  - {id: APP-PRINT,    name: Print Service,    category: Workplace,     critical: false}
+
+services:
+  - {id: SVC-IDENTITY, name: Identity & Access,       type: Identity,      owner_team: Identity Ops}
+  - {id: SVC-NETWORK,  name: Network & Remote Access, type: Network,       owner_team: Network Ops}
+  - {id: SVC-COLLAB,   name: Collaboration,           type: Workplace,     owner_team: Workplace Ops}
+  - {id: SVC-MESSAGE,  name: Messaging,               type: Workplace,     owner_team: Workplace Ops}
+  - {id: SVC-WORKPL,   name: Workplace & Devices,     type: Workplace,     owner_team: Workplace Ops}
+  - {id: SVC-PRINT,    name: Print,                   type: Workplace,     owner_team: Workplace Ops}
+  - {id: SVC-BUSAPP,   name: Business Applications,   type: Business app,  owner_team: Application Ops}
+
+# Ticket reasons. zero_touch: can an AI agent resolve it end to end?
+issues:
+  - {code: password_reset,   service: SVC-IDENTITY, app: APP-IDP,     zero_touch: true,  weight: 0.20, title: "Reset your password"}
+  - {code: account_unlock,   service: SVC-IDENTITY, app: APP-IDP,     zero_touch: true,  weight: 0.08, title: "Unlock your account"}
+  - {code: mfa_reenroll,     service: SVC-IDENTITY, app: APP-IDP,     zero_touch: true,  weight: 0.05, title: "Re-enrol multi-factor authentication"}
+  - {code: vpn_connect,      service: SVC-NETWORK,  app: APP-VPN,     zero_touch: true,  weight: 0.09, title: "Fix Corporate VPN connection issues"}
+  - {code: teams_call_quality, service: SVC-COLLAB, app: APP-TEAMS,   zero_touch: true,  weight: 0.09, title: "Improve Teams call quality"}
+  - {code: outlook_sync,     service: SVC-MESSAGE,  app: APP-OUTLOOK, zero_touch: true,  weight: 0.10, title: "Fix Outlook synchronisation"}
+  - {code: printer_issue,    service: SVC-PRINT,    app: APP-PRINT,   zero_touch: true,  weight: 0.07, title: "Solve common printing problems"}
+  - {code: software_install, service: SVC-WORKPL,   app: APP-OFFICE,  zero_touch: true,  weight: 0.07, title: "Install approved software"}
+  - {code: erp_access,       service: SVC-BUSAPP,   app: APP-ERP,     zero_touch: false, weight: 0.10, title: "Request ERP access"}
+  - {code: crm_error,        service: SVC-BUSAPP,   app: APP-CRM,     zero_touch: false, weight: 0.08, title: "Report a CRM error"}
+  - {code: hr_portal_access, service: SVC-BUSAPP,   app: APP-HR,      zero_touch: false, weight: 0.07, title: "Get access to the HR Portal"}
+
+languages: [en, fr, de, es]
+
+agents:
+  - {id: AGT-SUPERVISOR, name: Orchestrator,        type: AI,    role: supervisor, tier: AI, model: llm-large}
+  - {id: AGT-TRIAGE,     name: Triage Agent,        type: AI,    role: triage,     tier: AI, model: llm-small}
+  - {id: AGT-CHAT,       name: Chat Agent,          type: AI,    role: chat,       tier: AI, model: llm-large}
+  - {id: AGT-VOICE,      name: Voice Agent,         type: AI,    role: voice,      tier: AI, model: llm-large}
+  - {id: AGT-KNOWLEDGE,  name: Knowledge Agent,     type: AI,    role: knowledge,  tier: AI, model: llm-large}
+  - {id: AGT-RESOLVER,   name: Resolver Agent,      type: AI,    role: resolver,   tier: AI, model: llm-small}
+human_agents: {L1: 6, L2: 4, L3: 2}
+
+mcp_tools:
+  - {id: TL-ITSM-CT, name: itsm.create_ticket,        system: ITSM,           write: true,  description: "Create a ticket in the ITSM"}
+  - {id: TL-ITSM-UT, name: itsm.update_ticket,        system: ITSM,           write: true,  description: "Update, escalate or resolve a ticket"}
+  - {id: TL-ITSM-MI, name: itsm.create_incident,      system: ITSM,           write: true,  description: "Declare a major incident"}
+  - {id: TL-DEM-HL,  name: dem.get_device_health,     system: DEM,            write: false, description: "Read device and application health from the DEM platform"}
+  - {id: TL-DEM-RM,  name: dem.run_remediation,       system: DEM,            write: true,  description: "Run a remediation script on a device"}
+  - {id: TL-KB-SR,   name: kb.search,                 system: Knowledge,      write: false, description: "Search the knowledge base"}
+  - {id: TL-IDP-RP,  name: identity.reset_password,   system: Identity,       write: true,  description: "Reset a user password"}
+  - {id: TL-IDP-UL,  name: identity.unlock_account,   system: Identity,       write: true,  description: "Unlock a user account"}
+  - {id: TL-CC-PM,   name: cc.send_proactive_message, system: Contact Center, write: true,  description: "Send a proactive message to impacted users"}
+  - {id: TL-TMS-AL,  name: teams.post_alert,          system: Teams,          write: true,  description: "Post an alert in an operations channel"}
+
+# Generic deployment names (not product names). Prices in EUR per 1,000 tokens.
+models:
+  llm-large: {input_per_1k: 0.0022, output_per_1k: 0.0088}
+  llm-small: {input_per_1k: 0.00035, output_per_1k: 0.0014}
+
+# The scripted storyline. See docs/ARCHITECTURE.md § Storyboard.
+scenario:
+  id: vpn-lyon
+  customer_id: CUS-FAB
+  site_id: FAB-LYO
+  app_id: APP-VPN
+  bad_version: "6.1.0"
+  good_version: "6.0.4"
+  rollout_share: 0.8               # share of Lyon devices that received 6.1.0 (pilot ring)
+  rollout_at: "2026-06-08T07:00:00Z"
+  min_vip_impacted: 3
+  incident_issues: {vpn_connect: 0.55, teams_call_quality: 0.45}
+  incident_tickets: 100
+  incident_zero_touch: 28
+  tool_failure_rate: 0.9           # dem.get_device_health failures on escalated incident contacts
+  major_incident:
+    id: MI-FAB-0001
+    declared_at: "2026-06-08T10:30:00Z"
+    severity: Sev2
+    title: "Corporate VPN drops and Teams call degradation at Fabrikam Lyon"
+    root_cause: "Corporate VPN client 6.1.0 rolled out to the Lyon pilot ring"
+  # Exact [tickets, zero_touch] per customer and ISO week (Monday). Everything else is
+  # drawn from zero_touch_band. Fabrikam: 23/50 = 46.0% → 51/150 = 34.0% (−12 points).
+  weekly_overrides:
+    CUS-FAB:
+      "2026-06-01": {tickets: 50, zero_touch: 23}
+      "2026-06-08": {tickets: 150, zero_touch: 51}
+    CUS-LIT:
+      "2026-06-01": {tickets: 50, zero_touch: 23}
+      "2026-06-08": {tickets: 50, zero_touch: 17, issue_bias: {hr_portal_access: 0.5}}

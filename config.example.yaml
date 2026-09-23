@@ -1,0 +1,72 @@
+# Zava Service Desk — deployment configuration TEMPLATE.
+#
+#   cp config.example.yaml config.yaml      (config.yaml is git-ignored)
+#
+# or keep one folder per tenant: deployments/<name>/config.yaml + state.json, selected by
+# deployments/active-profile.json ({"profile": "<name>"}) or ZAVA_SD_PROFILE_DIR.
+#
+# Never commit real tenant / capacity / subscription / workspace identifiers: every
+# <...> value below is a placeholder, and each ID can also come from an environment
+# variable (ZAVA_SD_TENANT_ID, ZAVA_SD_CAPACITY_ID, ZAVA_SD_WORKSPACE_NAME,
+# ZAVA_SD_AZ_SUBSCRIPTION, ZAVA_SD_FABRIC_API_BASE).
+#
+# The synthetic dataset itself (customers, contracts, XLA thresholds, the incident
+# scenario, seed) is NOT configured here: it lives in fabric/data/world.yaml, committed,
+# so the data is byte-identical whatever this file says.
+
+tenant_id: "<YOUR_TENANT_ID>"
+az_subscription: "<YOUR_SUBSCRIPTION_ID>"
+capacity_id: "<YOUR_FABRIC_CAPACITY_ID>"
+capacity_name: "<your-capacity-name>"
+fabric_api_base: "https://api.fabric.microsoft.com/v1"
+
+deployment:
+  # Account the deploy scripts must run as — checked before any write (phase 2).
+  expected_account: "<you@your-tenant.onmicrosoft.com>"
+  # Optional isolated Azure CLI token cache for this tenant (sets AZURE_CONFIG_DIR).
+  azure_config_dir: "<optional: path to an isolated .azure folder>"
+
+workspace_name: "Zava Service Desk"
+
+# ── Fabric items (phase 2) ──────────────────────────────────────
+lakehouse:
+  name: LH_ServiceDesk
+  setup_notebook: NB_Setup_ServiceDesk
+
+eventhouse:
+  name: EH_ServiceDesk
+  kql_database: KQL_ServiceDesk
+  # Real-time tables, fed by python -m fabric.eventhouse.inject_event (no Eventstream).
+  tables: [dem_telemetry, tickets_events, conversations, agent_traces, gateway_logs, csat_events]
+
+ontology:
+  name: ONT_ServiceDesk
+
+semantic_model:
+  name: SM_ServiceDesk_Analytics
+  report: RPT_ServiceDesk
+
+rti_dashboard:
+  name: RTD_ServiceDesk_Operations
+  pages: [Operations, AgentOps]
+
+activator:
+  name: ACT_ServiceDesk_Alerts
+  # Rules read a KQL query (the dashboard tile query), not an Eventstream.
+  teams_recipient: "<ops-channel-or-user@your-tenant.onmicrosoft.com>"
+
+operations_agent:
+  name: OA_ServiceDesk_Ops
+
+data_agent:
+  name: ServiceDesk_Analyst
+  # Sources: ONT_ServiceDesk (GQL traversal), SM_ServiceDesk_Analytics (DAX numbers),
+  # KQL_ServiceDesk (live signals). Published and exposed as an MCP endpoint.
+  # Template resolved with state.json IDs — the exact shape is confirmed at publish time
+  # (phase 2); once known, state.json data_agent_mcp_url takes precedence.
+  mcp_endpoint_template: "https://api.fabric.microsoft.com/v1/mcp/workspaces/{workspace_id}/dataagents/{data_agent_id}/agent"
+
+# ── Phase 3 ─────────────────────────────────────────────────────
+app:
+  name: App-Zava-Service-Desk
+  title: Zava Service Desk

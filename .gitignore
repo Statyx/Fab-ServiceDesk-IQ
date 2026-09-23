@@ -216,3 +216,18 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ── Zava Service Desk ─────────────────────────────────────────
+# Tenant, capacity and item IDs: never committed. See the *.example twins.
+config.yaml
+state.json
+*.json.tmp
+# Deployment profiles (per-tenant config/state/artifacts) stay local.
+deployments/
+# Local denylist for the leak guard (CI reads it from a secret).
+.clientdeny
+# Generated data: regenerate with `python -m fabric.data.generate_data`.
+artifacts/
+# Throwaway probes written by the leak-scanner tests.
+_tmp_*
+.vscode/
