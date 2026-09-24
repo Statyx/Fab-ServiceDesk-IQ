@@ -18,7 +18,7 @@ import { CHAIN_NODES, PLANE_LABEL, type Plane } from '@/domain/chain';
  * It is listed in `SECONDARY_NAV`, not `NAV`. For a while it was in neither, which meant the
  * route was reachable only by typing the URL and the page rendered with no heading at all.
  */
-const PLANES: Plane[] = ['foundry', 'fabric', 'semantic', 'ontology'];
+const PLANES: Plane[] = ['foundry', 'fabric', 'semantic', 'ontology', 'realtime'];
 
 export function ArchitecturePage() {
   return (
@@ -67,6 +67,13 @@ export function ArchitecturePage() {
           Practical consequence: no credit is ever recomputed in the console. The model applies
           the contract evaluation, monthly cap included; the app only prints it next to the
           clause that justifies it.
+        </p>
+        <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+          Real time has its own path. A question that says "right now" is answered from the
+          Eventhouse in KQL, over a window anchored on the latest event, and the answer says it is a
+          live window rather than a closed week. The reactive loop does not wait for a question:
+          Activator evaluates the VPN telemetry every 60 seconds and alerts Teams, and the operations
+          agent watches four goals and proposes the action.
         </p>
         <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           The Foundry supervisor is drawn because it is where the service desk agents would call

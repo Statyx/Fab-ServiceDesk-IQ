@@ -18,7 +18,7 @@ import { useDax } from '@/hooks/useDax';
 /**
  * XLA breaches, and the one panel in the app that exists to prevent a misreading.
  *
- * Two customers fell below the same 40% target in the same week, by the same twelve points.
+ * Two customers fell below the same 40% target in the same week: Fabrikam to 34%, Litware to 38%.
  * One of them owes nothing and the other costs Zava 9,250 EUR. The table shows both side by
  * side, each with the consequence its contract attaches, because a screen that lists only the
  * credited breach would teach the room that a breach *is* a credit — and a screen that lists

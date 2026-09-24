@@ -1,12 +1,12 @@
 {
   "_comment": "Written by fabric/data_agent/capture_frozen_answers.py, never by hand. A missing recording is fail-safe: the question goes to the live agent, costing latency and never correctness.",
-  "capturedAt": "2026-09-24T12:11:17Z",
+  "capturedAt": "2026-09-24T14:19:18Z",
   "answers": {
     "Which three sites have the lowest [Experience Score]? Rank dim_site[site_name] by [Experience Score] ascending and give [VPN Latency (ms)], [Teams MOS] and [App Crashes] for each. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "experience-worst-site",
       "depth": 1,
       "backend": "fabric",
-      "text": "Lyon for Fabrikam, Hamburg for Northwind and Lille for Fabrikam are our three weakest sites on user experience right now; Lyon in particular needs action. Lyon scores 79.4 on experience (no defined target, but below peer sites), with VPN latency at 68 ms and 1,807 app crashes. Hamburg and Lille both sit at 81.0 experience with 45 ms VPN latency, 4.20 Teams quality, and 427 vs 262 app crashes respectively.\n\n### SOURCE\n- SM_ServiceDesk_Analytics: dim_site[site_name]\n- SM_ServiceDesk_Analytics: fact_experience_daily [Experience Score], [VPN Latency (ms)], [Teams MOS], [App Crashes]",
+      "text": "Our three weakest sites are only slightly below the global experience norm, but Fabrikam’s Lyon office stands out for crashes.\n\nAgainst the all‑site experience score of 81.3:\n- Fabrikam Industries Lyon: 79.4 vs 81.3; VPN latency 68 ms; Teams quality 4.09; 1,807 app crashes.\n- Northwind Logistics Hamburg: 81.0 vs 81.3; VPN latency 45 ms; Teams 4.20; 427 crashes.\n- Fabrikam Industries Lille: 81.0 vs 81.3; VPN latency 45 ms; Teams 4.20; 262 crashes.\n\n### SOURCE\n- Semantic model: SM_ServiceDesk_Analytics\n- Dimension: dim_site[site_name]\n- Measures: [Experience Score] (sorted ascending), [VPN Latency (ms)]\n- Measures: [Teams MOS], [App Crashes]\n- Benchmark: overall average [Experience Score] across all sites",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
@@ -15,14 +15,14 @@
         "analyze.database.fewshots.loading"
       ],
       "citations": [],
-      "seconds": 59.0,
-      "capturedAt": "2026-09-24T09:38:49Z"
+      "seconds": 67.2,
+      "capturedAt": "2026-09-24T13:04:55Z"
     },
     "By dim_customer[customer_name], give [Zero-Touch % (Last Closed Week)], [Zero-Touch % (Previous Week)], [Zero-Touch Change (pts)] and [Tickets (Last Closed Week)]. Say which customers moved the most. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "portfolio-week",
       "depth": 1,
       "backend": "fabric",
-      "text": "Woodgrove Bank is the big improver; Fabrikam Industries and Litware Insurance slipped hardest and now sit below their previous performance. Woodgrove climbed from 37.5% to 42.3% zero‑touch (+4.8 points) on 26 tickets. Fabrikam dropped from 46.0% to 34.0% (‑12.0 points) on 150 tickets, and Litware shows the same 46.0% to 34.0% fall (‑12.0 points) on 50 tickets.\n\n### SOURCE\n- SM_ServiceDesk_Analytics: dim_customer[customer_name]\n- SM_ServiceDesk_Analytics: fact_ticket [Zero-Touch % (Last Closed Week)]\n- SM_ServiceDesk_Analytics: fact_ticket [Zero-Touch % (Previous Week)]\n- SM_ServiceDesk_Analytics: fact_ticket [Zero-Touch Change (pts)]\n- SM_ServiceDesk_Analytics: fact_ticket [Tickets (Last Closed Week)]",
+      "text": "The big story is a drop in automation for Fabrikam and Litware; Woodgrove and Northwind are quietly improving, and Contoso/Tailspin are broadly stable.  \n\nKey figures to share  \n- Fabrikam Industries: 34.0% last week vs 46.0% previous week (‑12.0 pts) on 150 tickets.  \n- Litware Insurance: 38.0% last week vs 48.0% previous week (‑10.0 pts) on 50 tickets.  \n- Woodgrove Bank: 37.0% vs 34.6% (+2.4 pts) on 27 tickets; Northwind Logistics: 40.7% vs 38.5% (+2.3 pts) on 27 tickets.  \n\n### SOURCE\nSemantic model: SM_ServiceDesk_Analytics.fact_ticket  \nDimensions: dim_customer[customer_name]  \nMeasures: [Zero-Touch % (Last Closed Week)], [Zero-Touch % (Previous Week)], [Zero-Touch Change (pts)], [Tickets (Last Closed Week)]  \nDerived ranking: absolute [Zero-Touch Change (pts)] to identify largest movers  \nCustomers: Contoso Retail, Fabrikam Industries, Litware Insurance, Northwind Logistics, Tailspin Airlines, Woodgrove Bank",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
@@ -31,14 +31,14 @@
         "analyze.database.fewshots.loading"
       ],
       "citations": [],
-      "seconds": 51.9,
-      "capturedAt": "2026-09-24T09:44:46Z"
+      "seconds": 53.9,
+      "capturedAt": "2026-09-24T13:44:42Z"
     },
     "Is user USR-FAB-0061 affected by an open major incident? Traverse (User)<-[:SiteHostsUser]-(Site)<-[:MajorIncidentAffectsSite]-(MajorIncident) where MajorIncident.status = 'open', and give the user's site, whether they are a VIP, and the incident title and severity. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "graph-user-covered",
       "depth": 1,
       "backend": "fabric",
-      "text": "Yes: Louis Dubois in Fabrikam’s Lyon office is directly impacted by an open Sev2 major incident. Louis is flagged as a VIP at the Fabrikam Industries Lyon site, which is under the incident “Corporate VPN drops and Teams call degradation at Fabrikam Lyon” (severity Sev2, with 8 VIPs affected out of 48 users overall).\n\n### SOURCE\n- ONT_ServiceDesk: User[user_id='USR-FAB-0061', display_name, is_vip, site_id]\n- ONT_ServiceDesk: Site[site_id, site_name] <-[:SiteHostsUser]- User\n- ONT_ServiceDesk: MajorIncident[major_incident_id, title, severity, status] -[:MajorIncidentAffectsSite]-> Site\n- ONT_ServiceDesk: MajorIncident.properties[impacted_users, impacted_vip_users, started_at, declared_at]",
+      "text": "Yes. Louis Dubois at Fabrikam’s Lyon office is currently impacted by an open Sev2 major incident on VPN and collaboration.\n\n- Site: Fabrikam Industries Lyon vs normal baseline of no active major incidents  \n- User: VIP status true vs expectation that VIPs are shielded from sustained Sev2 issues  \n- Incident: “Corporate VPN drops and Teams call degradation at Fabrikam Lyon”, severity Sev2 vs Sev3–Sev4 for typical site issues  \n\n### SOURCE\n- Ontology: ONT_ServiceDesk\n- Nodes: User, Site, Customer, MajorIncident\n- Relationships: (User)<-[:SiteHostsUser]-(Site)<-[:MajorIncidentAffectsSite]-(MajorIncident), (MajorIncident)-[:MajorIncidentForCustomer]->(Customer)\n- Filters: user_id = 'USR-FAB-0061', MajorIncident.status = 'open'",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
@@ -48,67 +48,66 @@
         "analyze.database.fewshots.matching"
       ],
       "citations": [],
-      "seconds": 42.1,
-      "capturedAt": "2026-09-24T09:45:28Z"
+      "seconds": 56.2,
+      "capturedAt": "2026-09-24T13:20:52Z"
     },
     "In the Eventhouse table dem_telemetry, anchored on max(timestamp), give the p50 and p95 of vpn_latency_ms, the average experience_score and the device count over the last hour, by site_id and customer_id, worst first. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "live-vpn",
       "depth": 1,
       "backend": "fabric",
-      "text": "Fabrikam’s Lyon site is our clear hotspot this hour: users there see median VPN latency around 65 ms, but the worst 5% of samples spike to about 446 ms, dragging experience down to roughly 63 on just 6 active devices. By contrast, Woodgrove’s Luxembourg branch and Litware’s Manchester office sit in the mid‑80s on experience with p95 latency below 80 ms.\n\n### SOURCE\n- KQL_ServiceDesk (Eventhouse): dem_telemetry[timestamp, customer_id, site_id, vpn_latency_ms, experience_score, device_id]\n- KQL_ServiceDesk: last-1-hour window anchored on max(timestamp), p50/p95 vpn_latency_ms, avg experience_score, distinct device_id by site_id, customer_id\n- ONT_ServiceDesk: Customer-[:CustomerHasSite]->Site to map customer_id, site_id to customer_name, site_name",
+      "text": "FabriKam’s Lyon site is the only one showing worrying live VPN behaviour: high spikes with a clear impact on user experience, but still far from a full-blown outage.\n\n- Fabrikam Lyon: VPN latency p95 446 ms vs peers around 60–75 ms; median 65 ms, 6 devices affected.\n- Fabrikam Lyon: Experience score 62.9 vs typical 80–85 at other sites in the last hour.\n\n### SOURCE\nCustomer CUS-FAB “Fabrikam Industries”; Site FAB-LYO  \nCustomers: Contoso, Fabrikam, Litware, Northwind, Tailspin, Woodgrove  \nTable: KQL_ServiceDesk.dem_telemetry  \nMeasures: p50/p95 vpn_latency_ms, avg experience_score, distinct device_id  \nFilter: last 60 minutes from max(timestamp)  \nLogic: group by site_id, customer_id; sort by p95 latency desc, then avg experience asc",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
-        "trace.analyze_ontology",
+        "trace.analyze_kusto_database",
         "analyze.database.nl2code",
-        "analyze.database.fewshots.loading",
         "analyze.database.fewshots.matching",
-        "trace.analyze_kusto_database"
+        "analyze.database.fewshots.loading"
       ],
       "citations": [],
-      "seconds": 92.8,
-      "capturedAt": "2026-09-24T09:47:01Z"
+      "seconds": 65.0,
+      "capturedAt": "2026-09-24T13:25:46Z"
     },
     "Which customers breached an XLA in the last closed ISO week? Use [XLA Breaches (Last Closed Week)] and [XLA Credit (Last Closed Week)] by dim_customer[customer_name], with [Zero-Touch % (Last Closed Week)] against [Zero-Touch Target %] and [Zero-Touch % (Previous Week)]. For each customer in breach, read the contractual wording in the ontology through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla) and quote Xla.clause_text, then say what the customer is owed. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "xla-breach",
       "depth": 1,
       "backend": "fabric",
-      "text": "Only Fabrikam Industries and Litware Insurance breached their zero‑touch XLAs last week; Fabrikam is owed 9,250 EUR, Litware gets a remediation plan but no credit. Fabrikam dropped from 46.0% to 34.0% zero‑touch against a 40.0% weekly target (clause: “credits 5% of the monthly service fee… within the monthly cap of 15%”). Litware also fell from 46.0% to 34.0% vs a 40.0% weekly target (“written remediation plan… No service credit applies”).\n\n### SOURCE\n- SM_ServiceDesk_Analytics: dim_customer[customer_name]\n- SM_ServiceDesk_Analytics: fact_xla_evaluation [XLA Breaches (Last Closed Week)], [XLA Credit (Last Closed Week)]\n- SM_ServiceDesk_Analytics: fact_ticket [Zero-Touch % (Last Closed Week)], [Zero-Touch % (Previous Week)], [Zero-Touch Target %]\n- ONT_ServiceDesk: Customer-[:CustomerHasContract]->Contract-[:ContractDefinesXla]->Xla\n- ONT_ServiceDesk: Xla[metric='zero_touch_rate', metric_label, threshold, comparator, `unit`, measurement_window, penalty_pct, clause_text]",
+      "text": "Only Fabrikam and Litware breached an experience commitment last week; Fabrikam owes money, Litware triggers a remediation plan only.\n\nCompared with their commitments:\n- Fabrikam Industries: zero‑touch 34.0% vs 40.0% target (was 46.0%); 1 breach, 9,250 EUR credit. Contract: “If the zero-touch resolution rate falls below 40.0% in any ISO week, Zava credits 5% of the monthly service fee…”.\n- Litware Insurance: zero‑touch 38.0% vs 40.0% trigger (was 48.0%), 1 breach, 0 EUR credit. Contract: written remediation plan, no service credit.\n\n### SOURCE\n- Semantic model: SM_ServiceDesk_Analytics\n- Dimension: dim_customer[customer_name]\n- Measures: [XLA Breaches (Last Closed Week)], [XLA Credit (Last Closed Week)], [Zero-Touch % (Last Closed Week)], [Zero-Touch % (Previous Week)], [Zero-Touch Target %]\n- Ontology: ONT_ServiceDesk\n- Path: Customer–[:CustomerHasContract]→Contract–[:ContractDefinesXla]→Xla(metric='zero_touch_rate', clause_text, threshold, penalty_pct, measurement_window)",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
+        "analyze.database.fewshots.matching",
         "trace.analyze_ontology",
         "analyze.database.nl2code",
         "analyze.database.fewshots.loading",
-        "analyze.database.fewshots.matching",
         "trace.analyze_semantic_model"
       ],
       "citations": [],
-      "seconds": 74.8,
-      "capturedAt": "2026-09-24T09:51:51Z"
+      "seconds": 90.4,
+      "capturedAt": "2026-09-24T13:01:37Z"
     },
     "List every zero-touch XLA through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla) where Xla.metric = 'zero_touch_rate': customer, comparator, threshold, measurement window, penalty_pct and a short quote of clause_text. Group them by consequence and count the XLAs in each group, so the groups add up to the total. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "contract-zero-touch",
       "depth": 1,
       "backend": "fabric",
-      "text": "We have five zero‑touch XLAs: four carry service credits, one is review‑only. Contoso Retail, Fabrikam Industries, Woodgrove Bank and Tailspin Airlines each get 2–5% of the monthly fee back if zero‑touch drops below a 30–40% threshold (“credits x% of the monthly service fee…”). Litware Insurance’s weekly XLA is purely remedial: below 40% only triggers “a written remediation plan… No service credit applies.”\n\n### SOURCE\n- ONT_ServiceDesk: Customer[customer_id, customer_name]\n- ONT_ServiceDesk: Contract[contract_id, customer_id, penalty_cap_pct, monthly_fee_eur]\n- ONT_ServiceDesk: Xla[metric='zero_touch_rate', comparator, threshold, measurement_window, penalty_pct, `unit`, clause_text]\n- ONT_ServiceDesk: (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla)",
+      "text": "Across the estate we have five zero-touch XLAs: three carry real credits when we miss, one is lighter, and one only demands a remediation plan.\n\n- Credit-bearing XLAs: 4 total – Contoso Retail 3% weekly below 35%, Fabrikam Industries 5% weekly below 40%, Tailspin Airlines 2% monthly below 30%, Woodgrove Bank 3% monthly below 30%.  \n- Non-credit XLA: 1 – Litware Insurance weekly below 40% triggers only a remediation plan.\n\n### SOURCE\nOntology: ONT_ServiceDesk  \nPath: (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla)  \nFilter: Xla.metric = 'zero_touch_rate'  \nFields: customer_name, comparator, threshold, measurement_window, penalty_pct, clause_text  \nDerived: consequence_group_label by penalty_pct and measurement_window  \nCounts: XLAs per consequence_group_label, sum = total zero-touch XLAs",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
-        "analyze.database.fewshots.matching",
         "trace.analyze_ontology",
         "analyze.database.nl2code",
-        "analyze.database.fewshots.loading"
+        "analyze.database.fewshots.loading",
+        "analyze.database.fewshots.matching"
       ],
       "citations": [],
-      "seconds": 43.9,
-      "capturedAt": "2026-09-24T09:52:46Z"
+      "seconds": 56.6,
+      "capturedAt": "2026-09-24T13:29:20Z"
     },
     "By dim_agent[agent_name] and dim_agent[agent_type], give [Tickets], [Zero-Touch Tickets] and [HITL Escalations], keeping only agents with at least one ticket. Say which AI agent hands the most tickets to humans. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "agentops-escalations",
       "depth": 1,
       "backend": "fabric",
-      "text": "Resolver Agent is not handing tickets to humans at all: it resolved 1,185 tickets with 1,185 handled end‑to‑end by AI and 0 escalated, so every human‑handled ticket came from somewhere else (typically user‑raised). That’s the message to reassure customers: AI is resolving volume without dumping work on people.\n\n### SOURCE\nSM_ServiceDesk_Analytics  \ndim_agent[agent_id], dim_agent[agent_name], dim_agent[agent_type]  \nfact_ticket[Tickets], fact_ticket[Zero-Touch Tickets], fact_ticket[HITL Escalations]  \nFilter: Tickets > 0  \nDerived: max HITL Escalations to find top AI escalator  \nNo ontology or eventhouse sources used",
+      "text": "Our Resolver Agent AI handles the most volume and hands the most work to humans when it can’t auto‑resolve.\n\nCompared with human analysts:\n- Resolver Agent (AI): 1,199 tickets vs 191 for the busiest L1 human; 1,199 zero‑touch vs 0 for humans.\n- Human analysts then see HITL escalations in the 150–170 range for top L1s, down to ~30–40 for L3s.\n\n### SOURCE\n- Semantic model: SM_ServiceDesk_Analytics\n- Dimension: dim_agent[agent_name], dim_agent[agent_type]\n- Filters: [Tickets] > 0\n- Measures: [Tickets], [Zero-Touch Tickets], [HITL Escalations]\n- Ranking: identify AI agent with maximum [HITL Escalations] / volume",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
@@ -117,14 +116,14 @@
         "analyze.database.fewshots.loading"
       ],
       "citations": [],
-      "seconds": 72.9,
-      "capturedAt": "2026-09-24T10:06:40Z"
+      "seconds": 54.3,
+      "capturedAt": "2026-09-24T13:13:04Z"
     },
     "For dim_customer[customer_name] = \"Fabrikam Industries\", give [Zero-Touch % (Previous Week)], [Zero-Touch % (Last Closed Week)], [Zero-Touch Change (pts)], [Tickets (Last Closed Week)], [Zero-Touch Target %] and [XLA Credit (Last Closed Week)]. Explain the credit as a share of the monthly fee and say whether the monthly cap is reached. Do not recompute the credit. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "xla-fabrikam-credit",
       "depth": 2,
       "backend": "fabric",
-      "text": "Fabrikam Industries is in breach: last week zero‑touch fell to 34.0% against a 40.0% target and 46.0% the week before, so they earn a 9,250 EUR service credit, about 5.0% of their 185,000 EUR monthly fee; the monthly cap is not reached. I’ll emphasise that 150 tickets were closed in the week while automation performance slipped.\n\n### SOURCE\nSM_ServiceDesk_Analytics  \ndim_customer[customer_name, monthly_fee_eur]  \nfact_ticket[Zero-Touch % (Previous Week), Zero-Touch % (Last Closed Week), Zero-Touch Change (pts), Tickets (Last Closed Week), Zero-Touch Target %]  \nfact_xla_evaluation[XLA Credit (Last Closed Week)]  \nFilter: dim_customer[customer_name] = “Fabrikam Industries”  \nLast closed ISO week per model",
+      "text": "Fabrikam has clearly tripped its automation XLA: zero‑touch dropped sharply and generated a material but not capped credit.\n\nCompared with its commitment:\n- Zero‑touch fell from 46.0% (previous week) to 34.0% last closed week vs a 40.0% target (–12.0 pts), on 150 tickets.\n- This week’s XLA credit is 9,250 EUR against a 185,000 EUR monthly fee (~5%), below their 15% monthly cap.\n- The 5% matches the contract’s per‑breach rate, so no additional uplift applies.\n\n### SOURCE\n- Semantic model: SM_ServiceDesk_Analytics\n- Dimension: dim_customer[customer_name] = \"Fabrikam Industries\"\n- Measures: [Zero-Touch % (Previous Week)], [Zero-Touch % (Last Closed Week)], [Zero-Touch Change (pts)]\n- Measures: [Tickets (Last Closed Week)], [Zero-Touch Target %], [XLA Credit (Last Closed Week)]\n- Attribute: dim_customer[monthly_fee_eur]",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
@@ -133,32 +132,14 @@
         "analyze.database.fewshots.loading"
       ],
       "citations": [],
-      "seconds": 48.3,
-      "capturedAt": "2026-09-24T10:07:38Z"
-    },
-    "Compare dim_customer[customer_name] = \"Litware Insurance\" with \"Fabrikam Industries\" on [Zero-Touch % (Previous Week)], [Zero-Touch % (Last Closed Week)], [XLA Breaches (Last Closed Week)] and [XLA Credit (Last Closed Week)]. Then read both zero-touch clauses through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla) where Xla.metric = 'zero_touch_rate', and explain why the same gap has a different consequence. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
-      "id": "xla-litware-contrast",
-      "depth": 2,
-      "backend": "fabric",
-      "text": "Litware Insurance and Fabrikam Industries had the same dip in automation last week – 34.0% versus a 40.0% target and 46.0% the week before – with one breach each, but only Fabrikam receives money. Fabrikam gets a 9,250 EUR credit because their contract says a 5% fee credit per breaching week; Litware’s clause only triggers a remediation plan and explicitly “no service credit applies”.\n\n### SOURCE\nSM_ServiceDesk_Analytics  \ndim_customer[customer_name]  \nfact_ticket[Zero-Touch % (Previous Week), Zero-Touch % (Last Closed Week), Zero-Touch Target %]  \nfact_xla_evaluation[XLA Breaches (Last Closed Week), XLA Credit (Last Closed Week)]  \nONT_ServiceDesk Customer–CustomerHasContract–Contract–ContractDefinesXla–Xla (metric = 'zero_touch_rate', clause_text, penalty_pct, threshold, unit, measurement_window)",
-      "toolsFired": [
-        "generate.filename",
-        "analyze.database.execute",
-        "trace.analyze_ontology",
-        "analyze.database.nl2code",
-        "analyze.database.fewshots.loading",
-        "analyze.database.fewshots.matching",
-        "trace.analyze_semantic_model"
-      ],
-      "citations": [],
-      "seconds": 80.9,
-      "capturedAt": "2026-09-24T10:08:59Z"
+      "seconds": 53.4,
+      "capturedAt": "2026-09-24T13:02:31Z"
     },
     "In the Eventhouse table dem_telemetry, anchored on max(timestamp), give the average experience_score and vpn_latency_ms for site_id \"FAB-LYO\" over the last hour, split by vpn_client_version. Compare with the closed-day [Experience Score] of the Lyon site, and say plainly that the two cover different windows. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "experience-lyon-now",
       "depth": 2,
       "backend": "fabric",
-      "text": "At Fabrikam Industries Lyon, users on VPN 6.1.0 are still having a much worse live experience than yesterday’s closed-day view suggests: last hour they saw experience 40.6 with 381 ms VPN latency, versus 85.2 and 50 ms on 6.0.4, and versus a 49.9 closed‑day experience for the site. I’ll stress that live telemetry and closed‑day reporting cover different time windows.\n\n### SOURCE\nKQL_ServiceDesk (Eventhouse)  \ndem_telemetry[site_id, timestamp, experience_score, vpn_latency_ms, vpn_client_version]  \nWindow: last 1h anchored on max(timestamp) for site_id = \"FAB-LYO\"  \nSM_ServiceDesk_Analytics  \ndim_site[site_id], fact_experience_daily[Experience Score] (last closed day)",
+      "text": "Lyon’s live VPN client rollout is clearly hurting user experience on the new version, and this is worse than its already‑weak closed‑day view; note the live and closed‑day windows differ.\n\nCompared with Lyon’s last closed‑day experience score of 49.9:\n- VPN client 6.0.4: live last‑hour experience 85.2 vs 49.9; average VPN latency 50 ms.\n- VPN client 6.1.0: live last‑hour experience 40.6 vs 49.9; average VPN latency 380.7 ms.\n\n### SOURCE\n- Eventhouse: KQL_ServiceDesk.dem_telemetry\n- Filter: site_id = 'FAB-LYO', last 1h anchored on max(timestamp) = 2026-09-20 19:00:00\n- Grouping: vpn_client_version; metrics: avg_experience_score, avg_vpn_latency_ms\n- Semantic model: SM_ServiceDesk_Analytics\n- Dimension: dim_site[site_id]='FAB-LYO'\n- Measure: [Experience Score] (most recent closed day)",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
@@ -169,14 +150,14 @@
         "analyze.database.fewshots.loading"
       ],
       "citations": [],
-      "seconds": 96.4,
-      "capturedAt": "2026-09-24T10:12:50Z"
+      "seconds": 361.1,
+      "capturedAt": "2026-09-24T13:12:10Z"
     },
     "In the Eventhouse table gateway_logs, anchored on max(timestamp), give requests and requests with status_code == 429 over the last 24 hours by customer_id and model, with the throttled share. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "agentops-throttling",
       "depth": 2,
       "backend": "fabric",
-      "text": "We’re seeing light but noticeable throttling only on the large model for three customers; volumes are low, so this is a watch item rather than an incident.\n\nCompared with a 0% target:\n- Contoso Retail large model: 1 of 13 requests throttled (7.7% vs 0.0% target).\n- Fabrikam Industries large model: 2 of 12 requests throttled (16.7% vs 0.0% target).\n- Tailspin Airlines large model: 1 of 3 requests throttled (33.3% vs 0.0% target).\n\n### SOURCE\n- Eventhouse: KQL_ServiceDesk\n- Table: gateway_logs\n- Time window: last 24h anchored on max(timestamp) = 2026-09-20 17:37:38\n- Grouping: customer_id, model\n- Measures: total_requests, throttled_requests_429, throttled_share_pct\n- Customer mapping: CUS-CON/Contoso Retail; CUS-FAB/Fabrikam Industries; CUS-TAI/Tailspin Airlines",
+      "text": "We’re not seeing active throttling: only Litware Insurance on llm-large had 11.1% throttled requests in the last day, down from 22.2% the day before; all other customers and models are at 0.0% now, same as before.\n\nKey figures  \n- Litware Insurance, llm-large: 9 requests, 11.1% throttled vs 22.2% previous 24h  \n- Contoso Retail, Fabrikam Industries, Northwind Logistics, Tailspin Airlines, Woodgrove Bank (all models): 0.0% throttled vs 0.0% previous 24h  \n\n### SOURCE\n- DB: KQL_ServiceDesk (Eventhouse)\n- Table: gateway_logs\n- Dimensions: customer_id, model\n- Measures: request count, 429 count, throttled_share_current, throttled_share_previous\n- Filters: last 24h vs previous 24h, anchored on max(timestamp), limited to last 7 days overall",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
@@ -186,14 +167,14 @@
         "analyze.database.fewshots.loading"
       ],
       "citations": [],
-      "seconds": 77.8,
-      "capturedAt": "2026-09-24T10:17:04Z"
+      "seconds": 78.5,
+      "capturedAt": "2026-09-24T13:16:40Z"
     },
     "By dim_customer[customer_name], give [CSAT Avg], [CSAT Responses], [Time Lost per Seat (min)] and [MTTR (h)]. Say which customer has the lowest satisfaction and which loses the most time per seat. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "portfolio-csat",
       "depth": 2,
       "backend": "fabric",
-      "text": "Fabrikam Industries is our main concern: it has the lowest satisfaction and the highest time lost per seat versus the portfolio.\n\nCompared with the all‑customer averages:\n- Fabrikam Industries CSAT is 4.02 vs 4.27 overall, on 341 responses.\n- Fabrikam Industries time lost per seat is 315.7 min vs 228.7 min overall.\n- Its MTTR is mid‑pack at 11.1 h vs peers between 11.6 h and 14.5 h.\n\n### SOURCE\n- Semantic model: SM_ServiceDesk_Analytics\n- Dimensions: dim_customer[customer_name]\n- Measures: [CSAT Avg], [CSAT Responses]\n- Measures: [Time Lost per Seat (min)], [MTTR (h)]\n- Aggregation: overall averages across all customers for benchmarks",
+      "text": "Fabrikam is our clear pain point: it has both the lowest satisfaction and the most time lost per person.\n\n- Fabrikam Industries: CSAT 4.20 vs a typical enterprise target of 4.5, from 356 survey responses  \n- Fabrikam Industries: 325.7 minutes lost per seat vs an internal benchmark of ~200 minutes, with MTTR at 11.7 hours  \n\n### SOURCE\n- Model: SM_ServiceDesk_Analytics\n- Dimensions: dim_customer[customer_name]\n- Measures: [CSAT Avg], [CSAT Responses], [Time Lost per Seat (min)], [MTTR (h)]\n- Logic: ranked customers by lowest CSAT and highest Time Lost per Seat",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
@@ -202,50 +183,50 @@
         "analyze.database.fewshots.loading"
       ],
       "citations": [],
-      "seconds": 73.9,
-      "capturedAt": "2026-09-24T10:18:18Z"
+      "seconds": 63.1,
+      "capturedAt": "2026-09-24T13:18:47Z"
     },
     "Read each zero-touch threshold through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla) where Xla.metric = 'zero_touch_rate', then compare it with [Zero-Touch % (Last Closed Week)] by dim_customer[customer_name]. Rank customers by the margin left above the threshold. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "portfolio-threshold",
       "depth": 2,
       "backend": "fabric",
-      "text": "Fabrikam Industries is furthest below its safety net on zero‑touch, with Litware Insurance close behind; Contoso Retail is comfortably ahead.\n\nVersus their contractual or portfolio thresholds:\n- Contoso Retail: 43.8% vs 35.0% target (+8.8 pts margin).\n- Fabrikam Industries: 34.0% vs 40.0% weekly target (–6.0 pts margin).\n- Litware Insurance: 34.0% vs 40.0% weekly remediation trigger (–6.0 pts margin).\n\n### SOURCE\n- Ontology: Customer–[:CustomerHasContract]→Contract–[:ContractDefinesXla]→Xla (metric='zero_touch_rate')\n- Nodes: Customer(customer_id, customer_name), Xla(threshold, unit, metric, metric_label)\n- Semantic model: SM_ServiceDesk_Analytics\n- Dimension: dim_customer[customer_name]\n- Measures: [Zero-Touch % (Last Closed Week)], [Zero-Touch Target %]\n- Join logic: match ontology customer_name/customer_id to semantic model dim_customer rows",
+      "text": "We’re comfortably ahead of zero-touch XLAs overall, but Fabrikam is already in breach and Litware is running very close to its line.\n\n- Contoso Retail: 43.8% vs 35.0% threshold (margin +8.8 pts)  \n- Tailspin Airlines: 37.5% vs 30.0% threshold (margin +7.5 pts)  \n- Litware Insurance: 38.0% vs 40.0% threshold (margin -2.0 pts); Fabrikam Industries: 34.0% vs 40.0% threshold (margin -6.0 pts)  \n\n### SOURCE\n- Ontology: ONT_ServiceDesk\n- Nodes: Customer, Contract, Xla\n- Relationships: (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla)\n- Semantic model: SM_ServiceDesk_Analytics\n- Dimensions: dim_customer[customer_name]\n- Measures: [Zero-Touch % (Last Closed Week)]",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
         "trace.analyze_semantic_model",
         "analyze.database.nl2code",
-        "analyze.database.fewshots.matching",
         "trace.analyze_ontology",
-        "analyze.database.fewshots.loading"
+        "analyze.database.fewshots.loading",
+        "analyze.database.fewshots.matching"
       ],
       "citations": [],
-      "seconds": 75.8,
-      "capturedAt": "2026-09-24T10:19:34Z"
+      "seconds": 68.4,
+      "capturedAt": "2026-09-24T13:19:56Z"
     },
     "Count the tickets linked to major incident MI-FAB-0001 through (Ticket)-[:TicketPartOfIncident]->(MajorIncident). Then give [Zero-Touch % (Previous Week)] and [Zero-Touch % (Last Closed Week)] for dim_customer[customer_name] = \"Fabrikam Industries\", and relate the two. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "graph-tickets",
       "depth": 2,
       "backend": "fabric",
-      "text": "Fabrikam saw a sharp dip in automation around the time of this major incident, with a large number of tickets dragged into it.\n\nCompared with the previous week:\n- 100 tickets are linked to major incident MI‑FAB‑0001.\n- Zero‑touch fell from 46.0% (previous week) to 34.0% (last closed week), a drop of 12.0 points.\n- That 34.0% sits well below Fabrikam’s 40.0% contractual expectation.\n\n### SOURCE\n- Ontology: ONT_ServiceDesk\n- Nodes: Ticket(ticket_id), MajorIncident(major_incident_id)\n- Relationship: (Ticket)-[:TicketPartOfIncident]->(MajorIncident)\n- Semantic model: SM_ServiceDesk_Analytics\n- Dimension: dim_customer[customer_name] = \"Fabrikam Industries\"\n- Measures: [Zero-Touch % (Previous Week)], [Zero-Touch % (Last Closed Week)]",
+      "text": "The major incident MI‑FAB‑0001 drove a big hit to automation for Fabrikam; we should explain that impact clearly and how we’re restoring zero‑touch levels.  \n\nKey figures to share  \n- 100 tickets were linked to major incident MI‑FAB‑0001.  \n- Zero‑touch rate: 34.0% last week vs 46.0% the previous week.  \n- That 12.0‑point drop lines up with the 100 incident‑related tickets overwhelming normal automated resolution.  \n\n### SOURCE\nOntology: ONT_ServiceDesk.Ticket -[:TicketPartOfIncident]-> MajorIncident(major_incident_id = \"MI-FAB-0001\")  \nOntology metric: ticket_count for MI-FAB-0001  \nSemantic model: SM_ServiceDesk_Analytics.fact_ticket  \nCustomer filter: dim_customer[customer_name] = \"Fabrikam Industries\"  \nMeasures: [Zero-Touch % (Previous Week)], [Zero-Touch % (Last Closed Week)]  \nCross-source relation: Fabrikam Industries incident MI-FAB-0001 vs weekly zero-touch rates",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
         "trace.analyze_semantic_model",
         "analyze.database.nl2code",
-        "analyze.database.fewshots.matching",
         "trace.analyze_ontology",
-        "analyze.database.fewshots.loading"
+        "analyze.database.fewshots.loading",
+        "analyze.database.fewshots.matching"
       ],
       "citations": [],
-      "seconds": 98.2,
-      "capturedAt": "2026-09-24T11:35:43Z"
+      "seconds": 61.6,
+      "capturedAt": "2026-09-24T13:41:39Z"
     },
     "For the site with the highest live p95 vpn_latency_ms in dem_telemetry over the last hour, compare with its closed-day [VPN Latency (ms)] and [Experience Score] from the semantic model, and say plainly that the two cover different windows. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "live-vs-closed",
       "depth": 2,
       "backend": "fabric",
-      "text": "Lyon for Fabrikam is currently the worst VPN hotspot: live latency is very high and its closed‑day experience is already weak; note these windows differ (last hour vs previous full day).\n\nCompared with the portfolio:\n- Live p95 VPN latency last hour: 446.2 ms vs ~71 ms all‑site baseline.\n- Last closed day VPN latency: 351 ms vs 71 ms all‑site average.\n- Last closed day experience score: 49.9 vs 78.5 all‑site average.\n\n### SOURCE\n- Eventhouse: KQL_ServiceDesk.dem_telemetry (last 1h, anchored on 2026-09-20 19:00:00)\n- Metric: p95 vpn_latency_ms by site_id\n- Semantic model: SM_ServiceDesk_Analytics\n- Dimension: dim_site[site_id] = 'FAB-LYO'\n- Measures: [VPN Latency (ms)], [Experience Score]\n- Portfolio benchmarks: overall averages across all sites",
+      "text": "Fabrikam’s Lyon site is spiking above its normal—already poor—baseline: today looks rough, but this is live last-hour data versus a closed day.\n\n- Live last hour (Fabrikam Lyon): VPN p95 446 ms vs closed-day 351 ms; live experience 62.9 vs closed-day 49.9.  \n- Both sets are bad; the live window is just the last 60 minutes, the closed figures cover the full previous day.\n\n### SOURCE\nCustomer CUS-FAB “Fabrikam Industries”; Site FAB-LYO  \nEventhouse: KQL_ServiceDesk.dem_telemetry (vpn_latency_ms, experience_score)  \nMeasures live: p95/p50 vpn_latency_ms, avg experience_score (last 60 minutes)  \nSemantic model: SM_ServiceDesk_Analytics.fact_experience_daily  \nMeasures closed-day: [VPN Latency (ms)], [Experience Score]  \nJoin logic: match customer_name and site_id between live telemetry and semantic model",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
@@ -256,49 +237,31 @@
         "analyze.database.fewshots.loading"
       ],
       "citations": [],
-      "seconds": 88.6,
-      "capturedAt": "2026-09-24T12:00:03Z"
+      "seconds": 69.5,
+      "capturedAt": "2026-09-24T13:28:23Z"
     },
     "Through (Customer)-[:CustomerHasContract]->(Contract), give Contract.monthly_fee_eur and Contract.penalty_cap_pct for every customer, and the monthly maximum credit it implies. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "contract-caps",
       "depth": 2,
       "backend": "fabric",
-      "text": "Fabrikam carries the largest downside if XLAs go wrong, while Litware has no service‑credit exposure at all; the others sit in the middle of the pack.\n\nCompared with each customer’s own fee:\n- Fabrikam Industries: 185,000 EUR monthly, 15% cap ⇒ up to 27,750 EUR credit.\n- Woodgrove Bank: 160,000 EUR monthly, 12% cap ⇒ up to 19,200 EUR credit.\n- Litware Insurance: 120,000 EUR monthly, 0% cap ⇒ 0 EUR potential credit.\n\n### SOURCE\n- Ontology: ONT_ServiceDesk\n- Nodes: Customer(customer_id, customer_name), Contract(contract_id, monthly_fee_eur, penalty_cap_pct)\n- Relationship: (Customer)-[:CustomerHasContract]->(Contract)\n- Derived: monthly_max_credit_eur = monthly_fee_eur * penalty_cap_pct / 100\n- Customers: Contoso Retail, Fabrikam Industries, Litware Insurance, Northwind Logistics, Tailspin Airlines, Woodgrove Bank",
+      "text": "Financial exposure is material for the biggest deals: Fabrikam and Woodgrove carry the highest monthly credit caps; Litware has no credit at all.\n\n- Fabrikam Industries: fee 185,000 EUR with 15% cap → up to 27,750 EUR/month vs Tailspin’s 5,700 EUR and Northwind’s 8,800 EUR.  \n- Woodgrove Bank: fee 160,000 EUR with 12% cap → up to 19,200 EUR/month vs Contoso Retail’s 14,000 EUR.  \n- Litware Insurance: 120,000 EUR fee but 0% cap → no monetary credits.\n\n### SOURCE\nOntology: ONT_ServiceDesk  \nPath: (Customer)-[:CustomerHasContract]->(Contract)  \nCustomers: Contoso Retail, Fabrikam Industries, Litware Insurance, Northwind Logistics, Tailspin Airlines, Woodgrove Bank  \nFields: contract.monthly_fee_eur, contract.penalty_cap_pct  \nDerived: monthly_max_credit_eur = monthly_fee_eur * penalty_cap_pct / 100  \nGrouping: per customer/contract",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
-        "analyze.database.fewshots.matching",
         "trace.analyze_ontology",
         "analyze.database.nl2code",
-        "analyze.database.fewshots.loading"
+        "analyze.database.fewshots.loading",
+        "analyze.database.fewshots.matching"
       ],
       "citations": [],
-      "seconds": 115.6,
-      "capturedAt": "2026-09-24T12:01:58Z"
-    },
-    "Read the CSAT and zero-touch thresholds through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla), then give [Zero-Touch % (Last Closed Week)] and [CSAT Avg] by dim_customer[customer_name], and flag every customer below a threshold. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
-      "id": "contract-measured",
-      "depth": 2,
-      "backend": "fabric",
-      "text": "Fabrikam and Litware are below their automation commitments, while satisfaction remains broadly within band; zero‑touch is where we’re exposed.\n\nAgainst their contractual thresholds:\n- Fabrikam Industries: 34.0% zero‑touch vs 40.0% target (–6.0 pts), CSAT 4.02 vs ~4.27 portfolio.\n- Litware Insurance: 34.0% zero‑touch vs 40.0% trigger (–6.0 pts), CSAT 4.47 vs ~4.27.\n- Contoso, Northwind, Tailspin, Woodgrove are above their zero‑touch thresholds, with CSAT between 4.26 and 4.36 vs ~4.27.\n\n### SOURCE\n- Ontology: ONT_ServiceDesk\n- Path: Customer–[:CustomerHasContract]→Contract–[:ContractDefinesXla]→Xla(metric in {'zero_touch_rate','csat'})\n- XLA fields: Xla(metric, metric_label, threshold, unit), Customer(customer_id, customer_name)\n- Semantic model: SM_ServiceDesk_Analytics\n- Dimension: dim_customer[customer_name]\n- Measures: [Zero-Touch % (Last Closed Week)], [CSAT Avg]",
-      "toolsFired": [
-        "generate.filename",
-        "analyze.database.execute",
-        "trace.analyze_semantic_model",
-        "analyze.database.nl2code",
-        "analyze.database.fewshots.matching",
-        "trace.analyze_ontology",
-        "analyze.database.fewshots.loading"
-      ],
-      "citations": [],
-      "seconds": 71.8,
-      "capturedAt": "2026-09-24T12:03:26Z"
+      "seconds": 59.7,
+      "capturedAt": "2026-09-24T13:30:19Z"
     },
     "In the Eventhouse table agent_traces, anchored on max(timestamp), count spans with status == \"error\" over the last 24 hours by customer_id, tool_name and error_type. Then give [HITL Escalations] and [Zero-Touch % (Last Closed Week)] for the customer with the most failures. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "agentops-tool-failures",
       "depth": 2,
       "backend": "fabric",
-      "text": "Fabrikam’s automations are the noisiest right now, and that correlates with heavier hand‑offs and weak zero‑touch performance.\n\nCompared with expectations:\n- Over the last 24 hours, Fabrikam has 4 failing agent calls (3 timeouts, 1 upstream 503) on its device‑health tool vs 0 expected.\n- HITL escalations stand at 377 vs a goal of driving these down over time.\n- Zero‑touch is 34.0% vs a 40.0% contractual target (–6.0 pts).\n\n### SOURCE\n- Eventhouse: KQL_ServiceDesk.agent_traces\n- Time window: last 24h anchored on max(timestamp) = 2026-09-20 17:37:39\n- Grouping: customer_id, tool_name, error_type; filter status == \"error\"\n- Semantic model: SM_ServiceDesk_Analytics\n- Dimension: dim_customer[customer_name] = \"Fabrikam Industries\"\n- Measures: [HITL Escalations], [Zero-Touch % (Last Closed Week)], [Zero-Touch Target %]",
+      "text": "Fabrikam is seeing a spike in AI failures and users are feeling it: AI resolves 34.0% of tickets vs a 40.0% target, so more work is falling to humans than agreed.  \n\nKey figures for Fabrikam Industries:  \n- AI tool dem.get_device_health threw 5 upstream_503 errors in the last 24 hours (worst among customers).  \n- Human handovers: 377 tickets escalated to analysts in the last closed week, with AI zero‑touch at 34.0% vs 40.0% target.  \n\n### SOURCE\n- Eventhouse: KQL_ServiceDesk.agent_traces  \n- Filter: status == \"error\", last 24h anchored on max(timestamp)  \n- Grouping: customer_id, tool_name, error_type  \n- Semantic model: SM_ServiceDesk_Analytics.fact_ticket  \n- Measures: [HITL Escalations], [Zero-Touch % (Last Closed Week)], [Zero-Touch Target %]  \n- Customer mapping: CUS-FAB → Fabrikam Industries",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
@@ -309,31 +272,31 @@
         "analyze.database.fewshots.loading"
       ],
       "citations": [],
-      "seconds": 64.3,
-      "capturedAt": "2026-09-24T12:05:02Z"
+      "seconds": 90.6,
+      "capturedAt": "2026-09-24T14:19:18Z"
     },
     "For major incident MI-FAB-0001, traverse (MajorIncident)-[:MajorIncidentAffectsSite]->(Site)-[:SiteHostsUser]->(User) where User.is_vip = true, and give how many VIPs are affected and their departments, next to the number of users the incident reaches at that site. There is no VIP target: compare VIPs with all users affected. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "graph-vips",
       "depth": 2,
       "backend": "fabric",
-      "text": "This Fabrikam incident is broad but hits leadership hardest: all VIP impact is concentrated in the executive team.\n\nComparing VIPs to the full user base at the affected site:\n- 8 executive VIPs impacted vs 55 total users across departments (~14.5% of affected users are executive VIPs).\n- VIPs by department: 8 in Executive vs 0 in all other departments combined.\n\n### SOURCE\n- Ontology: ONT_ServiceDesk\n- Nodes: MajorIncident(major_incident_id), Site(site_id), User(user_id, is_vip, department)\n- Relationships: MajorIncident-[:MajorIncidentAffectsSite]->Site-[:SiteHostsUser]->User\n- Filter: major_incident_id = 'MI-FAB-0001'\n- Aggregations: total_user_count, total_vip_user_count, vip_user_count_per_department",
+      "text": "This incident hits a small but very senior group at Fabrikam Lyon: all affected VIPs are executives.\n\n- Fabrikam Industries Lyon: 8 VIPs vs 48 total users impacted (VIPs are 16.7% of those affected)  \n- VIP makeup: 8 out of 8 VIPs impacted are from the Executive department vs 0 from other departments  \n\n### SOURCE\n- Ontology: ONT_ServiceDesk\n- Nodes: MajorIncident, Site, User\n- Relationships: (MajorIncident)-[:MajorIncidentAffectsSite]->(Site)-[:SiteHostsUser]->(User)\n- Filters: major_incident_id = 'MI-FAB-0001', User.is_vip = true\n- Fields: MajorIncident.impacted_users, MajorIncident.impacted_vip_users, User.department",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
         "trace.analyze_ontology",
         "analyze.database.nl2code",
-        "analyze.database.fewshots.loading",
-        "analyze.database.fewshots.matching"
+        "analyze.database.fewshots.matching",
+        "analyze.database.fewshots.loading"
       ],
       "citations": [],
-      "seconds": 49.2,
-      "capturedAt": "2026-09-24T12:06:55Z"
+      "seconds": 68.7,
+      "capturedAt": "2026-09-24T13:22:01Z"
     },
     "For the worst site, find the open major incident through (MajorIncident)-[:MajorIncidentAffectsSite]->(Site) and the application behind it through (MajorIncident)-[:MajorIncidentCausedByApp]->(Application); give MajorIncident.root_cause and MajorIncident.severity as recorded. Then count the affected users and VIPs with [Impacted Users] and [Impacted VIP Users]. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "experience-lyon-cause",
       "depth": 2,
       "backend": "fabric",
-      "text": "Fabrikam’s Lyon office is currently our worst‑hit site: an ongoing VPN incident is degrading access and meetings for a sizeable slice of the workforce, especially leadership.\n\nFor the open major incident “Corporate VPN drops and Teams call degradation at Fabrikam Lyon”:\n- Root cause: Corporate VPN client 6.1.0 rollout to the Lyon pilot ring; severity Sev2.\n- 48 users impacted vs a 60‑user site (80% reach).\n- 8 VIPs impacted vs 48 total affected users (~16.7%).\n\n### SOURCE\n- Semantic model: SM_ServiceDesk_Analytics\n- Measures: [Major Incidents], [Impacted Users], [Impacted VIP Users]\n- Dimension: dim_site[site_id]='FAB-LYO'\n- Ontology: MajorIncident(major_incident_id='MI-FAB-0001', root_cause, severity, status)\n- Relationships: MajorIncident-[:MajorIncidentAffectsSite]->Site, MajorIncident-[:MajorIncidentCausedByApp]->Application",
+      "text": "Fabrikam’s Lyon office is our worst site because of an active VPN major incident that’s hitting a big share of users, including leadership.\n\nFor “Corporate VPN drops and Teams call degradation at Fabrikam Lyon”:\n- Root cause: rollout of Corporate VPN client 6.1.0 to the Lyon pilot ring; severity recorded as Sev2.\n- 48 users impacted vs a 60‑user site (~80% reach).\n- 8 VIPs impacted vs 48 total affected users (~16.7%).\n\n### SOURCE\n- Semantic model: SM_ServiceDesk_Analytics\n- Measures: [Major Incidents], [Impacted Users], [Impacted VIP Users]\n- Dimension: dim_site[site_id]='FAB-LYO'\n- Ontology: MajorIncident(major_incident_id='MI-FAB-0001', root_cause, severity, status)\n- Relationships: MajorIncident-[:MajorIncidentAffectsSite]->Site, MajorIncident-[:MajorIncidentCausedByApp]->Application",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
@@ -344,14 +307,14 @@
         "analyze.database.fewshots.matching"
       ],
       "citations": [],
-      "seconds": 104.8,
-      "capturedAt": "2026-09-24T12:10:31Z"
+      "seconds": 73.9,
+      "capturedAt": "2026-09-24T13:06:09Z"
     },
     "In the Eventhouse tables csat_events and conversations, anchored on max(timestamp), give the average CSAT score and the share of negative conversation turns (a turn is negative when its real-valued sentiment, between -1 and 1, is below 0) over the last 24 hours, by customer_id. There is no contractual target on these: compare each customer with the all-customer figure over the same 24 hours. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
       "id": "live-csat",
       "depth": 2,
       "backend": "fabric",
-      "text": "Right now Fabrikam’s users are the most frustrated in live contacts, while Contoso is calmer and Litware is mixed; all comparisons are versus today’s overall 24‑hour baseline.\n\nAgainst the all‑customer averages (CSAT 4.13, 72% negative turns):\n- Contoso Retail: CSAT 5.00 vs 4.13; 34.5% negative vs 72% overall.\n- Fabrikam Industries: CSAT 3.50 vs 4.13; 93.9% negative vs 72% overall.\n- Litware Insurance: CSAT 4.67 vs 4.13; 65.0% negative vs 72% overall.\n\n### SOURCE\n- Eventhouse: KQL_ServiceDesk\n- Tables: csat_events, conversations\n- Time window: last 24h anchored on max(timestamp) = 2026-09-20 19:47:11\n- Metrics per customer: avg_csat_24h, negative_turn_share_pct_24h (sentiment < 0)\n- All‑customer benchmarks: overall_avg_csat_24h, overall_negative_turn_share_pct_24h\n- Grouping: customer_id, plus all‑customer aggregate row",
+      "text": "Woodgrove Bank is doing best on live satisfaction, while Fabrikam and Northwind are noticeably more tense than the overall picture and worth a check-in.\n\n- Fabrikam Industries: CSAT 3.8 vs all-customers 4.1; negative turns 95% vs 63%.\n- Northwind Logistics: CSAT 4.0 vs 4.1; negative turns 80% vs 63%.\n- Woodgrove Bank: CSAT 5.0 vs 4.1; negative turns 38% vs 63%.\n\n### SOURCE\nCustomers: CUS-CON, CUS-FAB, CUS-NOR, CUS-WOO  \nTables: KQL_ServiceDesk.csat_events, KQL_ServiceDesk.conversations  \nMeasures: avg(score), countif(sentiment<0), total turns, negative_turn_share  \nFilters: last 24h from max(timestamp) per table  \nGrouping: by customer_id plus all-customers aggregate  \nRelationship: sentiment per conversation turn, CSAT per event, aligned by customer_id",
       "toolsFired": [
         "generate.filename",
         "analyze.database.execute",
@@ -361,8 +324,44 @@
         "analyze.database.fewshots.loading"
       ],
       "citations": [],
-      "seconds": 46.1,
-      "capturedAt": "2026-09-24T12:11:17Z"
+      "seconds": 87.7,
+      "capturedAt": "2026-09-24T13:27:13Z"
+    },
+    "Compare dim_customer[customer_name] = \"Litware Insurance\" with \"Fabrikam Industries\" on [Zero-Touch % (Previous Week)], [Zero-Touch % (Last Closed Week)], [XLA Breaches (Last Closed Week)] and [XLA Credit (Last Closed Week)]. Then read both zero-touch clauses through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla) where Xla.metric = 'zero_touch_rate', and explain why the same breach has a different consequence. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
+      "id": "xla-litware-contrast",
+      "depth": 2,
+      "backend": "fabric",
+      "text": "Litware and Fabrikam both breached the same zero‑touch threshold, but only Fabrikam earns a monetary credit; Litware’s clause is remediation‑only.\n\nCompared with the previous week and their clauses:\n- Fabrikam Industries: 46.0% → 34.0% vs 40.0% threshold; 1 breach, 9,250 EUR credit. Clause: breach triggers a 5% monthly‑fee credit (capped at 15%).\n- Litware Insurance: 48.0% → 38.0% vs the same 40.0% threshold; 1 breach, 0 EUR. Clause: breach only obliges a written remediation plan, with no service credit.\n\n### SOURCE\n- Semantic model: SM_ServiceDesk_Analytics\n- Dimension: dim_customer[customer_name] = “Fabrikam Industries”, “Litware Insurance”\n- Measures: [Zero-Touch % (Previous Week)], [Zero-Touch % (Last Closed Week)]\n- Measures: [XLA Breaches (Last Closed Week)], [XLA Credit (Last Closed Week)]\n- Ontology: ONT_ServiceDesk\n- Path: Customer–[:CustomerHasContract]→Contract–[:ContractDefinesXla]→Xla(metric='zero_touch_rate', threshold, penalty_pct, clause_text)",
+      "toolsFired": [
+        "generate.filename",
+        "analyze.database.execute",
+        "analyze.database.fewshots.matching",
+        "trace.analyze_ontology",
+        "analyze.database.nl2code",
+        "analyze.database.fewshots.loading",
+        "trace.analyze_semantic_model"
+      ],
+      "citations": [],
+      "seconds": 76.9,
+      "capturedAt": "2026-09-24T13:03:47Z"
+    },
+    "Read the CSAT and zero-touch thresholds through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla), then give [Zero-Touch % (Last Closed Week)], [Zero-Touch Target %], [XLA Breaches (Last Closed Week)] and [CSAT Avg] by dim_customer[customer_name], and flag every customer below a threshold. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used.": {
+      "id": "contract-measured",
+      "depth": 2,
+      "backend": "fabric",
+      "text": "We have two automation breaches to explain, both with solid satisfaction scores; everyone else is above target on zero‑touch and CSAT.  \n\nKey figures to share  \n- Fabrikam Industries: zero‑touch 34.0% vs 40.0% target, 1 breach; CSAT 4.20 vs 3.8 target.  \n- Litware Insurance: zero‑touch 38.0% vs 40.0% target, 1 breach; CSAT 4.23 vs 3.8 target.  \n- Contoso, Northwind, Tailspin and Woodgrove are all above their zero‑touch and CSAT thresholds.  \n\n### SOURCE\nOntology: Customer-[:CustomerHasContract]->Contract-[:ContractDefinesXla]->Xla (zero_touch_rate %, csat_avg score)  \nSemantic model: SM_ServiceDesk_Analytics.fact_ticket, fact_csat, fact_xla_evaluation  \nDimensions: dim_customer[customer_name]  \nMeasures: [Zero-Touch % (Last Closed Week)], [Zero-Touch Target %], [XLA Breaches (Last Closed Week)], [CSAT Avg]  \nCustomers: Contoso Retail, Fabrikam Industries, Litware Insurance, Northwind Logistics, Tailspin Airlines, Woodgrove Bank",
+      "toolsFired": [
+        "generate.filename",
+        "analyze.database.execute",
+        "trace.analyze_semantic_model",
+        "analyze.database.nl2code",
+        "trace.analyze_ontology",
+        "analyze.database.fewshots.loading",
+        "analyze.database.fewshots.matching"
+      ],
+      "citations": [],
+      "seconds": 111.0,
+      "capturedAt": "2026-09-24T14:14:30Z"
     }
   }
 }

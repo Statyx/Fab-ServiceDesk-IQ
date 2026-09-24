@@ -92,10 +92,13 @@ nothing, say so plainly instead of guessing.
    telemetry (VPN latency, experience score), AI agent spans (errors, latency, cost),
    AI gateway requests (HTTP 429 throttling), live ticket and CSAT events.
 
-Routing: "right now", "live", "currently", "last hour" -> Eventhouse. A number, a rate, a
+Routing: "right now", "live", "currently", "last hour(s)", "is it getting worse", "still",
+"since the incident" -> Eventhouse. A number, a rate, a
 ranking or a credit -> Semantic Model. "Who", "which", "is X affected", "what does the
 contract say" -> Ontology. For "find then explain" questions, get the figure from the
 Semantic Model, then traverse the Ontology for the context, and say which source gave what.
+For "live versus closed" questions, query the Eventhouse AND the Semantic Model, and label
+each figure with its window (live window vs closed day or week).
 
 ## Business rules
 - "This week" / "last week" means the LAST CLOSED ISO week: use the (Last Closed Week)
@@ -107,6 +110,10 @@ Semantic Model, then traverse the Ontology for the context, and say which source
   above 0 means in breach) together with [XLA Credit (Last Closed Week)]. There is no
   boolean "in breach" measure. Only use measures that exist in the model; never invent
   a measure name. A breach answer must state the measured value, the target and the credit.
+- When a question covers every customer against a threshold, compare each customer's
+  value with its own threshold before writing the headline, and name EVERY customer that
+  is below one, even if that makes the list longer than usual. Cross-check with
+  [XLA Breaches (Last Closed Week)]: a customer with a breach is never "above target".
 - The contractual wording of an XLA is Xla.clause_text in the ontology. Quote it when asked
   what the contract says, together with the measured value from the Semantic Model.
 - Eventhouse figures cover a short live window; Semantic Model figures cover closed days
@@ -221,6 +228,24 @@ KQL_FEWSHOTS: List[Tuple[str, str]] = [
      "dem_telemetry\n| where timestamp > anchor - 6h and site_id == \"FAB-LYO\"\n"
      "| summarize experience = avg(experience_score), vpn_ms = avg(vpn_latency_ms)\n"
      "         by bin(timestamp, 15m)\n| order by timestamp asc"),
+    ("How many tickets are coming in right now, by customer and issue, and how many escalate?",
+     "let anchor = toscalar(tickets_events | summarize max(timestamp));\n"
+     "tickets_events\n| where timestamp > anchor - 24h and event_type == \"created\"\n"
+     "| summarize tickets = count(), escalated = countif(escalated_hitl == true),\n"
+     "            on_incident = countif(isnotempty(major_incident_id))\n"
+     "         by customer_id, issue_code\n| order by tickets desc"),
+    ("How do users feel in live conversations right now?",
+     "let anchor = toscalar(conversations | summarize max(timestamp));\n"
+     "conversations\n| where timestamp > anchor - 24h and speaker == \"user\"\n"
+     "| summarize turns = count(), negative = countif(sentiment < 0),\n"
+     "            avg_sentiment = avg(sentiment) by customer_id\n"
+     "| extend negative_share = round(100.0 * negative / turns, 1)\n"
+     "| order by negative_share desc"),
+    ("What is the live CSAT per customer over the last day?",
+     "let anchor = toscalar(csat_events | summarize max(timestamp));\n"
+     "csat_events\n| where timestamp > anchor - 24h\n"
+     "| summarize responses = count(), csat = round(avg(score), 2) by customer_id\n"
+     "| order by csat asc"),
 ]
 
 KQL_TABLE_DESC = {
@@ -313,7 +338,11 @@ def build_parts(ws: str, name: str, ont: Tuple[str, str], sm: Tuple[str, str],
                 "resolve names with a separate query on the semantic model or the ontology. "
                 "Keep each query simple: one filter, one summarize, one order; no self-join. "
                 "High VPN latency is above 200 ms; a low experience score is below 60; a failed "
-                "span has status == \"error\"; throttling is status_code == 429."),
+                "span has status == \"error\"; throttling is status_code == 429. sentiment is a real in "
+                "[-1, 1]: negative means sentiment < 0; read user turns only (speaker == \"user\"). "
+                "zero_touch, escalated_hitl and vpn_connected are booleans (== true). A new "
+                "ticket is event_type == \"created\"; a ticket on a major incident has a "
+                "non-empty major_incident_id."),
             "elements": kusto_elements()},
          fewshots("kql", KQL_FEWSHOTS)),
     ]

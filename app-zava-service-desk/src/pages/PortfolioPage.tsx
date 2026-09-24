@@ -14,7 +14,7 @@ import { useDax } from '@/hooks/useDax';
  * estate, which is the only capability in this demo that a table cannot show.
  *
  * The weekly table is sorted by change, worst first, and deliberately not filtered: the two
- * customers that fell by the same twelve points sit side by side, and nothing on this screen
+ * customers that fell below the same 40% target sit side by side, and nothing on this screen
  * says that one of them costs money and the other does not. That is a contract question, and
  * the contract lives on another layer.
  */

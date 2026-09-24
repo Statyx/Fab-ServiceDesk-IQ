@@ -4,165 +4,165 @@
       "dim_agent[agent_name]": "Resolver Agent",
       "dim_agent[agent_type]": "AI",
       "dim_agent[role]": "resolver",
-      "[Tickets]": 1185,
-      "[ZeroTouch]": 1185,
+      "[Tickets]": 1199,
+      "[ZeroTouch]": 1199,
       "[Hitl]": null
-    },
-    {
-      "dim_agent[agent_name]": "Service Desk Analyst L1-05",
-      "dim_agent[agent_type]": "Human",
-      "dim_agent[role]": "analyst",
-      "[Tickets]": 198,
-      "[ZeroTouch]": null,
-      "[Hitl]": 174
     },
     {
       "dim_agent[agent_name]": "Service Desk Analyst L1-06",
       "dim_agent[agent_type]": "Human",
       "dim_agent[role]": "analyst",
-      "[Tickets]": 192,
+      "[Tickets]": 191,
       "[ZeroTouch]": null,
-      "[Hitl]": 167
+      "[Hitl]": 172
     },
     {
-      "dim_agent[agent_name]": "Service Desk Analyst L1-01",
+      "dim_agent[agent_name]": "Service Desk Analyst L1-05",
       "dim_agent[agent_type]": "Human",
       "dim_agent[role]": "analyst",
-      "[Tickets]": 186,
+      "[Tickets]": 190,
       "[ZeroTouch]": null,
-      "[Hitl]": 166
+      "[Hitl]": 164
     },
     {
       "dim_agent[agent_name]": "Service Desk Analyst L1-03",
       "dim_agent[agent_type]": "Human",
       "dim_agent[role]": "analyst",
-      "[Tickets]": 169,
+      "[Tickets]": 187,
       "[ZeroTouch]": null,
-      "[Hitl]": 150
+      "[Hitl]": 162
     },
     {
       "dim_agent[agent_name]": "Service Desk Analyst L1-04",
       "dim_agent[agent_type]": "Human",
       "dim_agent[role]": "analyst",
-      "[Tickets]": 159,
+      "[Tickets]": 185,
       "[ZeroTouch]": null,
-      "[Hitl]": 144
+      "[Hitl]": 165
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L1-01",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 178,
+      "[ZeroTouch]": null,
+      "[Hitl]": 154
     },
     {
       "dim_agent[agent_name]": "Service Desk Analyst L1-02",
       "dim_agent[agent_type]": "Human",
       "dim_agent[role]": "analyst",
-      "[Tickets]": 151,
+      "[Tickets]": 171,
       "[ZeroTouch]": null,
-      "[Hitl]": 127
-    },
-    {
-      "dim_agent[agent_name]": "Service Desk Analyst L2-01",
-      "dim_agent[agent_type]": "Human",
-      "dim_agent[role]": "analyst",
-      "[Tickets]": 121,
-      "[ZeroTouch]": null,
-      "[Hitl]": 109
+      "[Hitl]": 151
     },
     {
       "dim_agent[agent_name]": "Service Desk Analyst L2-02",
       "dim_agent[agent_type]": "Human",
       "dim_agent[role]": "analyst",
-      "[Tickets]": 104,
+      "[Tickets]": 99,
       "[ZeroTouch]": null,
-      "[Hitl]": 96
-    },
-    {
-      "dim_agent[agent_name]": "Service Desk Analyst L2-04",
-      "dim_agent[agent_type]": "Human",
-      "dim_agent[role]": "analyst",
-      "[Tickets]": 101,
-      "[ZeroTouch]": null,
-      "[Hitl]": 93
+      "[Hitl]": 84
     },
     {
       "dim_agent[agent_name]": "Service Desk Analyst L2-03",
       "dim_agent[agent_type]": "Human",
       "dim_agent[role]": "analyst",
-      "[Tickets]": 81,
+      "[Tickets]": 94,
       "[ZeroTouch]": null,
-      "[Hitl]": 69
+      "[Hitl]": 87
     },
     {
-      "dim_agent[agent_name]": "Service Desk Analyst L3-01",
+      "dim_agent[agent_name]": "Service Desk Analyst L2-04",
       "dim_agent[agent_type]": "Human",
       "dim_agent[role]": "analyst",
-      "[Tickets]": 49,
+      "[Tickets]": 88,
       "[ZeroTouch]": null,
-      "[Hitl]": 41
+      "[Hitl]": 80
     },
     {
-      "dim_agent[agent_name]": "Service Desk Analyst L3-02",
+      "dim_agent[agent_name]": "Service Desk Analyst L2-01",
       "dim_agent[agent_type]": "Human",
       "dim_agent[role]": "analyst",
-      "[Tickets]": 40,
+      "[Tickets]": 86,
       "[ZeroTouch]": null,
-      "[Hitl]": 37
+      "[Hitl]": 75
     },
     {
       "dim_agent[agent_name]": null,
       "dim_agent[agent_type]": null,
       "dim_agent[role]": null,
-      "[Tickets]": 34,
+      "[Tickets]": 45,
       "[ZeroTouch]": null,
-      "[Hitl]": 32
+      "[Hitl]": 45
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L3-02",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 42,
+      "[ZeroTouch]": null,
+      "[Hitl]": 38
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L3-01",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 37,
+      "[ZeroTouch]": null,
+      "[Hitl]": 31
     }
   ],
   "AUTOMATION_DAX": [
     {
       "dim_customer[customer_name]": "Woodgrove Bank",
-      "[Tickets]": 378,
-      "[ZeroTouch]": 0.3862,
+      "[Tickets]": 387,
+      "[ZeroTouch]": 0.3902,
       "[Hitl]": 209,
-      "[Mttr]": 14.4694
+      "[Mttr]": 13.6115
     },
     {
       "dim_customer[customer_name]": "Tailspin Airlines",
-      "[Tickets]": 340,
-      "[ZeroTouch]": 0.3912,
-      "[Hitl]": 184,
-      "[Mttr]": 14.3494
+      "[Tickets]": 337,
+      "[ZeroTouch]": 0.3947,
+      "[Hitl]": 180,
+      "[Mttr]": 13.403
     },
     {
       "dim_customer[customer_name]": "Northwind Logistics",
-      "[Tickets]": 379,
-      "[ZeroTouch]": 0.4195,
-      "[Hitl]": 197,
-      "[Mttr]": 13.8318
+      "[Tickets]": 395,
+      "[ZeroTouch]": 0.4177,
+      "[Hitl]": 205,
+      "[Mttr]": 13.4885
     },
     {
       "dim_customer[customer_name]": "Fabrikam Industries",
       "[Tickets]": 768,
       "[ZeroTouch]": 0.4388,
       "[Hitl]": 377,
-      "[Mttr]": 11.1278
-    },
-    {
-      "dim_customer[customer_name]": "Litware Insurance",
-      "[Tickets]": 453,
-      "[ZeroTouch]": 0.4525,
-      "[Hitl]": 216,
-      "[Mttr]": 12.1591
+      "[Mttr]": 11.6681
     },
     {
       "dim_customer[customer_name]": "Contoso Retail",
       "[Tickets]": 452,
       "[ZeroTouch]": 0.4535,
       "[Hitl]": 222,
-      "[Mttr]": 11.6153
+      "[Mttr]": 12.0806
+    },
+    {
+      "dim_customer[customer_name]": "Litware Insurance",
+      "[Tickets]": 453,
+      "[ZeroTouch]": 0.4592,
+      "[Hitl]": 215,
+      "[Mttr]": 11.0796
     }
   ],
   "COVER_DAX": [
     {
-      "[Tickets]": 2770,
-      "[ZeroTouchWeek]": 0.3651,
-      "[OpenTickets]": 34,
-      "[Csat]": 4.2722,
+      "[Tickets]": 2792,
+      "[ZeroTouchWeek]": 0.3677,
+      "[OpenTickets]": 45,
+      "[Csat]": 4.2954,
       "[BreachesWeek]": 2,
       "[CreditWeek]": 9250
     }
@@ -175,34 +175,16 @@
       "[ChangePts]": -12,
       "[Tickets]": 150,
       "[Target]": 0.4,
-      "[Csat]": 4.0176
+      "[Csat]": 4.1966
     },
     {
       "dim_customer[customer_name]": "Litware Insurance",
-      "[LastWeek]": 0.34,
-      "[PreviousWeek]": 0.46,
-      "[ChangePts]": -12,
+      "[LastWeek]": 0.38,
+      "[PreviousWeek]": 0.48,
+      "[ChangePts]": -10,
       "[Tickets]": 50,
       "[Target]": 0.4,
-      "[Csat]": 4.4714
-    },
-    {
-      "dim_customer[customer_name]": "Northwind Logistics",
-      "[LastWeek]": 0.4063,
-      "[PreviousWeek]": 0.4286,
-      "[ChangePts]": -2.2321,
-      "[Tickets]": 32,
-      "[Target]": null,
-      "[Csat]": 4.3636
-    },
-    {
-      "dim_customer[customer_name]": "Tailspin Airlines",
-      "[LastWeek]": 0.36,
-      "[PreviousWeek]": 0.3793,
-      "[ChangePts]": -1.931,
-      "[Tickets]": 25,
-      "[Target]": null,
-      "[Csat]": 4.2649
+      "[Csat]": 4.2255
     },
     {
       "dim_customer[customer_name]": "Contoso Retail",
@@ -211,16 +193,34 @@
       "[ChangePts]": -1.25,
       "[Tickets]": 32,
       "[Target]": 0.35,
-      "[Csat]": 4.3614
+      "[Csat]": 4.2772
+    },
+    {
+      "dim_customer[customer_name]": "Tailspin Airlines",
+      "[LastWeek]": 0.375,
+      "[PreviousWeek]": 0.375,
+      "[ChangePts]": 0,
+      "[Tickets]": 24,
+      "[Target]": null,
+      "[Csat]": 4.3567
+    },
+    {
+      "dim_customer[customer_name]": "Northwind Logistics",
+      "[LastWeek]": 0.4074,
+      "[PreviousWeek]": 0.3846,
+      "[ChangePts]": 2.2792,
+      "[Tickets]": 27,
+      "[Target]": null,
+      "[Csat]": 4.4162
     },
     {
       "dim_customer[customer_name]": "Woodgrove Bank",
-      "[LastWeek]": 0.4231,
-      "[PreviousWeek]": 0.375,
-      "[ChangePts]": 4.8077,
-      "[Tickets]": 26,
+      "[LastWeek]": 0.3704,
+      "[PreviousWeek]": 0.3462,
+      "[ChangePts]": 2.4217,
+      "[Tickets]": 27,
       "[Target]": null,
-      "[Csat]": 4.3418
+      "[Csat]": 4.4229
     }
   ],
   "INCIDENTS_DAX": [
@@ -238,16 +238,16 @@
   "PORTFOLIO_DAX": [
     {
       "[WeekStart]": "2026-09-14T00:00:00",
-      "[Tickets]": 2770,
-      "[TicketsWeek]": 315,
-      "[ZeroTouchWeek]": 0.3651,
-      "[ZeroTouchPrevious]": 0.4323,
-      "[ChangePts]": -6.7235,
-      "[Hitl]": 1405,
-      "[OpenTickets]": 34,
-      "[Mttr]": 12.6098,
-      "[Csat]": 4.2722,
-      "[TimeLostPerSeat]": 228.745,
+      "[Tickets]": 2792,
+      "[TicketsWeek]": 310,
+      "[ZeroTouchWeek]": 0.3677,
+      "[ZeroTouchPrevious]": 0.4306,
+      "[ChangePts]": -6.2814,
+      "[Hitl]": 1408,
+      "[OpenTickets]": 45,
+      "[Mttr]": 12.3868,
+      "[Csat]": 4.2954,
+      "[TimeLostPerSeat]": 234.3566,
       "[MajorIncidents]": 1
     }
   ],
@@ -400,36 +400,6 @@
       "[Credit]": 9250
     },
     {
-      "dim_customer[customer_name]": "Woodgrove Bank",
-      "dim_xla[xla_id]": "XLA-WOO-02",
-      "dim_xla[metric_label]": "Time lost per seat",
-      "dim_xla[measurement_window]": "monthly",
-      "dim_xla[penalty_pct]": 4,
-      "[Evaluations]": 2,
-      "[Breaches]": null,
-      "[Credit]": 0
-    },
-    {
-      "dim_customer[customer_name]": "Contoso Retail",
-      "dim_xla[xla_id]": "XLA-CON-01",
-      "dim_xla[metric_label]": "Zero-touch resolution rate",
-      "dim_xla[measurement_window]": "weekly",
-      "dim_xla[penalty_pct]": 3,
-      "[Evaluations]": 12,
-      "[Breaches]": null,
-      "[Credit]": 0
-    },
-    {
-      "dim_customer[customer_name]": "Northwind Logistics",
-      "dim_xla[xla_id]": "XLA-NOR-02",
-      "dim_xla[metric_label]": "Average device experience score",
-      "dim_xla[measurement_window]": "monthly",
-      "dim_xla[penalty_pct]": 2,
-      "[Evaluations]": 2,
-      "[Breaches]": null,
-      "[Credit]": 0
-    },
-    {
       "dim_customer[customer_name]": "Northwind Logistics",
       "dim_xla[xla_id]": "XLA-NOR-01",
       "dim_xla[metric_label]": "Average CSAT score",
@@ -440,11 +410,11 @@
       "[Credit]": 0
     },
     {
-      "dim_customer[customer_name]": "Tailspin Airlines",
-      "dim_xla[xla_id]": "XLA-TAI-02",
-      "dim_xla[metric_label]": "Zero-touch resolution rate",
+      "dim_customer[customer_name]": "Litware Insurance",
+      "dim_xla[xla_id]": "XLA-LIT-02",
+      "dim_xla[metric_label]": "Average CSAT score",
       "dim_xla[measurement_window]": "monthly",
-      "dim_xla[penalty_pct]": 2,
+      "dim_xla[penalty_pct]": 0,
       "[Evaluations]": 2,
       "[Breaches]": null,
       "[Credit]": 0
@@ -460,19 +430,9 @@
       "[Credit]": 0
     },
     {
-      "dim_customer[customer_name]": "Contoso Retail",
-      "dim_xla[xla_id]": "XLA-CON-02",
-      "dim_xla[metric_label]": "Average CSAT score",
-      "dim_xla[measurement_window]": "monthly",
-      "dim_xla[penalty_pct]": 1,
-      "[Evaluations]": 2,
-      "[Breaches]": null,
-      "[Credit]": 0
-    },
-    {
-      "dim_customer[customer_name]": "Woodgrove Bank",
-      "dim_xla[xla_id]": "XLA-WOO-03",
-      "dim_xla[metric_label]": "Average CSAT score",
+      "dim_customer[customer_name]": "Fabrikam Industries",
+      "dim_xla[xla_id]": "XLA-FAB-03",
+      "dim_xla[metric_label]": "Time lost per seat",
       "dim_xla[measurement_window]": "monthly",
       "dim_xla[penalty_pct]": 2,
       "[Evaluations]": 2,
@@ -490,6 +450,46 @@
       "[Credit]": 0
     },
     {
+      "dim_customer[customer_name]": "Northwind Logistics",
+      "dim_xla[xla_id]": "XLA-NOR-02",
+      "dim_xla[metric_label]": "Average device experience score",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 2,
+      "[Evaluations]": 2,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Contoso Retail",
+      "dim_xla[xla_id]": "XLA-CON-01",
+      "dim_xla[metric_label]": "Zero-touch resolution rate",
+      "dim_xla[measurement_window]": "weekly",
+      "dim_xla[penalty_pct]": 3,
+      "[Evaluations]": 12,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Woodgrove Bank",
+      "dim_xla[xla_id]": "XLA-WOO-03",
+      "dim_xla[metric_label]": "Average CSAT score",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 2,
+      "[Evaluations]": 2,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Woodgrove Bank",
+      "dim_xla[xla_id]": "XLA-WOO-02",
+      "dim_xla[metric_label]": "Time lost per seat",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 4,
+      "[Evaluations]": 2,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
       "dim_customer[customer_name]": "Woodgrove Bank",
       "dim_xla[xla_id]": "XLA-WOO-01",
       "dim_xla[metric_label]": "Zero-touch resolution rate",
@@ -500,21 +500,11 @@
       "[Credit]": 0
     },
     {
-      "dim_customer[customer_name]": "Fabrikam Industries",
-      "dim_xla[xla_id]": "XLA-FAB-03",
-      "dim_xla[metric_label]": "Time lost per seat",
+      "dim_customer[customer_name]": "Tailspin Airlines",
+      "dim_xla[xla_id]": "XLA-TAI-02",
+      "dim_xla[metric_label]": "Zero-touch resolution rate",
       "dim_xla[measurement_window]": "monthly",
       "dim_xla[penalty_pct]": 2,
-      "[Evaluations]": 2,
-      "[Breaches]": null,
-      "[Credit]": 0
-    },
-    {
-      "dim_customer[customer_name]": "Litware Insurance",
-      "dim_xla[xla_id]": "XLA-LIT-02",
-      "dim_xla[metric_label]": "Average CSAT score",
-      "dim_xla[measurement_window]": "monthly",
-      "dim_xla[penalty_pct]": 0,
       "[Evaluations]": 2,
       "[Breaches]": null,
       "[Credit]": 0
@@ -526,6 +516,16 @@
       "dim_xla[measurement_window]": "weekly",
       "dim_xla[penalty_pct]": 2,
       "[Evaluations]": 12,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Contoso Retail",
+      "dim_xla[xla_id]": "XLA-CON-02",
+      "dim_xla[metric_label]": "Average CSAT score",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 1,
+      "[Evaluations]": 2,
       "[Breaches]": null,
       "[Credit]": 0
     }
@@ -549,29 +549,29 @@
       "[Credit]": 9250
     },
     {
-      "dim_customer[customer_name]": "Litware Insurance",
-      "[ZeroTouch]": 0.34,
-      "[Target]": 0.4,
-      "[Breaches]": 1,
-      "[Credit]": 0
-    },
-    {
-      "dim_customer[customer_name]": "Tailspin Airlines",
-      "[ZeroTouch]": 0.36,
-      "[Target]": null,
-      "[Breaches]": null,
-      "[Credit]": 0
-    },
-    {
-      "dim_customer[customer_name]": "Northwind Logistics",
-      "[ZeroTouch]": 0.4063,
+      "dim_customer[customer_name]": "Woodgrove Bank",
+      "[ZeroTouch]": 0.3704,
       "[Target]": null,
       "[Breaches]": null,
       "[Credit]": null
     },
     {
-      "dim_customer[customer_name]": "Woodgrove Bank",
-      "[ZeroTouch]": 0.4231,
+      "dim_customer[customer_name]": "Tailspin Airlines",
+      "[ZeroTouch]": 0.375,
+      "[Target]": null,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Litware Insurance",
+      "[ZeroTouch]": 0.38,
+      "[Target]": 0.4,
+      "[Breaches]": 1,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Northwind Logistics",
+      "[ZeroTouch]": 0.4074,
       "[Target]": null,
       "[Breaches]": null,
       "[Credit]": null

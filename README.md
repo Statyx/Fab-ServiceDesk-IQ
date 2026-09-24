@@ -22,7 +22,7 @@ A Corporate VPN client update breaks remote access and Teams calls for most user
 3. **Act** — A major incident is declared, impacted users get a proactive message, and a Teams alert is posted.
 4. **Ground** — An external orchestrator asks the Data Agent over **MCP**: *"Is this user impacted?"* The answer lets it resolve the contact with no human (zero-touch).
 5. **AgentOps** — Per-customer view of zero-touch, HITL escalations, MCP tool failures, latency, tokens and cost per contact.
-6. **Value** — *"Zero-touch dropped 12 points at Fabrikam this week. Are we in XLA breach, and what is the penalty?"* → 46.0% → 34.0% against a 40% XLA, so **9,250 EUR** of service credit. Litware has the same drop, but its contract carries no credit.
+6. **Value** — *"Zero-touch dropped 12 points at Fabrikam this week. Are we in XLA breach, and what is the penalty?"* → 46.0% → 34.0% against a 40% XLA, so **9,250 EUR** of service credit. Litware also misses the target (48.0% → 38.0%), but its contract carries no credit.
 
 An **XLA** (eXperience Level Agreement) commits to the user experience (zero-touch rate,
 CSAT, device experience score, time lost), where an SLA only commits to technical targets.
@@ -92,7 +92,7 @@ Each step is idempotent: it finds its item by name, updates it and records its I
 `state.json`. The data is regenerated with `--shift-weeks auto`, so the history always ends
 last Sunday and "last closed week" is a real week. Self-checks run along the way:
 - `verify_semantic_model` compares the DAX values with the CSVs (Fabrikam 34.0%, 9,250 EUR).
-- `deploy_data_agent` runs every GQL, DAX and KQL few-shot on its live source before publishing.
+- `deploy_data_agent` runs every GQL, DAX and KQL few-shot on its live source before publishing\n  (7 KQL few-shots cover live latency, agent errors, gateway throttling, experience, incoming\n  tickets, conversation sentiment and live CSAT).
 
 | Item | Type | What it shows |
 |---|---|---|
@@ -136,14 +136,13 @@ patterns as the Zava Media console:
   Every figure is a measure of `SM_ServiceDesk_Analytics`, evaluated live in DAX with the
   signed-in user's token (Power BI `executeQueries`). Nothing is bundled: without the
   bindings the app says "Not connected" instead of showing a confident zero.
-- **Zava IQ** (`/iq-in-practice`): the storyboard. Fabrikam and Litware both fell to 34%
-  zero-touch against a 40% target. Step by step, the dossier adds the contract clause
+- **Zava IQ** (`/iq-in-practice`): the storyboard. Fabrikam fell to 34% and Litware to\n  38% zero-touch, both under the same 40% target. Step by step, the dossier adds the contract clause
   (Fabrikam is owed a 9,250 EUR credit, Litware a remediation plan), Work IQ context (who
   already acts), Web IQ context (public news), and finally drafts the message to the right
   person. Each layer can be switched off to show what it contributes.
 - **Assistant Zava**: a rail that asks the `ServiceDesk_Analyst` Data Agent (semantic model,
   ontology, Eventhouse) and shows which sources fired.
-- **Architecture** and **Diagnostic** (`/diagnostic`, outside the sign-in, checks the bindings
+- **Architecture**: the agent chain, with the Real-Time Intelligence path drawn in full\n  (Eventhouse queried in KQL by the Data Agent, the Operations Agent, the Activator and the RTI\n  dashboard).\n- **Diagnostic** (`/diagnostic`, outside the sign-in, checks the bindings
   and the tokens).
 
 Foundry, Work IQ and Web IQ are **simulated**: labelled on screen, read from

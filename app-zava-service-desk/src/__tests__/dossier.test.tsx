@@ -48,7 +48,7 @@ afterEach(() => {
 });
 
 describe('dossier scenario', () => {
-  it('holds two identical drops against the same target', () => {
+  it('holds two different drops against the same target', () => {
     expect(fabrikam.id).toBe('fabrikam-zt');
     expect(litware.id).toBe('litware-zt');
     for (const item of [fabrikam, litware]) {
@@ -56,8 +56,10 @@ describe('dossier scenario', () => {
       expect(item.facts.current).toBeLessThan(item.facts.target);
       expect(item.facts.target).toBe(0.4);
     }
-    expect(fabrikam.facts.current).toBeCloseTo(litware.facts.current, 3);
-    expect(fabrikam.facts.previous).toBeCloseTo(litware.facts.previous, 3);
+    expect(fabrikam.facts.current).toBeCloseTo(0.34, 3);
+    expect(litware.facts.current).toBeCloseTo(0.38, 3);
+    expect(fabrikam.facts.previous).toBeCloseTo(0.46, 3);
+    expect(litware.facts.previous).toBeCloseTo(0.48, 3);
     expect(fabrikam.facts.credit).toBe(9250);
     expect(litware.facts.credit).toBe(0);
   });
@@ -79,7 +81,7 @@ describe('dossier qualification', () => {
     }
   });
 
-  it('qualifies identical drops differently using the applicable XLA clause', () => {
+  it('qualifies two breaches of the same target differently using the applicable XLA clause', () => {
     const credit = qualifyDossier(fabrikam, 'contract', week);
     const plan = qualifyDossier(litware, 'contract', week);
     expect(credit.treatment).toBe('prepare-credit');
@@ -196,10 +198,10 @@ async function walkToSend(user = userEvent.setup()) {
 }
 
 describe('dossier storyboard', () => {
-  it('opens on two identical drops whose consequence is still unknown', () => {
+  it('opens on two breaches whose consequence is still unknown', () => {
     mount();
     expect(screen.getByRole('heading', { level: 1, name: 'Which XLA breaches need action?' })).toBeVisible();
-    expect(screen.getByText('Two identical drops. Consequence still unknown.')).toBeVisible();
+    expect(screen.getByText('Two breaches. Consequence still unknown.')).toBeVisible();
     expect(within(f()).getByText('Consequence not yet qualified')).toBeVisible();
     expect(within(l()).getByText('Consequence not yet qualified')).toBeVisible();
     expect(stepButton(/Send/)).toBeDisabled();
@@ -209,7 +211,7 @@ describe('dossier storyboard', () => {
     mount();
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: /Read the contracts/ }));
-    expect(screen.getByText('Same figures. Different obligations.')).toBeVisible();
+    expect(screen.getByText('Same target. Different obligations.')).toBeVisible();
     expect(within(f()).getByRole('heading', { name: /Service credit of €9,250/ })).toBeVisible();
     expect(within(l()).getByRole('heading', { name: 'Remediation plan due, no credit' })).toBeVisible();
 

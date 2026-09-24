@@ -1,8 +1,8 @@
 /**
  * The "Zava IQ" dossier: two weeks below target, taken from the figure to the message.
  *
- * Two customers fell below the same 40% zero-touch target in the same closed week, by the same
- * twelve points. The figures alone cannot say what Zava owes; the contract can, and it says two
+ * Two customers fell below the same 40% zero-touch target in the same closed week:
+ * Fabrikam from 46% to 34%, Litware from 48% to 38%. The figures alone cannot say what Zava owes; the contract can, and it says two
  * opposite things. Work IQ then shows what is already underway and who has to act, and Web IQ
  * adds public context for the conversation. Each layer is switchable, so the room can watch the
  * conclusion degrade honestly when one of them is removed.

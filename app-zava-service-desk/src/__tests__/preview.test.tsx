@@ -135,8 +135,10 @@ describe('development preview', () => {
 
   it('does not let a caller mutate the next set of sample figures', async () => {
     const rows = await previewSource.execute(COVER_DAX);
+    const original = rows[0]['[Tickets]'];
+    expect(original).toBeGreaterThan(0);
     rows[0]['[Tickets]'] = 999;
-    expect((await previewSource.execute(COVER_DAX))[0]['[Tickets]']).toBe(2770);
+    expect((await previewSource.execute(COVER_DAX))[0]['[Tickets]']).toBe(original);
   });
 });
 

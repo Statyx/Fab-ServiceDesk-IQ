@@ -14,7 +14,7 @@ Outputs (git-ignored, under ``artifacts/data/`` by default):
 The history contains the scripted incident (Corporate VPN client 6.1.0 on the Fabrikam
 Lyon pilot ring) and the resulting XLA breach: Fabrikam's weekly zero-touch rate drops
 from 46.0% to 34.0% (−12 points) against a 40% threshold, which triggers a 5% service
-credit. Litware shows the same drop, but its contract carries no credit.
+credit. Litware also falls below 40% (48.0% → 38.0%), but its contract carries no credit.
 
   python -m fabric.data.generate_data              # writes artifacts/data/
   python -m fabric.data.generate_data --out <dir>  # elsewhere

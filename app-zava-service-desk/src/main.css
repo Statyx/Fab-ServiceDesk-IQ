@@ -820,7 +820,7 @@
 
    Plane colour is data: the class comes from `plane` in `domain/chain.ts`, and the hues live
    here so they follow the theme instead of being frozen into the SVG. Amber for Foundry, teal
-   for Fabric, blue for the semantic model, violet for the ontology — the same reading as the
+   for Fabric, blue for the semantic model, violet for the ontology, pink for Real-Time Intelligence — the same reading as the
    sibling console, so the two demos do not teach two different colour languages.
 
    Dark-mode values are not the light ones dimmed: on a dark card the light fills disappear and
@@ -842,6 +842,10 @@
   color: #1b5e9e;
   --wf-fill: rgba(27, 94, 158, 0.1);
 }
+.wf-node.is-realtime {
+  color: #9d174d;
+  --wf-fill: rgba(219, 39, 119, 0.1);
+}
 
 [data-theme='dark'] .wf-node.is-foundry {
   color: #fbbf24;
@@ -858,6 +862,10 @@
 [data-theme='dark'] .wf-node.is-semantic {
   color: #93c5fd;
   --wf-fill: rgba(59, 130, 246, 0.18);
+}
+[data-theme='dark'] .wf-node.is-realtime {
+  color: #f9a8d4;
+  --wf-fill: rgba(236, 72, 153, 0.18);
 }
 
 .wf-node rect {
@@ -916,6 +924,10 @@
   color: #1b5e9e;
   --wf-fill: rgba(27, 94, 158, 0.1);
 }
+.wf-key.is-realtime {
+  color: #9d174d;
+  --wf-fill: rgba(219, 39, 119, 0.1);
+}
 [data-theme='dark'] .wf-key.is-foundry {
   color: #fbbf24;
   --wf-fill: rgba(217, 119, 6, 0.2);
@@ -931,4 +943,8 @@
 [data-theme='dark'] .wf-key.is-semantic {
   color: #93c5fd;
   --wf-fill: rgba(59, 130, 246, 0.18);
+}
+[data-theme='dark'] .wf-key.is-realtime {
+  color: #f9a8d4;
+  --wf-fill: rgba(236, 72, 153, 0.18);
 }

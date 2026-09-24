@@ -36,7 +36,7 @@ export interface Agreement {
 }
 
 /**
- * Two consequences for the same gap.
+ * Two consequences for the same breach.
  *
  * This is the entire point of the demo and it is worth stating plainly: nothing in the weekly
  * figures predicts which consequence applies, and nothing in the contracts predicts which week

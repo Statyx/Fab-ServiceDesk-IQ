@@ -99,7 +99,7 @@ not the site network.
 | Threshold | XLA-FAB-01: zero-touch ≥ **40.0%** per ISO week |
 | Consequence | Breach → credit **5%** of the 185,000 EUR monthly fee = **9,250 EUR** (monthly cap 15%) |
 | Why | 100 incident tickets and only 28 zero-touch, because the DEM health tool fails and contacts escalate to humans |
-| Litware | Same drop (46.0% → 34.0%, a surge of non-automatable HR Portal access requests) and same 40% threshold, but XLA-LIT-01 carries **no credit**: Zava owes a written remediation plan within 10 business days. Same gap, different contract, different consequence. |
+| Litware | Also below target (48.0% → 38.0%, a surge of non-automatable HR Portal access requests) and same 40% threshold, but XLA-LIT-01 carries **no credit**: Zava owes a written remediation plan within 10 business days. Same target missed, different contract, different consequence. |
 | Anyone else? | No other closed window breaches. Only closed windows are evaluated: complete ISO weeks and the months of April and May. |
 
 ## 4. Data model
@@ -257,7 +257,7 @@ runs them in order (`--from`, `--skip`, `--list`):
    site, rule "VPN latency 5-min average becomes > 200 ms" → Teams. Deployed **stopped**.
 9. Operations Agent `OA_ServiceDesk_Ops`: goals and instructions for four alerts (VPN latency,
    experience score, agent errors, gateway 429)
-10. Data Agent `ServiceDesk_Analyst` (ontology + semantic model + KQL): every few-shot is run on
+10. Data Agent `ServiceDesk_Analyst` (ontology + semantic model + KQL, 7 KQL few-shots and\n    routing rules for live, `since the incident` and live-versus-closed questions): every few-shot is run on
     its live source first, then the agent is published and its MCP endpoint saved to
     `state.json`
 
@@ -280,8 +280,7 @@ assistant rail and IQ storyboard) and re-pointed at the service desk.
   `executeQueries` and the signed-in user's delegated token, so the app never re-derives a
   measure. All the queries live in `src/data/queries.ts`; `tests/test_app.py` checks every
   `table[column]` and `[measure]` in them against the model definition.
-- **Zava IQ.** The storyboard of the demo, on two cases that look identical in the figures
-  (Fabrikam and Litware, 34% zero-touch against 40%). It adds one layer at a time: Fabric IQ
+- **Zava IQ.** The storyboard of the demo, on two customers that miss the same target in the\n  same week (Fabrikam 46% → 34%, Litware 48% → 38%, against 40%). It adds one layer at a time: Fabric IQ
   (figures and ontology scope), the contract clause (Foundry IQ, simulated, read from the
   ontology's `Xla.clause_text`), Work IQ (simulated mail, Teams, meetings and files) and Web
   IQ (simulated public news). The consequence changes with each layer (credit vs remediation
@@ -292,7 +291,7 @@ assistant rail and IQ storyboard) and re-pointed at the service desk.
   Answers recorded by `fabric/data_agent/capture_frozen_answers.py` are replayed when the
   exact same prompt is sent (`src/data/frozen-answers.generated.json`); any other question
   goes live.
-- **Foundry stays simulated.** The architecture page shows the supervisor that would call
+- **Architecture.** The chain has five planes: Foundry (simulated), the Fabric agent and\n  lakehouse, the semantic model, the ontology, and Real-Time Intelligence. The real-time plane\n  shows the Eventhouse queried in KQL by the Data Agent (`right now` questions), the\n  Operations Agent (4 goals), the Activator (every 60 s) and the RTI dashboard. There is no\n  second Data Agent: the reactive real-time agent is `OA_ServiceDesk_Ops`, and one analyst\n  that routes between DAX, GQL and KQL keeps closed-week and live answers side by side.\n- **Foundry stays simulated.** The architecture page shows the supervisor that would call
   Fabric over A2A; no Foundry resource, scope or variable exists.
 
 Authentication: Rayfin's own session is opaque and only authorizes Rayfin services, so the

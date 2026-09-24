@@ -27,8 +27,8 @@
       "backend": "fabric",
       "depth": 2,
       "parent": "xla-breach",
-      "label": "Litware dropped just as much. Why is no credit due?",
-      "prompt": "Compare dim_customer[customer_name] = \"Litware Insurance\" with \"Fabrikam Industries\" on [Zero-Touch % (Previous Week)], [Zero-Touch % (Last Closed Week)], [XLA Breaches (Last Closed Week)] and [XLA Credit (Last Closed Week)]. Then read both zero-touch clauses through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla) where Xla.metric = 'zero_touch_rate', and explain why the same gap has a different consequence. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+      "label": "Litware missed the target too. Why is no credit due?",
+      "prompt": "Compare dim_customer[customer_name] = \"Litware Insurance\" with \"Fabrikam Industries\" on [Zero-Touch % (Previous Week)], [Zero-Touch % (Last Closed Week)], [XLA Breaches (Last Closed Week)] and [XLA Credit (Last Closed Week)]. Then read both zero-touch clauses through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla) where Xla.metric = 'zero_touch_rate', and explain why the same breach has a different consequence. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
     },
     {
       "id": "experience-worst-site",
@@ -202,7 +202,7 @@
       "depth": 2,
       "parent": "contract-zero-touch",
       "label": "Where does each customer sit against those promises?",
-      "prompt": "Read the CSAT and zero-touch thresholds through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla), then give [Zero-Touch % (Last Closed Week)] and [CSAT Avg] by dim_customer[customer_name], and flag every customer below a threshold. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+      "prompt": "Read the CSAT and zero-touch thresholds through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla), then give [Zero-Touch % (Last Closed Week)], [Zero-Touch Target %], [XLA Breaches (Last Closed Week)] and [CSAT Avg] by dim_customer[customer_name], and flag every customer below a threshold. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
     }
   ]
 }

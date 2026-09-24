@@ -93,7 +93,7 @@ export function IqInPracticePage() {
         <div>
           <span className="cover-eyebrow glass">{IQ_NAV.label}</span>
           <h1>Which XLA breaches need action?</h1>
-          <p>Two customers missed the same zero-touch target by the same twelve points. Start with the figures, read the contract, then see what is already underway.</p>
+          <p>Two customers missed the same 40% zero-touch target in the same week. Start with the figures, read the contract, then see what is already underway.</p>
         </div>
       </header>
 
@@ -116,8 +116,8 @@ export function IqInPracticePage() {
       <div className="dossier-stage-copy" aria-live="polite">
         {!includeFabric ? <><strong>The measured gap is not included.</strong><span>Other context cannot establish the measured rate or the ontology scope.</span></>
           : step !== 'facts' && !includeFoundry ? <><strong>The contractual treatment is not established.</strong><span>Figures and work context do not replace the applicable XLA clause.</span></>
-          : step === 'facts' ? <><strong>Two identical drops. Consequence still unknown.</strong><span>34% against a 40% target for both customers. The figures do not say what Zava owes.</span></>
-          : step === 'contract' ? <><strong>Same figures. Different obligations.</strong><span>One contract owes a 9,250 EUR service credit, the other a written remediation plan and no credit.</span></>
+          : step === 'facts' ? <><strong>Two breaches. Consequence still unknown.</strong><span>Fabrikam fell to 34%, Litware to 38%, both under a 40% target. The figures do not say what Zava owes.</span></>
+          : step === 'contract' ? <><strong>Same target. Different obligations.</strong><span>One contract owes a 9,250 EUR service credit, the other a written remediation plan and no credit.</span></>
           : step === 'work' ? <><strong>Work IQ shows what is already underway, and who owns it.</strong><span>Mail, Teams chats, meetings and files change who acts next, not what the contract says.</span></>
           : step === 'web' ? <><strong>Public news adds context to the service review.</strong><span>Include it in the message or leave it out; it does not change what the contract says.</span></>
           : <><strong>The right person, with the full context.</strong><span>Work IQ identifies who has to act, and the message carries every source.</span></>}

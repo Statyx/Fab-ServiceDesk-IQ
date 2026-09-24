@@ -127,16 +127,18 @@ describe('the mappers, on the recorded model rows', () => {
     const fab = customers.find((c) => c.customer === 'Fabrikam Industries')!;
     const lit = customers.find((c) => c.customer === 'Litware Insurance')!;
     expect(fab.lastWeek).toBeCloseTo(0.34, 4);
-    expect(lit.lastWeek).toBeCloseTo(0.34, 4);
+    expect(lit.lastWeek).toBeCloseTo(0.38, 4);
     expect(fab.target).toBeCloseTo(0.4, 4);
     expect(customers.some((c) => c.target === null)).toBe(true);
   });
 
-  it('shows the same drop for Fabrikam and Litware, and different credits', () => {
+  it('shows two different drops below the same target, and different credits', () => {
     const week = queries.mapXlaWeek(rows('XLA_WEEK_DAX'));
     const fab = week.find((w) => w.customer === 'Fabrikam Industries')!;
     const lit = week.find((w) => w.customer === 'Litware Insurance')!;
-    expect(fab.zeroTouch).toBeCloseTo(lit.zeroTouch, 4);
+    expect(fab.zeroTouch).toBeCloseTo(0.34, 4);
+    expect(lit.zeroTouch).toBeCloseTo(0.38, 4);
+    expect(fab.zeroTouch).not.toBeCloseTo(lit.zeroTouch, 2);
     expect(fab.breaches).toBe(1);
     expect(lit.breaches).toBe(1);
     expect(fab.credit).toBe(9250);
@@ -176,6 +178,14 @@ describe('the architecture chain', () => {
     const foundry = CHAIN_EDGES.filter((e) => e.from === 'supervisor');
     expect(foundry.length).toBeGreaterThan(0);
     for (const e of foundry) expect(e.short).toMatch(/simulated/i);
+  });
+
+  it('draws the real-time path from the analyst through KQL to the reactive items', () => {
+    const realtime = CHAIN_NODES.filter((n) => n.plane === 'realtime').map((n) => n.id);
+    expect(realtime.length).toBeGreaterThanOrEqual(3);
+    const kql = CHAIN_EDGES.filter((e) => e.protocol === 'KQL');
+    expect(kql.some((e) => e.from === 'analyst' && realtime.includes(e.to))).toBe(true);
+    expect(kql.filter((e) => realtime.includes(e.from)).length).toBeGreaterThanOrEqual(3);
   });
 });
 

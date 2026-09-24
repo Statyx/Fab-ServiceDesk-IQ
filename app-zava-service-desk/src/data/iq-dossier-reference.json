@@ -38,12 +38,12 @@
       "customerId": "CUS-LIT",
       "customer": "Litware Insurance",
       "facts": {
-        "previous": 0.46,
+        "previous": 0.48,
         "previousTickets": 50,
-        "previousZeroTouch": 23,
-        "current": 0.34,
+        "previousZeroTouch": 24,
+        "current": 0.38,
         "tickets": 50,
-        "zeroTouch": 17,
+        "zeroTouch": 19,
         "target": 0.4,
         "credit": 0
       },

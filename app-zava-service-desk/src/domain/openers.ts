@@ -87,7 +87,7 @@ export const OPENERS: Opener[] = [
   /**
    * First card, and `mixed` on purpose.
    *
-   * Two customers lose the same twelve points of zero-touch against the same 40% threshold.
+   * Two customers fall below the same 40% zero-touch threshold: Fabrikam to 34%, Litware to 38%.
    * One is owed a 9,250 EUR credit, the other a written remediation plan. No figure implies
    * that and no clause implies it either — it only appears when the two are put side by side.
    */
@@ -132,13 +132,13 @@ export const OPENERS: Opener[] = [
     backend: 'fabric',
     depth: 2,
     parent: 'xla-breach',
-    label: 'Litware dropped just as much. Why is no credit due?',
+    label: 'Litware missed the target too. Why is no credit due?',
     prompt:
       'Compare dim_customer[customer_name] = "Litware Insurance" with "Fabrikam Industries" on ' +
       '[Zero-Touch % (Previous Week)], [Zero-Touch % (Last Closed Week)], ' +
       '[XLA Breaches (Last Closed Week)] and [XLA Credit (Last Closed Week)]. Then read both ' +
       'zero-touch clauses through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla) ' +
-      "where Xla.metric = 'zero_touch_rate', and explain why the same gap has a different " +
+      "where Xla.metric = 'zero_touch_rate', and explain why the same breach has a different " +
       'consequence.' +
       HOUSE_STYLE,
     exercises: 'the weekly figures of both customers, then both clauses',
@@ -420,8 +420,8 @@ export const OPENERS: Opener[] = [
     prompt:
       'Read the CSAT and zero-touch thresholds through ' +
       '(Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla), then give ' +
-      '[Zero-Touch % (Last Closed Week)] and [CSAT Avg] by dim_customer[customer_name], and flag ' +
-      'every customer below a threshold.' +
+      '[Zero-Touch % (Last Closed Week)], [Zero-Touch Target %], [XLA Breaches (Last Closed Week)] ' +
+      'and [CSAT Avg] by dim_customer[customer_name], and flag every customer below a threshold.' +
       HOUSE_STYLE,
     exercises: 'the contract clauses, then the measured figures',
   },

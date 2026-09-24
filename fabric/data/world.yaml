@@ -93,7 +93,7 @@ customers:
 
 # Contracts with XLA (eXperience Level Agreement) commitments. Deliberately divergent:
 # Fabrikam and Litware share the same zero-touch threshold, but only Fabrikam's contract
-# carries a service credit — same gap, different consequence. Clauses are fictional.
+# carries a service credit — both miss it, different consequence. Clauses are fictional.
 # Metrics: zero_touch_rate (%), csat_avg (1–5), experience_score_avg (0–100),
 # time_lost_min_per_user (minutes lost per seat over the window).
 contracts:
@@ -254,10 +254,11 @@ scenario:
     root_cause: "Corporate VPN client 6.1.0 rolled out to the Lyon pilot ring"
   # Exact [tickets, zero_touch] per customer and ISO week (Monday). Everything else is
   # drawn from zero_touch_band. Fabrikam: 23/50 = 46.0% → 51/150 = 34.0% (−12 points).
+  # Litware: 24/50 = 48.0% → 19/50 = 38.0% (−10 points). Both under 40%, different figures.
   weekly_overrides:
     CUS-FAB:
       "2026-06-01": {tickets: 50, zero_touch: 23}
       "2026-06-08": {tickets: 150, zero_touch: 51}
     CUS-LIT:
-      "2026-06-01": {tickets: 50, zero_touch: 23}
-      "2026-06-08": {tickets: 50, zero_touch: 17, issue_bias: {hr_portal_access: 0.5}}
+      "2026-06-01": {tickets: 50, zero_touch: 24}
+      "2026-06-08": {tickets: 50, zero_touch: 19, issue_bias: {hr_portal_access: 0.5}}

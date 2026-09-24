@@ -4,8 +4,8 @@ What they pin down:
 
 * the dataset: schemas, determinism, key uniqueness, referential integrity;
 * the storyline: the Lyon VPN incident, its control group, and the XLA breach the demo
-  quotes (Fabrikam zero-touch 46.0% → 34.0% vs 40%, credit 9,250 EUR; Litware same drop,
-  no credit; no other breach);
+  quotes (Fabrikam zero-touch 46.0% → 34.0% vs 40%, credit 9,250 EUR; Litware 48.0% →
+  38.0%, no credit; no other breach);
 * the live injector (dry-run / file sinks, ingest batch size) and the MCP client payloads;
 * profile resolution and repository hygiene (bootstrap prologue, no GUIDs, no literal
   shell=True, no generated data or local config tracked).
@@ -260,13 +260,13 @@ def test_dem_degrades_on_the_ring_but_not_on_controls(tables, world):
     assert disconnected > 0.2
 
 
-def test_weekly_zero_touch_drop_is_twelve_points(tables):
+def test_weekly_zero_touch_drops_below_forty(tables):
     zt = gd.weekly_zero_touch(tables)
-    for cust in (FAB, LIT):
+    for cust, before, after in ((FAB, 46.0, 34.0), (LIT, 48.0, 38.0)):
         n0, z0 = zt[(cust, BEFORE)]
         n1, z1 = zt[(cust, INCIDENT_WEEK)]
-        assert round(100 * z0 / n0, 1) == 46.0
-        assert round(100 * z1 / n1, 1) == 34.0
+        assert round(100 * z0 / n0, 1) == before
+        assert round(100 * z1 / n1, 1) == after
     assert zt[(FAB, INCIDENT_WEEK)] == (150, 51)
 
 
@@ -277,7 +277,7 @@ def test_expected_xla_breaches_and_credit(xla):
     fab = next(r for r in breaches if r["customer_id"] == FAB)
     lit = next(r for r in breaches if r["customer_id"] == LIT)
     assert (fab["value"], fab["threshold"], fab["penalty_eur"]) == (34.0, 40.0, 9250.0)
-    assert (lit["value"], lit["penalty_eur"]) == (34.0, 0.0)
+    assert (lit["value"], lit["penalty_eur"]) == (38.0, 0.0)
 
 
 def test_only_closed_windows_are_evaluated(xla, world):
