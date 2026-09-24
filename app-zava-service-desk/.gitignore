@@ -1,0 +1,55 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+*.local
+
+# Env files
+.env
+.env.local
+.env*.local
+
+# Fabric / Rayfin generated artifacts
+.rayfin
+rayfin/.temp
+*.tsbuildinfo
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Added by Rayfin CLI
+lerna-debug.log*
+.vite
+coverage
+rayfin/.env*
+rayfin/.deployments.json
+rayfin/.*.tmp
+rayfin/.temp/
+rayfin.config.json
+
+# Written by `python -m fabric.app.deploy_app` from the tenant's config/state:
+# they carry workspace and item IDs, so they never reach the public repo.
+fabric.yaml
+src/fabric.generated.ts
+public/app-config.json
+# Anonymous scaffold telemetry id from create-rayfin (a GUID).
+rayfin/.project.json

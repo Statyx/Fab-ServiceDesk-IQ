@@ -36,7 +36,7 @@ ontology, storyboard and deployment order.
 |---|---|---|
 | 1 | Scaffold, deterministic synthetic data, live injector, Data Agent MCP client, offline tests, leak guard + CI | ✅ done |
 | 2 | Lakehouse, Eventhouse, Ontology + Graph, Semantic model + report, RTI dashboard, Activator, Operations Agent, Data Agent (MCP) | ✅ deployed and verified end to end |
-| 3 | Rayfin console app | planned |
+| 3 | Rayfin console app `App-Zava-Service-Desk`: native DAX dashboard + launchpad | ✅ built and tested; deploy with `python -m fabric.app.deploy_app` |
 
 ## Quickstart (no tenant needed)
 
@@ -83,7 +83,7 @@ capacity (F-SKU or trial). The scripts check the account before any write.
 
 ```text
 python deploy_all.py                      # every step, in order, then a warm-up
-python deploy_all.py --list               # the 15 steps
+python deploy_all.py --list               # the 16 steps
 python deploy_all.py --from ontology      # resume after a failure
 python deploy_all.py report dashboard     # re-run only some steps
 ```
@@ -105,6 +105,7 @@ last Sunday and "last closed week" is a real week. Self-checks run along the way
 | `ACT_ServiceDesk_Alerts` | Activator | VPN latency > 200 ms (5-min average) per site → Teams |
 | `OA_ServiceDesk_Ops` | Operations Agent | goals and instructions for 4 live alerts |
 | `ServiceDesk_Analyst` | Data Agent | ontology + semantic model + KQL, published, MCP endpoint |
+| `App-Zava-Service-Desk` | Rayfin app | the service desk console (phase 3, below) |
 
 ### Before the demo (UI-only steps)
 
@@ -125,6 +126,32 @@ python -m fabric.data_agent.mcp_client "Is Fabrikam in XLA breach on zero-touch 
 python -m fabric.data_agent.mcp_client "What is the VPN latency per site right now?"
 ```
 
+## The console app (phase 3)
+
+`App-Zava-Service-Desk` is a Rayfin app hosted in the workspace (React + Vite, in
+[`app-zava-service-desk/`](app-zava-service-desk/)). It has two parts:
+- **A native dashboard**, in DAX on `SM_ServiceDesk_Analytics`: KPIs, the zero-touch XLA per
+  customer (Fabrikam in breach with a 9,250 EUR credit; Litware with the same drop but no
+  credit clause), the weekly trend against the targets, the top resolvers and the
+  digital-experience hot spots (Lyon).
+- **A launchpad**: links to the live RTI dashboard, the report, the Data Agent and the
+  Activator, plus the Data Agent demo questions, ready to copy.
+
+A Rayfin app can only query semantic models, lakehouses and warehouses. It cannot run KQL,
+chat with the Data Agent or embed another item, so those open in Fabric. See
+[ARCHITECTURE §8](docs/ARCHITECTURE.md#8-deployment-order).
+
+Requires Node 20+. The Rayfin CLI has its own sign-in:
+
+```text
+cd app-zava-service-desk && npx rayfin login && cd ..
+python -m fabric.app.deploy_app                  # config from state, build, rayfin up
+python -m fabric.app.deploy_app --configure-only # local config only, then: npm run dev
+```
+
+In the app folder, `npm test` and `npm run lint` run offline. `npm run build` works without a
+tenant.
+
 ## Layout
 
 ```text
@@ -139,6 +166,8 @@ fabric/graph/       graph model build + refresh
 fabric/powerbi/     semantic model, DAX verification, report
 fabric/rti/         RTI dashboard, Activator, Operations Agent
 fabric/data_agent/  Data Agent (verified few-shots), MCP client
+fabric/app/         console app config + rayfin up (phase 3)
+app-zava-service-desk/  Rayfin console app (React + Vite, DAX on the semantic model)
 scripts/            leak guard
 tests/              offline tests (data, definitions, hygiene)
 docs/               architecture

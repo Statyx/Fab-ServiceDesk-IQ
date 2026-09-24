@@ -231,3 +231,6 @@ artifacts/
 # Throwaway probes written by the leak-scanner tests.
 _tmp_*
 .vscode/
+
+# Rayfin app: its TypeScript lib/ folder is source, not a Python build dir.
+!app-zava-service-desk/src/lib/

@@ -213,14 +213,17 @@ fabric/_shared/       paths · platform_env (bootstrap) · helpers (profiles, co
 fabric/data/          world.yaml · schema.py · generate_data.py
 fabric/eventhouse/    inject_event.py
 fabric/data_agent/    mcp_client.py
+fabric/app/           deploy_app.py (phase 3: config files + rayfin up)
+app-zava-service-desk/  Rayfin console (React + Vite): src/servicedesk/ holds the DAX and the UI
 scripts/              check_no_client_leak.py (canonical, byte-identical) · check_repo_leaks.py
-tests/                test_smoke.py · test_leak_scanner.py
+tests/                test_smoke.py · test_leak_scanner.py · test_fabric_definitions.py · test_app.py
 deployments/          per-tenant profiles (git-ignored)
 artifacts/            generated data (git-ignored)
 ```
 
 Conventions shared with the sibling demos:
-- Everything is Python and cross-platform. There are no `.ps1`, `.cmd` or `.bat` files.
+- Everything is Python and cross-platform. There are no `.ps1`, `.cmd` or `.bat` files. The
+  only non-Python code is the Rayfin app, a Node project of its own.
 - Modules run from the repo root with `python -m`.
 - Every runnable module opens with the same prologue before any third-party import
   (`import os, sys` / `from fabric._shared.platform_env import bootstrap` / `bootstrap()`).
@@ -267,8 +270,31 @@ The MCP endpoint is `{api}/mcp/workspaces/{ws}/dataagents/{id}/agent`, with a JS
 `initialize` → `tools/list` → `tools/call`. It answers from the published version only, so
 redeploy (which republishes) after changing instructions.
 
-**Phase 3 — App** `App-Zava-Service-Desk`: a Rayfin console that embeds the RTI dashboard, the
-report and a chat with the Data Agent.
+**Phase 3 — App** `App-Zava-Service-Desk` (`python -m fabric.app.deploy_app`, the last step of
+`deploy_all.py`). It is a Rayfin console: a React + Vite app in `app-zava-service-desk/`,
+hosted by Rayfin inside Fabric and signed in with Fabric auth.
+- **Native dashboard.** Six KPIs, the zero-touch XLA table per customer (breach, credit), the
+  weekly trend against the contractual targets, the top resolvers (AI agent vs analysts) and
+  the digital-experience hot spots. Every number is a DAX query on `SM_ServiceDesk_Analytics`
+  through the Fabric embed proxy, so the app holds no secret and never duplicates a measure.
+  `tests/test_app.py` checks every `table[column]` and `[measure]` in those queries against
+  the model definition.
+- **Launchpad.** Deep links to the RTI dashboard, the report, the Data Agent, the Activator,
+  the semantic model and the workspace, plus the Data Agent questions (its verified
+  few-shots), grouped by source, each with a copy button.
+
+Why links rather than embedded views: a Rayfin app reaches Fabric data through a proxy that
+only runs DAX on semantic models (and SQL on lakehouses and warehouses). It cannot run KQL
+or call the Data Agent, and it gets no Fabric token to embed an item. So the live RTI
+dashboard and the Data Agent chat open in the Fabric portal, one click away. The Foundry
+orchestrator of the storyline stays a scripted narrative: `mcp_client` shows the exact calls
+it would make.
+
+`deploy_app` writes three tenant-specific files, all git-ignored: `fabric.yaml` (the
+semantic-model connection), `src/fabric.generated.ts` and `public/app-config.json` (links and
+questions). Then it runs `rayfin up --workspace-id <ws>`, which builds with
+`npm run build:fabric`, creates or updates the item and records `app_item_id` / `app_url` in
+`state.json`. The Rayfin CLI has its own sign-in (`npx rayfin login`), separate from `az login`.
 
 ## 9. Hygiene
 

@@ -498,7 +498,8 @@ BOOTSTRAP_MODULE = "fabric._shared.platform_env"
 
 def _py_files():
     return sorted(p for p in ROOT.rglob("*.py")
-                  if not {".git", "artifacts", "deployments", ".venv", "__pycache__"} & set(p.parts))
+                  if not {".git", "artifacts", "deployments", ".venv", "__pycache__",
+                          "node_modules"} & set(p.parts))
 
 
 def _entry_points():

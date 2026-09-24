@@ -40,6 +40,7 @@ STEPS: List[Tuple[str, str, List[str]]] = [
     ("activator",         "fabric.rti.deploy_activator",              []),
     ("operations_agent",  "fabric.rti.deploy_operations_agent",       []),
     ("data_agent",        "fabric.data_agent.deploy_data_agent",      []),
+    ("app",               "fabric.app.deploy_app",                    []),
 ]
 STEP_NAMES = [s[0] for s in STEPS]
 
