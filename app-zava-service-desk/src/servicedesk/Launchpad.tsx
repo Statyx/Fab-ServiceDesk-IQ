@@ -23,6 +23,32 @@ function CopyButton({ text }: { text: string }) {
 }
 
 /**
+ * Shown when the console is opened on its hosting URL instead of inside Fabric: the
+ * launchpad still works, the DAX panels cannot load.
+ */
+export function OutsideFabricBanner({ state }: { state: AppConfigState }) {
+    const config = state.status === "ready" ? state.config : undefined;
+    const target = config?.appUrl || config?.links.find((l) => l.key === "workspace")?.url;
+    return (
+        <DashboardGrid>
+            <Tile size="full">
+                <Card eyebrow="Open in Fabric" title="The live numbers load inside Fabric" accent="warning">
+                    <p className="text-sm text-muted-foreground">
+                        This page is outside the Fabric portal, so the dashboard cannot query
+                        SM_ServiceDesk_Analytics. The links and questions below still work.{" "}
+                        {target ? (
+                            <a href={target} className="font-semibold text-foreground underline underline-offset-2">
+                                Open the console in Fabric
+                            </a>
+                        ) : null}
+                    </p>
+                </Card>
+            </Tile>
+        </DashboardGrid>
+    );
+}
+
+/**
  * Live ops and analyst launchpad. KQL and the Data Agent are not reachable from a
  * Rayfin app (its data SDK only runs DAX), so the real-time and conversational
  * surfaces open in the Fabric portal, next to this console.

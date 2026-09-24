@@ -18,3 +18,7 @@ services:
     folder: dist
     buildCommand: npm run build:fabric
     indexDocument: index.html
+  storage:
+    enabled: false
+  functions:
+    enabled: false

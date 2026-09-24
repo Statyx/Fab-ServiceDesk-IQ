@@ -12,8 +12,9 @@ Nothing tenant-specific is committed. This script writes, from config + state:
   app-zava-service-desk/src/fabric.generated.ts     generated from fabric.yaml (git-ignored)
   app-zava-service-desk/public/app-config.json      portal links + demo questions (git-ignored)
 
-then runs ``rayfin up`` (it opens a browser sign-in when the Rayfin token has expired)
-and saves ``app_item_id`` / ``app_url`` in state.
+then runs ``rayfin up`` for the item and ``rayfin up staticapp deploy`` for the build (a
+browser sign-in opens when the Rayfin token has expired), removes the hosting URL that the
+CLI adds to rayfin.yml, and saves ``app_item_id`` / ``app_url`` in state.
 
   python -m fabric.app.deploy_app                    # configure + deploy
   python -m fabric.app.deploy_app --configure-only   # write the local config files only
@@ -80,8 +81,20 @@ def demo_questions() -> List[Dict[str, str]]:
     return out
 
 
+def app_portal_url(cfg: Dict[str, Any], state: Dict[str, Any]) -> str:
+    """The console item in the Fabric portal: the only place its DAX panels load, since
+    they go through the Fabric embed proxy. Empty until the item exists."""
+    item = state.get("app_item_id")
+    if not item:
+        return ""
+    url = f"{PORTAL}/groups/{require_state(state, 'workspace_id')}/appbackends/{item}"
+    tenant = cfg.get("tenant_id")
+    return url if is_placeholder(tenant) else f"{url}?ctid={tenant}"
+
+
 def app_config(cfg: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
     return {"workspaceName": require_config(cfg, "workspace_name"),
+            "appUrl": app_portal_url(cfg, state),
             "links": portal_links(state),
             "questions": demo_questions()}
 
@@ -96,17 +109,41 @@ def fabric_yaml(state: Dict[str, Any]) -> str:
             f"        itemId: {require_state(state, 'semantic_model_id')}\n")
 
 
+def child_env(environ: Dict[str, str] = None) -> Dict[str, str]:
+    """The environment with ``PATH`` de-duplicated (order kept).
+
+    ``bootstrap()`` prepends the registry ``Path`` to the inherited one, so every entry
+    appears twice. ``rayfin up`` then nests npx and npm, and each level prepends one
+    ``node_modules\\.bin`` per parent folder. Under this deep repository path the
+    result grows past what cmd.exe reads, and the build stops finding ``npx``."""
+    env = dict(os.environ if environ is None else environ)
+    key = next((k for k in env if k.upper() == "PATH"), "PATH")
+    seen, parts = set(), []
+    for part in env.get(key, "").split(os.pathsep):
+        norm = os.path.normcase(part.rstrip("\\/"))
+        if part and norm not in seen:
+            seen.add(norm)
+            parts.append(part)
+    env[key] = os.pathsep.join(parts)
+    return env
+
+
 def run(cmd: List[str]) -> None:
     print("   $", " ".join(cmd))
-    subprocess.run(cmd, cwd=APP_DIR, check=True)
+    subprocess.run(cmd, cwd=APP_DIR, check=True, env=child_env())
 
 
-def configure(cfg: Dict[str, Any], state: Dict[str, Any]) -> None:
-    (APP_DIR / "fabric.yaml").write_text(fabric_yaml(state), encoding="utf-8")
+def write_app_config(cfg: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
     public = APP_DIR / "public"
     public.mkdir(exist_ok=True)
     conf = app_config(cfg, state)
     (public / "app-config.json").write_text(json.dumps(conf, indent=2), encoding="utf-8")
+    return conf
+
+
+def configure(cfg: Dict[str, Any], state: Dict[str, Any]) -> None:
+    (APP_DIR / "fabric.yaml").write_text(fabric_yaml(state), encoding="utf-8")
+    conf = write_app_config(cfg, state)
     print(f"   fabric.yaml ({CONNECTION}) + app-config.json "
           f"({len(conf['links'])} links, {len(conf['questions'])} questions)")
     if not (APP_DIR / "node_modules").exists():
@@ -115,12 +152,35 @@ def configure(cfg: Dict[str, Any], state: Dict[str, Any]) -> None:
 
 
 def rayfin_up_command(cfg: Dict[str, Any], state: Dict[str, Any], dry_run: bool = False) -> List[str]:
-    """``rayfin up`` into the demo workspace, by id: no display-name lookup."""
+    """``rayfin up`` into the demo workspace, by id: no display-name lookup.
+
+    It creates or updates the item and its runtime settings. Static hosting is deployed
+    separately by STATIC_DEPLOY, so a build failure never hides a successful item
+    update."""
     up = [NPX, "rayfin", "up", "--workspace-id", require_state(state, "workspace_id"), "--yes"]
     tenant = cfg.get("tenant_id")
     if not is_placeholder(tenant):
         up += ["-t", str(tenant)]
-    return up + (["--dry-run"] if dry_run else [])
+    if dry_run:
+        return up + ["--dry-run"]
+    return up + ["--exclude-services", "staticHosting"]
+
+
+# Builds with rayfin.yml's buildCommand (npm run build:fabric), then uploads dist/.
+STATIC_DEPLOY = [NPX, "rayfin", "up", "staticapp", "deploy"]
+
+RAYFIN_YML = APP_DIR / "rayfin" / "rayfin.yml"
+HOSTED_URI_MARKER = ".fabricapps.net"
+
+
+def strip_hosted_redirect_uris(text: str) -> str:
+    """Remove the tenant-specific hosting URL(s) that ``staticapp deploy`` appends to
+    ``allowedRedirectUris``. Each deploy registers it again on the service side, so the
+    committed rayfin.yml stays tenant-neutral."""
+    lines = text.splitlines(keepends=True)
+    kept = [l for l in lines
+            if not (l.lstrip().startswith("- ") and HOSTED_URI_MARKER in l)]
+    return "".join(kept)
 
 
 def deployment_record() -> Dict[str, Any]:
@@ -150,26 +210,42 @@ def main() -> int:
 
     cfg, state = load_config(), load_state()
 
-    print_step(1, 3, "Write the app configuration from config + state")
+    print_step(1, 4, "Write the app configuration from config + state")
     configure(cfg, state)
     if args.configure_only:
         return 0
 
-    print_step(2, 3, "Build and deploy with rayfin up (browser sign-in if the token expired)")
+    print_step(2, 4, "Create or update the Rayfin item (browser sign-in if the token expired)")
     run(rayfin_up_command(cfg, state, dry_run=args.dry_run))
     if args.dry_run:
         return 0
-
-    print_step(3, 3, "Persist state")
     record = deployment_record()
     item_id = record.get("fabricItemId") or record.get("itemId")
     if item_id:
         state["app_item_id"] = item_id
-        state["app_url"] = record.get("hostingUrl") or record.get("url") or ""
+        state["app_url"] = app_portal_url(cfg, state)
         save_state(state)
-        print("   app_item_id / app_url saved to state")
+        write_app_config(cfg, state)  # now with appUrl, before the build copies public/
     else:
-        print("   no deployment record found in rayfin/.deployments.json; state unchanged")
+        print("   no deployment record found in rayfin/.deployments.json")
+
+    print_step(3, 4, "Build and deploy the static app")
+    try:
+        run(STATIC_DEPLOY)
+    finally:
+        if RAYFIN_YML.exists():
+            text = RAYFIN_YML.read_text(encoding="utf-8")
+            RAYFIN_YML.write_text(strip_hosted_redirect_uris(text), encoding="utf-8")
+
+    print_step(4, 4, "Persist state")
+    record = deployment_record()
+    if item_id and record.get("hostingUrl"):
+        state["app_hosting_url"] = record["hostingUrl"]
+        save_state(state)
+    if item_id:
+        print("   app_item_id, app_url (open it from Fabric) and app_hosting_url saved to state")
+    else:
+        print("   state unchanged")
     return 0
 
 

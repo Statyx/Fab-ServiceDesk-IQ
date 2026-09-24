@@ -16,5 +16,6 @@
   "data_agent_id": "",
   "data_agent_mcp_url": "",
   "app_item_id": "",
-  "app_url": ""
+  "app_url": "",
+  "app_hosting_url": ""
 }

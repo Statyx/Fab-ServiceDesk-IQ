@@ -291,10 +291,17 @@ orchestrator of the storyline stays a scripted narrative: `mcp_client` shows the
 it would make.
 
 `deploy_app` writes three tenant-specific files, all git-ignored: `fabric.yaml` (the
-semantic-model connection), `src/fabric.generated.ts` and `public/app-config.json` (links and
-questions). Then it runs `rayfin up --workspace-id <ws>`, which builds with
-`npm run build:fabric`, creates or updates the item and records `app_item_id` / `app_url` in
-`state.json`. The Rayfin CLI has its own sign-in (`npx rayfin login`), separate from `az login`.
+semantic-model connection), `src/fabric.generated.ts` and `public/app-config.json` (links,
+questions and the console's own portal URL). Then it runs two commands.
+`rayfin up --workspace-id <ws> --exclude-services staticHosting` creates or updates the item.
+`rayfin up staticapp deploy` builds with `npm run build:fabric` and uploads `dist/`. The script
+records `app_item_id`, `app_url` (the item in the portal) and `app_hosting_url` in
+`state.json`. It also removes the hosting URL that the CLI appends to `rayfin.yml`, so the
+committed file stays tenant-neutral; each static deploy registers that URL again.
+
+The Rayfin CLI has its own sign-in (`npx rayfin login -t <tenant>`), separate from `az login`.
+Subprocesses get a de-duplicated `PATH`. Without that, the nested npx/npm calls under this
+deep repository path overflow what cmd.exe reads, and the build loses `npx`.
 
 ## 9. Hygiene
 

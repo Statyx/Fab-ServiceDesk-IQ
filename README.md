@@ -36,7 +36,7 @@ ontology, storyboard and deployment order.
 |---|---|---|
 | 1 | Scaffold, deterministic synthetic data, live injector, Data Agent MCP client, offline tests, leak guard + CI | ✅ done |
 | 2 | Lakehouse, Eventhouse, Ontology + Graph, Semantic model + report, RTI dashboard, Activator, Operations Agent, Data Agent (MCP) | ✅ deployed and verified end to end |
-| 3 | Rayfin console app `App-Zava-Service-Desk`: native DAX dashboard + launchpad | ✅ built and tested; deploy with `python -m fabric.app.deploy_app` |
+| 3 | Rayfin console app `App-Zava-Service-Desk`: native DAX dashboard + launchpad | ✅ deployed (`python -m fabric.app.deploy_app`) |
 
 ## Quickstart (no tenant needed)
 
@@ -141,13 +141,24 @@ A Rayfin app can only query semantic models, lakehouses and warehouses. It canno
 chat with the Data Agent or embed another item, so those open in Fabric. See
 [ARCHITECTURE §8](docs/ARCHITECTURE.md#8-deployment-order).
 
+Open the console from Fabric (`app_url` in `state.json`, or the item in the workspace). Its
+DAX goes through the Fabric embed proxy, which only exists inside the portal. On the bare
+hosting URL (`app_hosting_url`), the launchpad works but the dashboard shows an
+"Open in Fabric" banner instead of numbers.
+
 Requires Node 20+. The Rayfin CLI has its own sign-in:
 
 ```text
-cd app-zava-service-desk && npx rayfin login && cd ..
+cd app-zava-service-desk && npx rayfin login -t <tenant-id> && cd ..
 python -m fabric.app.deploy_app                  # config from state, build, rayfin up
 python -m fabric.app.deploy_app --configure-only # local config only, then: npm run dev
 ```
+
+If the browser sign-in fails with `AADSTS50197` ("could not find the user"), the browser is
+sending the SSO session of an account that is not in the demo tenant. Run
+`npx rayfin logout`, then `npx rayfin login -t <tenant-id>` from a private browser window. The
+CLI opens the URL with `$BROWSER` when it is set: point `BROWSER` at a script that runs
+`msedge --inprivate`.
 
 In the app folder, `npm test` and `npm run lint` run offline. `npm run build` works without a
 tenant.

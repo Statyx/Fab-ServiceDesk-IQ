@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { validateSpec } from "graphein";
 
-import { groupBySource } from "../servicedesk/app-config";
+import { groupBySource, isInsideFabric } from "../servicedesk/app-config";
 import {
     AGENTS_QUERY,
     KPI_QUERY,
@@ -14,6 +14,14 @@ import {
     TREND_QUERY,
     XLA_QUERY,
 } from "../servicedesk/queries";
+
+describe("isInsideFabric", () => {
+    it("is false at top level and true when framed", () => {
+        const top = {} as Window;
+        expect(isInsideFabric({ self: top, top } as unknown as Window)).toBe(false);
+        expect(isInsideFabric({ self: {}, top } as unknown as Window)).toBe(true);
+    });
+});
 
 describe("service desk queries", () => {
     it("every query is a single EVALUATE", () => {

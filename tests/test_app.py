@@ -77,9 +77,43 @@ def test_demo_questions_are_the_data_agent_fewshots():
 def test_rayfin_up_targets_the_workspace_by_id():
     state = {"workspace_id": WS}
     cmd = app.rayfin_up_command({"tenant_id": "<tenant-guid>"}, state)
-    assert cmd[1:] == ["rayfin", "up", "--workspace-id", WS, "--yes"]
+    assert cmd[1:] == ["rayfin", "up", "--workspace-id", WS, "--yes",
+                       "--exclude-services", "staticHosting"]
     cmd = app.rayfin_up_command({"tenant_id": MODEL}, state, dry_run=True)
     assert cmd[-3:] == ["-t", MODEL, "--dry-run"]
+    assert app.STATIC_DEPLOY[1:] == ["rayfin", "up", "staticapp", "deploy"]
+
+
+def test_app_portal_url_needs_the_item_and_carries_the_tenant():
+    state = {"workspace_id": WS}
+    assert app.app_portal_url({}, state) == ""
+    state["app_item_id"] = MODEL
+    assert app.app_portal_url({"tenant_id": "<tenant-guid>"}, state) == \
+        f"{app.PORTAL}/groups/{WS}/appbackends/{MODEL}"
+    assert app.app_portal_url({"tenant_id": WS}, state).endswith(f"/appbackends/{MODEL}?ctid={WS}")
+
+
+def test_child_env_dedupes_path_keeping_order():
+    sep = app.os.pathsep
+    env = app.child_env({"Path": sep.join(["/a", "/b", "/a/", "", "/c", "/b"]), "X": "1"})
+    assert env["Path"] == sep.join(["/a", "/b", "/c"])
+    assert env["X"] == "1" and "PATH" not in env
+
+
+def test_hosting_url_is_stripped_from_rayfin_yml():
+    yml = ("services:\n  auth:\n    allowedRedirectUris:\n      - http://localhost:5173\n"
+           "      - https://live-birch-0000-swedencentral.webapp.fabricapps.net\n"
+           "  staticHosting:\n    enabled: true\n")
+    out = app.strip_hosted_redirect_uris(yml)
+    assert "fabricapps.net" not in out
+    assert "      - http://localhost:5173\n" in out and "  staticHosting:\n" in out
+    assert app.strip_hosted_redirect_uris(out) == out
+
+
+def test_committed_rayfin_yml_is_tenant_neutral():
+    text = app.RAYFIN_YML.read_text(encoding="utf-8")
+    assert app.HOSTED_URI_MARKER not in text
+    assert text.startswith("id: App-Zava-Service-Desk\n")
 
 
 def test_deployment_record_is_found_at_any_depth(tmp_path, monkeypatch):

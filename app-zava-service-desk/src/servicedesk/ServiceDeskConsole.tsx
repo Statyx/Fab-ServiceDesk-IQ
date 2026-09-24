@@ -12,8 +12,8 @@ import {
 } from "@/components/dashboard";
 import { useSemanticModelQuery } from "@/hooks/use-semantic-model-query";
 
-import { useAppConfig } from "./app-config";
-import { Launchpad } from "./Launchpad";
+import { isInsideFabric, useAppConfig } from "./app-config";
+import { Launchpad, OutsideFabricBanner } from "./Launchpad";
 import {
     AGENTS_QUERY,
     CONNECTION,
@@ -178,6 +178,7 @@ export function ServiceDeskConsole() {
                 </>
             }
         >
+            {isInsideFabric() ? null : <OutsideFabricBanner state={config} />}
             <DashboardGrid>
                 {(kpiSpecs.length ? kpiSpecs : Array.from({ length: 6 }, () => undefined)).map((spec, i) => (
                     <Tile key={i} size="sm">

@@ -14,6 +14,8 @@ export interface DemoQuestion {
 
 export interface AppConfig {
     workspaceName: string;
+    /** The console item in the Fabric portal, where its DAX panels load. Empty before the first deploy. */
+    appUrl?: string;
     links: PortalLink[];
     questions: DemoQuestion[];
 }
@@ -45,6 +47,15 @@ export function useAppConfig(): AppConfigState {
         };
     }, []);
     return state;
+}
+
+/** The DAX panels need the Fabric embed proxy, which only exists when Fabric hosts the app in its iframe. */
+export function isInsideFabric(win: Window = window): boolean {
+    try {
+        return win.self !== win.top;
+    } catch {
+        return true; // cross-origin parent: framed
+    }
 }
 
 export function groupBySource(questions: DemoQuestion[]): Array<[string, string[]]> {
