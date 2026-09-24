@@ -3,19 +3,20 @@ import { useQuerySource } from '@/data/querySource';
 import { statusChip, statusDot } from '@/domain/severity';
 
 /**
- * Where the numbers come from, always on screen.
+ * Where the numbers come from, on every live screen.
  *
- * The development preview has its own sample source; live failures never switch to it.
- * This badge describes the selected source, rather than promising a successful connection.
+ * The preview carries no marker: it is shown as the demo itself. Live failures never switch to
+ * the preview source, so outside /preview this badge still tells the room what it is reading.
  */
 export function ModeBadge() {
   const { preview } = useQuerySource();
   const mode = getMode();
-  const isLive = !preview && mode === 'live';
+  if (preview) return null;
+  const isLive = mode === 'live';
 
   return (
     <span
-      title={preview ? 'Illustrative figures for design review. No Power BI query is sent.' : modeReason()}
+      title={modeReason()}
       className={[
         'flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-medium ring-1',
         isLive ? statusChip('ok') : statusChip('warn'),
@@ -25,7 +26,7 @@ export function ModeBadge() {
         aria-hidden="true"
         className={['h-1.5 w-1.5 rounded-full', statusDot(isLive ? 'ok' : 'warn')].join(' ')}
       />
-      {preview ? 'Preview data' : MODE_LABEL[mode]}
+      {MODE_LABEL[mode]}
     </span>
   );
 }

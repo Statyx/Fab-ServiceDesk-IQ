@@ -47,9 +47,10 @@ describe('development preview', () => {
     window.history.replaceState({}, '', '/preview');
     render(<App />);
 
-    expect(await screen.findAllByTitle(/^Preview sample for/)).toHaveLength(6);
-    expect(screen.getByText('Preview data')).toBeInTheDocument();
-    expect(screen.getByRole('note')).not.toHaveTextContent(/sample figures|not live|recorded/i);
+    expect(await screen.findAllByTitle(/^Measure /)).toHaveLength(6);
+    expect(screen.queryByText(/preview/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('note')).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Open live app' })).not.toBeInTheDocument();
     expect(screen.queryByText('Live Fabric data')).not.toBeInTheDocument();
     expect(screen.queryByText('The query failed')).not.toBeInTheDocument();
     expect(screen.queryByTitle(/semantic model/)).not.toBeInTheDocument();
@@ -61,7 +62,8 @@ describe('development preview', () => {
     async (path) => {
       window.history.replaceState({}, '', path);
       render(<App />);
-      expect(await screen.findByText('Preview data')).toBeInTheDocument();
+      await screen.findByRole('navigation', { name: 'Main navigation' });
+      expect(screen.queryByText(/preview/i)).not.toBeInTheDocument();
       await waitFor(() => expect(screen.queryByText('Loading data…')).not.toBeInTheDocument());
       expect(screen.queryByText('The query failed')).not.toBeInTheDocument();
       expect(screen.getByRole('textbox', { name: 'Ask the Zava assistant a question' })).toBeDisabled();
@@ -70,16 +72,13 @@ describe('development preview', () => {
     },
   );
 
-  it('preserves cover navigation and leaves preview through the authentication guard', async () => {
+  it('preserves cover navigation from the cover starters', async () => {
     window.history.replaceState({}, '', '/preview');
     render(<App />);
-    await screen.findByText('Preview data');
+    await screen.findByRole('navigation', { name: 'Main navigation' });
     await userEvent.click(screen.getByRole('button', { name: starters(OPENERS)[0].label }));
     expect(window.location.pathname).toBe(`/preview${SECTION_BY_FAMILY[starters(OPENERS)[0].family]}`);
     expect(await screen.findByText(/Reading service figures, XLA clauses and ontology relationships/, {}, { timeout: 5000 })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('link', { name: 'Open live app' }));
-    await waitFor(() => expect(window.location.pathname).toBe('/auth'));
-    expect(screen.queryByText('Preview data')).not.toBeInTheDocument();
     expect(executeDax).not.toHaveBeenCalled();
     expect(askDataAgent).not.toHaveBeenCalled();
   });
@@ -90,7 +89,7 @@ describe('development preview', () => {
       window.history.replaceState({}, '', '/preview');
       render(<App />);
       const user = userEvent.setup();
-      await screen.findByText('Preview data');
+      await screen.findByRole('navigation', { name: 'Main navigation' });
       const header = within(screen.getByRole('navigation', { name: 'Main navigation' })).getByRole('link', { name: label });
       const card = within(screen.getByRole('region', { name: /Explore/ })).getByRole('link', { name: label });
       expect(card).toHaveAttribute('href', header.getAttribute('href'));
@@ -112,7 +111,7 @@ describe('development preview', () => {
   it('uses Zava IQ consistently and preserves the existing URL', async () => {
     window.history.replaceState({}, '', '/preview');
     render(<App />);
-    await screen.findByText('Preview data');
+    await screen.findByRole('navigation', { name: 'Main navigation' });
     expect(within(screen.getByRole('navigation', { name: 'Main navigation' }))
       .getByRole('link', { name: 'Zava IQ' })).toHaveAttribute('href', `/preview${IQ_NAV.to}`);
     await userEvent.click(screen.getByRole('button', { name: /^Zava IQ/ }));

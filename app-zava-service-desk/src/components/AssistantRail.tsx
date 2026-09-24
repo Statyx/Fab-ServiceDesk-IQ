@@ -608,7 +608,7 @@ export function AssistantRail() {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           disabled={preview || busy}
-          placeholder={preview ? 'Open live app to ask a question' : busy ? 'Answering…' : 'Ask a question…'}
+          placeholder={busy ? 'Answering…' : 'Ask a question…'}
           aria-label="Ask the Zava assistant a question"
           className="min-w-0 flex-1 rounded-lg border px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-1 disabled:opacity-50"
           style={{

@@ -45,7 +45,7 @@ export function KpiCard({
   return (
     <div
       className={cover ? 'glass cover-kpi' : 'glass rounded-xl p-4'}
-      title={preview ? `Preview sample for ${measure}` : `Measure ${measure} — semantic model`}
+      title={preview ? `Measure ${measure}` : `Measure ${measure} — semantic model`}
     >
       {cover && icon ? <span className="cover-kpi-icon" aria-hidden>{icon}</span> : null}
       <p
