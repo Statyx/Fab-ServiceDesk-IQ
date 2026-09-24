@@ -1,0 +1,109 @@
+{
+  "scenarioId": "week-38-close-2026",
+  "asOf": "2026-09-23",
+  "simulated": true,
+  "cases": [
+    {
+      "caseId": "fabrikam-zt",
+      "customerId": "CUS-FAB",
+      "simulated": true,
+      "impact": "Finance has already drafted the credit note. Asking for it again would duplicate work: the only open action is Camille's validation, ahead of the 29 September service review with the Fabrikam CIO.",
+      "nextStep": "Ask Camille Laurent, the Service Delivery Manager, to validate the draft credit note before the 29 September service review. Do not request the calculation again.",
+      "signals": [
+        {
+          "id": "SIM-WORK-FAB-MAIL",
+          "kind": "email",
+          "date": "2026-09-22",
+          "who": "Hugo Martin · Finance controller",
+          "title": "Fabrikam week 38 service credit: draft ready",
+          "detail": "Draft credit note of 9,250 EUR on the September invoice, sent to Camille for validation. Nothing issued yet."
+        },
+        {
+          "id": "SIM-WORK-FAB-FILE",
+          "kind": "file",
+          "date": "2026-09-22",
+          "who": "Edited by Hugo Martin",
+          "title": "Fabrikam_credit-note_2026-09_XLA-FAB-01.docx",
+          "detail": "Finance › Fabrikam Industries · status field reads \"Awaiting SDM validation\"."
+        },
+        {
+          "id": "SIM-WORK-FAB-CHAT",
+          "kind": "teams",
+          "date": "2026-09-22",
+          "who": "Network operations channel",
+          "title": "VPN 6.1.0 rollback on the Lyon pilot ring",
+          "detail": "Rollback to 6.0.4 scheduled for Wednesday night. MI-FAB-0001 stays open until call quality is back."
+        },
+        {
+          "id": "SIM-WORK-FAB-MEETING",
+          "kind": "meeting",
+          "date": "2026-09-29",
+          "who": "Organised by Camille Laurent",
+          "title": "Fabrikam Industries · quarterly service review",
+          "detail": "The Fabrikam CIO attends. The week 38 credit is not on the agenda yet."
+        }
+      ],
+      "people": [
+        { "name": "Camille Laurent", "role": "Service Delivery Manager · Fabrikam" },
+        { "name": "Hugo Martin", "role": "Finance controller" }
+      ],
+      "recipient": {
+        "name": "Camille Laurent",
+        "role": "Service Delivery Manager · Fabrikam",
+        "channel": "Teams",
+        "reasons": [
+          "Named by Finance as the pending validator",
+          "Organiser of the 29 September service review",
+          "Owns the CTR-FAB-2026 relationship"
+        ]
+      }
+    },
+    {
+      "caseId": "litware-zt",
+      "customerId": "CUS-LIT",
+      "simulated": true,
+      "impact": "The customer has asked for an explanation and nobody has answered yet. The contract already sets the answer: no credit, a written remediation plan by 2 October. Priya can reply to Oliver with the plan.",
+      "nextStep": "Give Priya Shah, the Service Delivery Manager, the contractual answer to Oliver's question and the remediation plan deadline of 2 October.",
+      "signals": [
+        {
+          "id": "SIM-WORK-LIT-CHAT",
+          "kind": "teams",
+          "date": "2026-09-22",
+          "who": "Oliver Hughes · IT director, Litware Insurance (external)",
+          "title": "Chat with Priya Shah",
+          "detail": "\"Our automation rate dropped last week. What happened, and what are you doing about it?\""
+        },
+        {
+          "id": "SIM-WORK-LIT-MAIL",
+          "kind": "email",
+          "date": "2026-09-22",
+          "who": "Priya Shah · Service Delivery Manager",
+          "title": "HR Portal access requests not covered by a KB article",
+          "detail": "To Knowledge team: \"The resolver agent escalates every HR Portal access request. Can we publish an article this week?\""
+        },
+        {
+          "id": "SIM-WORK-LIT-MEETING",
+          "kind": "meeting",
+          "date": "2026-10-01",
+          "who": "Organised by Priya Shah",
+          "title": "Litware Insurance · monthly service review",
+          "detail": "Oliver Hughes attends. The remediation plan is not on the agenda yet."
+        }
+      ],
+      "people": [
+        { "name": "Priya Shah", "role": "Service Delivery Manager · Litware" },
+        { "name": "Oliver Hughes", "role": "IT director · Litware Insurance (customer)" }
+      ],
+      "recipient": {
+        "name": "Priya Shah",
+        "role": "Service Delivery Manager · Litware",
+        "channel": "Teams",
+        "reasons": [
+          "Received the customer's question on 22 September",
+          "Already chasing the missing knowledge article",
+          "Organiser of the 1 October service review"
+        ]
+      }
+    }
+  ]
+}

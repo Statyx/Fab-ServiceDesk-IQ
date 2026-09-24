@@ -1,27 +1,32 @@
 import type { IAuthService } from './IAuthService';
+import { MockAuthService } from './MockAuthService';
+import { msalConfigured } from './msal';
+import { MsalAuthService } from './MsalAuthService';
 import { RayfinAuthService } from './RayfinAuthService';
 import { initRayfinClient } from './rayfinClient';
 
+function isLocalBackendUrl(url: string): boolean {
+  try {
+    const { hostname } = new URL(url);
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+}
+
 /**
- * Read VITE_* env vars, initialize the Rayfin client, and return the
- * Fabric-brokered auth service.
+ * Read VITE_* env vars, initialize the Rayfin client, and return the right
+ * auth service for the target backend.
  *
- * Apps built from this template always run against a deployed Rayfin backend, so
- * this always
- * returns {@link RayfinAuthService}. It requires the VITE_RAYFIN_API_URL,
- * VITE_RAYFIN_PUBLISHABLE_KEY, and VITE_FABRIC_* env vars, which `rayfin env`
- * injects at build time from the active deployment. `npm run preview` supplies
- * placeholder values via `.env.preview` so the UI renders without a deploy.
+ * - Localhost API URL → {@link MockAuthService}
+ * - Anything else     → {@link RayfinAuthService} (requires VITE_FABRIC_* vars)
  */
 export function bootstrapAuth(): IAuthService {
-  const apiUrl = import.meta.env.VITE_RAYFIN_API_URL;
+  const apiUrl = import.meta.env.VITE_RAYFIN_API_URL || 'http://localhost:5168';
+  const localDev = isLocalBackendUrl(apiUrl);
   const publishableKey = import.meta.env.VITE_RAYFIN_PUBLISHABLE_KEY;
 
-  if (!apiUrl) {
-    throw new Error('VITE_RAYFIN_API_URL environment variable is required');
-  }
-
-  if (!publishableKey) {
+  if (!publishableKey && !localDev) {
     throw new Error(
       'VITE_RAYFIN_PUBLISHABLE_KEY environment variable is required'
     );
@@ -29,8 +34,22 @@ export function bootstrapAuth(): IAuthService {
 
   const client = initRayfinClient({
     baseUrl: apiUrl.endsWith('/') ? apiUrl : `${apiUrl}/`,
-    publishableKey,
+    publishableKey: publishableKey ?? 'local-dev-key',
+    localDev,
   });
+
+  // Entra wins when configured. The Rayfin session is opaque by design and cannot authorize the
+  // Fabric API, the Eventhouse, or the embed service — which is everything this console reads —
+  // so running both stacks would mean two sessions that can disagree about who the user is.
+  // In production the Rayfin auth path below is therefore dead code, which is the intended
+  // outcome rather than a smell.
+  if (msalConfigured) {
+    return new MsalAuthService();
+  }
+
+  if (localDev) {
+    return new MockAuthService(client);
+  }
 
   const workspaceId = import.meta.env.VITE_FABRIC_WORKSPACE_ID;
   const projectId = import.meta.env.VITE_FABRIC_ITEM_ID;

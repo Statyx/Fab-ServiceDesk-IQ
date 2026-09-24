@@ -8,9 +8,14 @@ export interface AuthUser {
 /**
  * Auth service contract used by the React layer.
  *
- * {@link RayfinAuthService} is the single implementation: it wraps the Fabric
- * brokered auth flow from `@microsoft/rayfin-auth-provider-fabric`.
- * `bootstrapAuth()` constructs it from the VITE_* env vars at startup.
+ * Two implementations ship with this template:
+ *
+ * - {@link MockAuthService} — used when the API URL points at localhost.
+ *   Signs into the bundled local backend with a fixture email/password.
+ * - {@link RayfinAuthService} — used in production. Wraps the Fabric
+ *   brokered auth flow from `@microsoft/rayfin-auth-provider-fabric`.
+ *
+ * `bootstrapAuth()` picks the right one from VITE_* env vars at startup.
  */
 export interface IAuthService {
   /**

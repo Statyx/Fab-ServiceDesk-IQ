@@ -1,360 +1,934 @@
 @import 'tailwindcss';
 
-@custom-variant dark (&:is(.dark *));
+/* Dark mode is driven by `data-theme` on <html>, exactly as the Marketing Campaign app and the
+   V1 portal do — one attribute swap repaints every surface, because all the colours below are
+   variables.
+
+   An earlier pass of this app deleted dark mode outright, on a brain rule that said "a declared
+   variant with no values is dead code, remove it". The rule is right about dead code and wrong
+   here: a fully specified, contrast-checked ramp already existed in the house app and only had
+   to be adopted. Removing the variant threw away a shipped system to avoid copying it. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ═══════════════════════════════════════════════════════════
+   SEVERITY — domain colour, not a styling choice
+   ═══════════════════════════════════════════════════════════
+   Held as plain variables so the theme can move them, then exposed through `@theme inline`
+   below. `inline` is what makes this work: the generated utility emits `var(--sev-critical)`
+   at the use site, so it resolves against whichever theme is active rather than against the
+   value that happened to exist at `:root` when Tailwind compiled.
+
+   Dark values are lifted, not reused. A light-mode red-600 (#dc2626) on a #1e293b card is
+   3.4:1 — under the AA floor — so an alarm would read as dimmer than the text beside it. */
+:root,
+[data-theme='light'] {
+  --sev-critical: #dc2626;
+  --sev-high: #ea580c;
+  --sev-medium: #d97706;
+  --sev-low: #059669;
+  --sev-info: #64748b;
+}
+
+[data-theme='dark'] {
+  --sev-critical: #f87171; /* 5.3:1 on the card, still unmistakably an alarm */
+  --sev-high: #fdba74;
+  --sev-medium: #fcd34d;
+  --sev-low: #6ee7b7;
+  --sev-info: #94a3b8;
+}
 
 @theme inline {
+  /* Brand ramp — the ONLY palette override */
   --color-blue-50: oklch(0.97 0.014 254.6);
   --color-blue-100: oklch(0.932 0.032 255.6);
   --color-blue-500: oklch(0.623 0.214 259.1);
   --color-blue-600: oklch(0.546 0.245 262.9);
   --color-blue-700: oklch(0.488 0.243 264.4);
+
+  --color-severity-critical: var(--sev-critical);
+  --color-severity-high: var(--sev-high);
+  --color-severity-medium: var(--sev-medium);
+  --color-severity-low: var(--sev-low);
+  --color-severity-info: var(--sev-info);
+
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* One step below text-xs, for metadata that must not compete with the copy:
+     timings, provenance lines, badge text. In rem so it still rides the single
+     text-size dial below — `text-[11px]` would opt out of it. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1.45;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DESIGN SYSTEM — house style, shared with Fab-Marketing-Campaign
+   Glassmorphism + Inter + animated mesh.
+   ═══════════════════════════════════════════════════════════ */
+:root,
+[data-theme='light'] {
+  --accent: #7c5ce6;
+  --accent-dark: #6242c9;
+  --accent-glow: rgba(124, 92, 230, 0.14);
+  --accent-soft: rgba(124, 92, 230, 0.07);
+  --bg-primary: #ffffff;
+  --bg-secondary: #f4f6fa; /* page */
+  --bg-card: rgba(255, 255, 255, 0.65); /* glass */
+  --bg-card-solid: #ffffff; /* card */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border: rgba(226, 232, 240, 0.8);
+  --header-bg: rgba(11, 29, 50, 0.92);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --mesh-1: rgba(0, 200, 83, 0.07);
+  --mesh-2: rgba(56, 189, 248, 0.07);
+  --mesh-3: rgba(139, 92, 246, 0.05);
+}
+
+/* The dark ramp is set by measured contrast on the card it sits on (#1e293b), not by eye.
+   `--bg-secondary` is the PAGE and `--bg-card-solid` is the CARD: they must differ, or the
+   cards dissolve into the page and only their borders draw them. */
+[data-theme='dark'] {
+  --bg-primary: #0b1120;
+  --bg-secondary: #0f172a; /* page — darker than the cards sitting on it */
+  --bg-card: rgba(30, 41, 59, 0.72);
+  --bg-card-solid: #1e293b; /* card */
+  --text-primary: #f1f5f9; /* 13.4:1 on the card */
+  --text-secondary: #cbd5e1; /*  9.9:1 */
+  --text-muted: #94a3b8; /*  5.7:1 — #64748b would be 3.1:1, below the AA body floor */
+  --border: rgba(71, 85, 105, 0.75);
+  --header-bg: rgba(15, 23, 42, 0.95);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.3);
+  --mesh-1: rgba(0, 200, 83, 0.04);
+  --mesh-2: rgba(56, 189, 248, 0.04);
+  --mesh-3: rgba(139, 92, 246, 0.03);
 }
 
 @layer base {
+  /* One dial for the whole app's text size. Every font-size is in rem, so it is relative to
+     this: 100% = browser default (16px). 115% because a NOC console is read off a projector or
+     a wall screen from several metres away, where 13.5px body text is unreadable. Never set a
+     font-size in px — it would escape this dial. */
+  html {
+    font-size: 115%;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background 0.4s, color 0.4s;
+  }
+
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
-  }
-
-  body {
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    border-color: var(--border);
   }
 }
 
-/* ── Universal App landing ──────────────────────────────────────────────────
-   A branded hero with a recolorable "Rayfin" wordmark and a playful light-bulb
-   pull toggle. Light theme is the default; `.dark` on <html> flips it to the
-   moody dark theme. Replace this page with your own once you start building. */
-.rayfin-hero {
-  /* Light theme (lights on) */
-  --hero-fg: #0c4a4d;
-  --hero-wordmark: #0d6d71;
-  --hero-hint: rgba(12, 74, 76, 0.72);
-  --hero-hint-bg: rgba(12, 74, 76, 0.05);
-  --hero-hint-border: rgba(12, 74, 76, 0.14);
-  --hero-nudge: rgba(12, 74, 76, 0.6);
-  --hero-dot: rgba(12, 90, 92, 0.11);
-  --wm-glow: rgba(20, 170, 168, 0.28);
-  --hero-bg: radial-gradient(700px 400px at 50% 4%, rgba(255, 214, 120, 0.4), transparent 62%),
-    radial-gradient(150% 120% at 50% 0%, #ffffff 0%, #e6f7f5 46%, #c6ecea 100%);
-
-  position: relative;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  /* Decorative landing screen — nothing here is meant to be text-selected, so
-     suppress the stray highlight you get when dragging over the bulb/labels. */
-  user-select: none;
-  -webkit-user-select: none;
-  padding: 24px;
-  color: var(--hero-fg);
-  background: var(--hero-bg);
-  transition:
-    background 0.5s ease,
-    color 0.5s ease;
-}
-
-.dark .rayfin-hero {
-  /* Dark theme (lights off) */
-  --hero-fg: #eafffe;
-  --hero-wordmark: #dcfbfb;
-  --hero-hint: rgba(255, 255, 255, 0.78);
-  --hero-hint-bg: rgba(255, 255, 255, 0.07);
-  --hero-hint-border: rgba(255, 255, 255, 0.14);
-  --hero-nudge: rgba(234, 255, 254, 0.7);
-  --hero-dot: rgba(255, 255, 255, 0.09);
-  --wm-glow: rgba(150, 245, 245, 0.5);
-  --hero-bg: radial-gradient(760px 460px at 50% 40%, rgba(70, 212, 205, 0.16), transparent 60%),
-    radial-gradient(150% 120% at 50% 0%, #16585b 0%, #0c3538 48%, #061e20 100%);
-}
-
-/* faint dot-grid "canvas", fading out toward the edges */
-.rayfin-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(var(--hero-dot) 1px, transparent 1.5px);
-  background-size: 26px 26px;
-  -webkit-mask-image: radial-gradient(72% 62% at 50% 44%, #000 36%, transparent 80%);
-  mask-image: radial-gradient(72% 62% at 50% 44%, #000 36%, transparent 80%);
-  pointer-events: none;
-}
-
-/* subtle vignette for depth (dark theme only) */
-.dark .rayfin-hero::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(125% 100% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.28));
-  pointer-events: none;
-}
-
-.rayfin-hero-inner {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 22px;
-  max-width: 100%;
-  animation: rayfin-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.rayfin-wordmark {
-  width: clamp(260px, 44vw, 500px);
-  height: auto;
-  color: var(--hero-wordmark);
-  user-select: none;
-  filter: drop-shadow(0 0 14px var(--wm-glow));
-  transition:
-    color 0.5s ease,
-    filter 0.5s ease;
-}
-
-.rayfin-hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin: 0;
-  padding: 8px 16px;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--hero-hint);
-  background: var(--hero-hint-bg);
-  border: 1px solid var(--hero-hint-border);
-  border-radius: 999px;
-  transition:
-    color 0.5s ease,
-    background 0.5s ease,
-    border-color 0.5s ease;
-}
-
-/* blinking terminal-style caret after the hint */
-.rayfin-hint::after {
-  content: '';
-  width: 7px;
-  height: 15px;
-  background: currentColor;
-  border-radius: 1px;
-  opacity: 0.85;
-  animation: rayfin-blink 1.15s step-end infinite;
-}
-
-/* ── Light-bulb pull toggle ─────────────────────────────────────────────── */
-.lightpull {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3;
-  border: 0;
-  background: transparent;
-  padding: 0;
-  /* only the chain's grab target is interactive; empty space clicks through */
-  pointer-events: none;
-  animation: rayfin-drop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-  -webkit-tap-highlight-color: transparent;
-}
-.lightpull:focus-visible {
-  outline: none;
-}
-.lightpull:focus-visible .glass {
-  stroke-width: 2.2;
-}
-
-.lightpull-svg {
-  display: block;
-  width: 106px;
-  height: auto;
-  overflow: visible;
-}
-
-/* the chain's grab handle (invisible, generous hit area) */
-.lightpull .chain-hit {
-  pointer-events: auto;
-  cursor: grab;
-}
-.lightpull .chain-hit:active {
-  cursor: grabbing;
-}
-
-.lightpull .glass,
-.lightpull .filament,
-.lightpull .halo {
-  transition:
-    fill 0.4s ease,
-    stroke 0.4s ease,
-    opacity 0.4s ease;
-}
-
-/* Lit (light theme) */
-.lightpull .halo {
-  opacity: 1;
-}
-.lightpull .glass {
-  fill: url(#lp-warm);
-  stroke: #ffcf76;
-  filter: drop-shadow(0 0 7px rgba(255, 205, 90, 0.85));
-}
-.lightpull .filament {
-  stroke: #fff3c4;
-}
-.lightpull .cap {
-  fill: #b9a06a;
-}
-.lightpull .cord {
-  stroke: rgba(90, 78, 45, 0.5);
-}
-.lightpull .chain-cord {
-  stroke: #b6a06c;
-  stroke-width: 1.2;
-}
-.lightpull .chain-bead {
-  fill: #c3a86e;
-}
-.lightpull .chain-knob {
-  fill: #e9c877;
-}
-
-/* Off (dark theme) */
-.dark .lightpull .halo {
-  opacity: 0;
-}
-.dark .lightpull .glass {
-  fill: rgba(210, 235, 235, 0.14);
-  stroke: rgba(255, 255, 255, 0.4);
-  filter: none;
-}
-.dark .lightpull .filament {
-  stroke: rgba(255, 255, 255, 0.35);
-}
-.dark .lightpull .cap {
-  fill: rgba(255, 255, 255, 0.32);
-}
-.dark .lightpull .cord {
-  stroke: rgba(255, 255, 255, 0.28);
-}
-.dark .lightpull .chain-cord {
-  stroke: rgba(255, 255, 255, 0.4);
-}
-.dark .lightpull .chain-bead {
-  fill: rgba(255, 255, 255, 0.45);
-}
-.dark .lightpull .chain-knob {
-  fill: rgba(255, 255, 255, 0.62);
-}
-
-/* ── "pull me" nudge ────────────────────────────────────────────────────────
-   A quiet, hand-drawn hint pointing at the pull-chain. It fades out for good
-   once the chain has been tugged (HomePage adds .rayfin-nudge--gone). */
-.rayfin-nudge {
-  position: absolute;
-  top: 108px;
-  left: 50%;
-  width: 168px;
-  height: 74px;
-  z-index: 2;
-  color: var(--hero-nudge);
-  pointer-events: none;
-  transition:
-    opacity 0.55s ease,
-    transform 0.55s ease;
-  animation: rayfin-nudge-in 0.7s ease 0.95s backwards;
-}
-
-.rayfin-nudge-arrow {
-  position: absolute;
-  left: 0;
-  top: 2px;
-  width: 72px;
-  height: 60px;
-  overflow: visible;
-}
-
-.rayfin-nudge-stroke {
-  fill: none;
-  stroke: currentColor;
-  vector-effect: non-scaling-stroke;
-}
-
-.rayfin-nudge-label {
-  position: absolute;
-  left: 61px;
-  top: 3px;
-  font-family: 'Caveat', 'Segoe Print', cursive;
-  font-size: 22px;
-  font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
-  transform: rotate(-7deg);
-  transform-origin: left center;
-}
-
-.rayfin-nudge--gone {
-  opacity: 0;
-  transform: translateY(-5px) scale(0.97);
-  animation: none;
-}
-
-@keyframes rayfin-nudge-in {
-  from {
-    opacity: 0;
-    transform: translateY(7px);
+@layer components {
+  .glass {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  /* Animated mesh backdrop. Three slow blobs; `pointer-events: none` so it never eats a click. */
+  .mesh-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .mesh-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    animation: mesh-drift 22s ease-in-out infinite;
+  }
+
+  .mesh-blob:nth-child(1) {
+    width: 46vw;
+    height: 46vw;
+    background: var(--mesh-3);
+    top: -12%;
+    right: -8%;
+  }
+
+  .mesh-blob:nth-child(2) {
+    width: 38vw;
+    height: 38vw;
+    background: var(--mesh-2);
+    bottom: -14%;
+    left: -6%;
+    animation-delay: -7s;
+  }
+
+  .mesh-blob:nth-child(3) {
+    width: 30vw;
+    height: 30vw;
+    background: var(--mesh-1);
+    top: 30%;
+    left: 40%;
+    animation-delay: -14s;
   }
 }
 
-@keyframes rayfin-rise {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes rayfin-drop {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -22px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-@keyframes rayfin-blink {
+@keyframes mesh-drift {
   0%,
   100% {
-    opacity: 0.85;
+    transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
+    transform: translate3d(4%, -6%, 0) scale(1.12);
+  }
+}
+
+/* Respect the OS setting: an animated backdrop is decoration, never information. */
+@media (prefers-reduced-motion: reduce) {
+  .mesh-blob {
+    animation: none;
+  }
+  body {
+    transition: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Dark-mode retrofit for surfaces still written in raw Tailwind utilities.
+   ═══════════════════════════════════════════════════════════
+   Screens hardcode `bg-white` / `text-slate-900` / `border-slate-200`. Remapping the handful of
+   surface utilities here does the same job as rewriting every call site, in one place — and it
+   is deliberately removable: port a page to `var(--…)` and it stops matching these rules.
+
+   Unlayered on purpose. Tailwind emits its utilities inside `@layer utilities`, and an unlayered
+   rule beats a layered one whatever the specificity, so this cannot be defeated by the order
+   Tailwind happens to emit its classes in.
+
+   Alpha variants (`bg-white/5`, `bg-white/10`) are distinct class names and stay untouched —
+   that is what keeps the dark header working in both themes. Solid data fills (`bg-emerald-500`
+   and friends, the status dots) are values, not surfaces, and are left alone. */
+
+/* The sign-in screen owns its colours: its page is a *gradient* (compiled to gradient stops, not
+   to a `background-color`) and its card is a glass surface, so neither is reached by the retrofit
+   above. It gets a real themed surface instead of an exemption — which is the escape hatch the
+   whole retrofit was designed around: a page that owns its colours stops matching. */
+.auth-bg {
+  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 55%, #eef2ff 100%);
+}
+[data-theme='dark'] .auth-bg {
+  background: linear-gradient(135deg, #0b1120 0%, #0f172a 55%, #141b38 100%);
+}
+
+/* — neutral surfaces ————————————————————————————— */
+[data-theme='dark'] .bg-white {
+  background-color: var(--bg-card-solid);
+}
+[data-theme='dark'] .bg-slate-50,
+[data-theme='dark'] .bg-gray-50 {
+  background-color: var(--bg-secondary);
+}
+[data-theme='dark'] .bg-slate-100,
+[data-theme='dark'] .bg-gray-100 {
+  background-color: rgba(148, 163, 184, 0.14);
+}
+
+/* — neutral text ————————————————————————————————— */
+[data-theme='dark'] .text-slate-900,
+[data-theme='dark'] .text-slate-800,
+[data-theme='dark'] .text-gray-900,
+[data-theme='dark'] .text-gray-800 {
+  color: var(--text-primary);
+}
+[data-theme='dark'] .text-slate-700,
+[data-theme='dark'] .text-slate-600,
+[data-theme='dark'] .text-gray-700,
+[data-theme='dark'] .text-gray-600 {
+  color: var(--text-secondary);
+}
+[data-theme='dark'] .text-slate-500,
+[data-theme='dark'] .text-slate-400,
+[data-theme='dark'] .text-gray-500 {
+  color: var(--text-muted);
+}
+
+/* — neutral borders —————————————————————————————— */
+[data-theme='dark'] .border-slate-100,
+[data-theme='dark'] .border-slate-200,
+[data-theme='dark'] .border-slate-300,
+[data-theme='dark'] .border-gray-200,
+[data-theme='dark'] .divide-slate-200 > * + * {
+  border-color: var(--border);
+}
+[data-theme='dark'] .ring-slate-200 {
+  --tw-ring-color: var(--border);
+}
+
+/* — severity tints ——————————————————————————————
+   The chips and panel tints from `domain/severity.ts`. Leaving them light "so the alarm still
+   stands out" fails: on a dark page a near-white box does not read as an alarm, it reads as a
+   rendering fault. The tint flips and the foreground lifts with it — the alarm still stands
+   out, by hue. The foreground itself is already themed, via `--sev-*` above. */
+[data-theme='dark'] .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.14);
+}
+[data-theme='dark'] .ring-red-200 {
+  --tw-ring-color: rgba(239, 68, 68, 0.45);
+}
+
+[data-theme='dark'] .bg-orange-50 {
+  background-color: rgba(249, 115, 22, 0.14);
+}
+[data-theme='dark'] .ring-orange-200 {
+  --tw-ring-color: rgba(249, 115, 22, 0.45);
+}
+
+[data-theme='dark'] .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.14);
+}
+[data-theme='dark'] .ring-amber-200 {
+  --tw-ring-color: rgba(245, 158, 11, 0.45);
+}
+
+[data-theme='dark'] .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.14);
+}
+[data-theme='dark'] .ring-emerald-200 {
+  --tw-ring-color: rgba(16, 185, 129, 0.45);
+}
+
+[data-theme='dark'] .bg-blue-50,
+[data-theme='dark'] .hover\:bg-blue-50:hover {
+  background-color: rgba(59, 130, 246, 0.16);
+}
+[data-theme='dark'] .text-blue-700 {
+  color: #93c5fd;
+}
+
+/* ------------------------------------------------------------------ *
+ * Portal vocabulary — the cover screen.
+ *
+ * Ported from the house app rather than reinvented. The entry screen's job is to
+ * *invite*: a flat list of links describes the product, a grid of doors opens it.
+ * `--card-accent` is set per card so one recipe serves every investigation family.
+ * ------------------------------------------------------------------ */
+
+/* The headline gradient is a text fill, so it is defined per theme rather than
+   reusing --accent: the light ramp is too dark to read on the dark page. */
+:root,
+[data-theme='light'] {
+  --portal-grad-a: #5b3fd6;
+  --portal-grad-b: #0369a1;
+}
+[data-theme='dark'] {
+  --portal-grad-a: #a78bfa;
+  --portal-grad-b: #7dd3fc;
+}
+
+@keyframes portal-in {
+  from {
     opacity: 0;
+    transform: translateY(1.75rem) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.portal-in {
+  animation: portal-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.portal-d1 {
+  animation-delay: 0.1s;
+}
+.portal-d2 {
+  animation-delay: 0.22s;
+}
+.portal-d3 {
+  animation-delay: 0.34s;
+}
+.portal-d4 {
+  animation-delay: 0.46s;
+}
+
+.portal-accent {
+  background: linear-gradient(135deg, var(--portal-grad-a), var(--portal-grad-b));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* The live dot is bound to the data source, not decorative. A status light that
+   cannot go out is not a status light. */
+@keyframes portal-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}
+.portal-dot {
+  animation: portal-pulse 2s ease-in-out infinite;
+}
+
+/* Investigation cards. The accent bar, the diagonal wash and the sliding arrow are
+   what make a card feel like a door rather than a panel. */
+.portal-card {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.35s,
+    box-shadow 0.35s,
+    border-color 0.35s;
+}
+.portal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--card-accent, var(--accent));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.portal-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 45%, var(--card-accent, var(--accent)));
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.portal-card:hover {
+  transform: translateY(-0.375rem) scale(1.01);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--card-accent, var(--accent));
+}
+.portal-card:hover::before {
+  opacity: 1;
+}
+.portal-card:hover::after {
+  opacity: 0.04;
+}
+[data-theme='dark'] .portal-card:hover::after {
+  opacity: 0.09;
+}
+.portal-card:focus-visible {
+  outline: 2px solid var(--card-accent, var(--accent));
+  outline-offset: 3px;
+}
+
+.portal-arrow {
+  opacity: 0.4;
+  transition:
+    transform 0.35s,
+    opacity 0.35s;
+}
+.portal-card:hover .portal-arrow {
+  transform: translateX(0.375rem);
+  opacity: 1;
+}
+
+.portal-chip {
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  transition:
+    background 0.25s,
+    color 0.25s;
+}
+.portal-card:hover .portal-chip {
+  background: var(--accent-soft);
+  color: var(--card-accent, var(--accent));
+}
+[data-theme='dark'] .portal-chip {
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.portal-tile {
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+.portal-tile:hover {
+  transform: translateY(-0.125rem);
+  box-shadow: var(--shadow-lg);
+}
+
+/* A card arrives from the cover with ?focus=<anchor>. The layout scrolls to
+   that section and marks it; without a rule here the mark is invisible and the
+   reader has to work out for themselves why the page jumped. The ring fades
+   out on its own — it answers "why am I here", it is not a persistent state. */
+[data-focused] {
+  animation: focus-land 2.4s ease-out;
+}
+@keyframes focus-land {
+  0%,
+  55% {
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  100% {
+    box-shadow: 0 0 0 2px transparent;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rayfin-hero-inner,
-  .lightpull,
-  .rayfin-nudge {
+  .portal-in,
+  .portal-dot {
     animation: none;
   }
-  .rayfin-hint::after {
+  [data-focused] {
     animation: none;
+    box-shadow: 0 0 0 2px var(--accent);
   }
+  .portal-card:hover,
+  .portal-tile:hover {
+    transform: none;
+  }
+}
+
+/* Cover-only layout; the workspace keeps its compact KPI and panel sizing. */
+.cover-page {
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding: clamp(1.5rem, 3vw, 3rem) clamp(1rem, 4vw, 3rem) 2.5rem;
+}
+
+.cover-hero {
+  max-width: 48rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.cover-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.375rem 0.875rem;
+  color: var(--text-secondary);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.cover-eyebrow > span {
+  color: var(--portal-grad-a);
+}
+
+.cover-title {
+  margin-top: 1.25rem;
+  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+  font-weight: 750;
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+  color: var(--text-primary);
+}
+.cover-title > span {
+  display: block;
+}
+.cover-intro {
+  max-width: 42rem;
+  margin: 1.25rem auto 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.cover-metrics {
+  max-width: 53rem;
+  margin: 2.5rem auto;
+}
+.cover-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.cover-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 7.5rem;
+  padding: 1rem 0.375rem;
+  border-radius: 1rem;
+  text-align: center;
+}
+.cover-kpi-icon {
+  order: 0;
+  font-size: 1.125rem;
+  color: var(--portal-grad-b);
+}
+.cover-kpi-value {
+  order: 1;
+  margin-top: 0.375rem;
+  font-size: 1.875rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.cover-kpi-label {
+  order: 2;
+  margin-top: 0.375rem;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cover-kpi-hint {
+  order: 3;
+  font-size: 0.625rem;
+}
+
+.cover-section-label {
+  margin-bottom: 0.875rem;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.cover-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+.cover-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1.375rem;
+  border-radius: 1rem;
+  text-align: left;
+}
+.cover-card-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 0.75rem;
+  row-gap: 0.125rem;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 650;
+  border-radius: 0.5rem;
+}
+.cover-card-open {
+  grid-column: 2;
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.cover-card-heading:focus-visible,
+.cover-question-action:focus-visible {
+  outline: 2px solid var(--card-accent);
+  outline-offset: 4px;
+}
+.cover-card-heading:hover .cover-card-open {
+  color: var(--card-accent);
+}
+.cover-question-action {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border);
+  text-align: left;
+  cursor: pointer;
+}
+.cover-question-action:hover .portal-chip:last-child {
+  color: var(--card-accent);
+}
+.cover-card-icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 0.875rem;
+  background: color-mix(in srgb, var(--card-accent) 12%, var(--bg-card-solid));
+  font-size: 1.25rem;
+  grid-row: span 2;
+}
+.cover-card-question {
+  margin-block: 1rem 1.25rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.cover-card-footer {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+.cover-card-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+.cover-card .portal-chip {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  color: var(--text-secondary);
+  font-size: 0.5625rem;
+  font-weight: 650;
+  text-transform: uppercase;
+}
+.cover-card .portal-arrow {
+  margin-left: auto;
+  color: var(--card-accent);
+}
+.cover-card:hover {
+  transform: translateY(-0.2rem);
+  box-shadow: var(--shadow-md);
+}
+.cover-caption {
+  margin-top: 0.75rem;
+  font-size: 0.6875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.cover-platform {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+.cover-iq {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+.cover-architecture {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 29rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  text-align: left;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.cover-architecture-title {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: var(--text-primary);
+}
+.cover-architecture-detail {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.625rem;
+}
+.cover-architecture:hover,
+.cover-architecture:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 1100px) {
+  .app-header-inner {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+  .app-header-tools {
+    margin-left: auto;
+    gap: 0.5rem;
+    padding-left: 0.5rem;
+  }
+  .app-main-nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 0;
+  }
+  .app-iq-link {
+    font-size: 0.6875rem;
+    padding-inline: 0.5rem;
+  }
+}
+@media (max-width: 700px) {
+  .cover-metrics-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .cover-cards {
+    grid-template-columns: 1fr;
+  }
+  .cover-kpi {
+    min-height: 6.5rem;
+  }
+  .cover-metrics {
+    margin-block: 1.75rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cover-card,
+  .cover-card::before,
+  .cover-card::after,
+  .cover-card .portal-arrow,
+  .cover-card .portal-chip {
+    transition: none;
+  }
+  .cover-card:hover {
+    transform: none;
+  }
+}
+
+/* The cover's single primary action. It is the only button on a very quiet page, so it
+   carries a little more weight than a normal one — and lifts on hover, which is the whole
+   affordance: this page is a door, not a report. */
+.portal-cta {
+  box-shadow: 0 8px 24px -8px color-mix(in oklab, var(--accent) 70%, transparent);
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease;
+}
+.portal-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px -8px color-mix(in oklab, var(--accent) 80%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .portal-cta,
+  .portal-cta:hover {
+    transform: none;
+    transition: none;
+  }
+}
+/* ---------------------------------------------------------------------------
+   The chain diagram.
+
+   Plane colour is data: the class comes from `plane` in `domain/chain.ts`, and the hues live
+   here so they follow the theme instead of being frozen into the SVG. Amber for Foundry, teal
+   for Fabric, blue for the semantic model, violet for the ontology — the same reading as the
+   sibling console, so the two demos do not teach two different colour languages.
+
+   Dark-mode values are not the light ones dimmed: on a dark card the light fills disappear and
+   the light strokes glare, so each plane gets a lifted stroke and a heavier fill.
+   --------------------------------------------------------------------------- */
+.wf-node.is-foundry {
+  color: #92400e;
+  --wf-fill: rgba(217, 119, 6, 0.12);
+}
+.wf-node.is-fabric {
+  color: #02555f;
+  --wf-fill: rgba(2, 113, 128, 0.1);
+}
+.wf-node.is-ontology {
+  color: #4c1d95;
+  --wf-fill: rgba(138, 43, 226, 0.1);
+}
+.wf-node.is-semantic {
+  color: #1b5e9e;
+  --wf-fill: rgba(27, 94, 158, 0.1);
+}
+
+[data-theme='dark'] .wf-node.is-foundry {
+  color: #fbbf24;
+  --wf-fill: rgba(217, 119, 6, 0.2);
+}
+[data-theme='dark'] .wf-node.is-fabric {
+  color: #5eead4;
+  --wf-fill: rgba(45, 212, 191, 0.16);
+}
+[data-theme='dark'] .wf-node.is-ontology {
+  color: #c4b5fd;
+  --wf-fill: rgba(139, 92, 246, 0.2);
+}
+[data-theme='dark'] .wf-node.is-semantic {
+  color: #93c5fd;
+  --wf-fill: rgba(59, 130, 246, 0.18);
+}
+
+.wf-node rect {
+  fill: var(--wf-fill);
+  stroke: currentColor;
+}
+.wf-node text {
+  fill: currentColor;
+}
+
+/* Connectors are chrome, not data: they take the muted text colour so they recede behind the
+   boxes they join, in both themes. */
+.wf-edge {
+  stroke: var(--text-muted);
+  opacity: 0.75;
+}
+.wf-arrow-head {
+  fill: var(--text-muted);
+}
+.wf-edge-protocol {
+  fill: var(--text-secondary);
+}
+.wf-edge-name {
+  fill: var(--text-muted);
+}
+
+/* The legend swatch reuses the node classes so a plane cannot be recoloured in one place and
+   not the other. */
+.wf-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-secondary);
+}
+.wf-key::before {
+  content: '';
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 0.2rem;
+  background: var(--wf-fill);
+  border: 1.5px solid currentColor;
+}
+.wf-key.is-foundry {
+  color: #92400e;
+  --wf-fill: rgba(217, 119, 6, 0.12);
+}
+.wf-key.is-fabric {
+  color: #02555f;
+  --wf-fill: rgba(2, 113, 128, 0.1);
+}
+.wf-key.is-ontology {
+  color: #4c1d95;
+  --wf-fill: rgba(138, 43, 226, 0.1);
+}
+.wf-key.is-semantic {
+  color: #1b5e9e;
+  --wf-fill: rgba(27, 94, 158, 0.1);
+}
+[data-theme='dark'] .wf-key.is-foundry {
+  color: #fbbf24;
+  --wf-fill: rgba(217, 119, 6, 0.2);
+}
+[data-theme='dark'] .wf-key.is-fabric {
+  color: #5eead4;
+  --wf-fill: rgba(45, 212, 191, 0.16);
+}
+[data-theme='dark'] .wf-key.is-ontology {
+  color: #c4b5fd;
+  --wf-fill: rgba(139, 92, 246, 0.2);
+}
+[data-theme='dark'] .wf-key.is-semantic {
+  color: #93c5fd;
+  --wf-fill: rgba(59, 130, 246, 0.18);
 }

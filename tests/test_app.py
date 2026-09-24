@@ -1,9 +1,10 @@
 """Offline checks for the phase 3 Rayfin console (``fabric/app`` + ``app-zava-service-desk``).
 
 The app queries SM_ServiceDesk_Analytics in DAX from TypeScript. These tests keep that
-TypeScript honest against the Python model definition, and keep every tenant-specific
-file the deploy script writes out of the public repo.
+TypeScript honest against the Python model definition, keep the deploy script's pure
+parts correct, and keep every tenant-specific file it writes out of the public repo.
 """
+import json
 import re
 import subprocess
 import uuid
@@ -14,22 +15,21 @@ import deploy_all
 from fabric._shared.paths import ROOT
 from fabric.app import deploy_app as app
 from fabric.data.schema import LAKEHOUSE
-from fabric.data_agent import deploy_data_agent as da
 from fabric.powerbi.deploy_semantic_model import MEASURES, TABLES
 
-WS, MODEL, REPORT = (str(uuid.UUID(int=i)) for i in range(1, 4))
-QUERIES_TS = (app.APP_DIR / "src" / "servicedesk" / "queries.ts").read_text(encoding="utf-8")
+WS, MODEL, AGENT, TENANT, CLIENT = (str(uuid.UUID(int=i)) for i in range(1, 6))
+SRC = app.APP_DIR / "src"
+QUERIES_TS = (SRC / "data" / "queries.ts").read_text(encoding="utf-8")
 MEASURE_NAMES = {m[0] for ms in MEASURES.values() for m in ms}
 COLUMN_NAMES = {(t, c) for t in TABLES for c, _ in LAKEHOUSE[t]}
 
 
 def _dax_queries():
-    return dict(re.findall(r"export const (\w+_QUERY) = `(.*?)`;", QUERIES_TS, re.S))
+    return dict(re.findall(r"export const (\w+_DAX) = `(.*?)`;", QUERIES_TS, re.S))
 
 
-def test_queries_ts_declares_every_dax_query():
-    assert set(_dax_queries()) == {"KPI_QUERY", "XLA_QUERY", "TREND_QUERY",
-                                   "AGENTS_QUERY", "SITES_QUERY"}
+def test_queries_ts_declares_the_dax_queries():
+    assert {"COVER_DAX", "PORTFOLIO_DAX", "XLA_WEEK_DAX", "AGENTS_DAX"} <= set(_dax_queries())
 
 
 @pytest.mark.parametrize("name", sorted(_dax_queries()))
@@ -43,45 +43,89 @@ def test_dax_queries_reference_real_columns_and_measures(name):
         assert ref in MEASURE_NAMES or ref in aliases, f"{name}: [{ref}]"
 
 
-def test_connection_name_matches_the_typescript():
-    assert f'CONNECTION = "{app.CONNECTION}"' in QUERIES_TS
+def test_every_vite_binding_is_read_by_the_app():
+    used = set()
+    for path in SRC.rglob("*.ts*"):
+        used |= set(re.findall(r"import\.meta\.env\.(VITE_\w+)", path.read_text(encoding="utf-8")))
+    bindings = app.app_bindings({"tenant_id": TENANT}, {
+        "application_client_id": CLIENT, "semantic_model_id": MODEL,
+        "workspace_id": WS, "data_agent_id": AGENT})
+    assert set(bindings) <= used
+    assert bindings["VITE_ENTRA_TENANT_ID"] == TENANT and bindings["VITE_ZAVA_DATA_AGENT_ID"] == AGENT
 
 
-def test_fabric_yaml_points_at_the_semantic_model():
-    text = app.fabric_yaml({"workspace_id": WS, "semantic_model_id": MODEL})
-    assert "semanticModels:" in text
-    assert f"      {app.CONNECTION}:\n        workspaceId: {WS}\n        itemId: {MODEL}\n" in text
+def test_foundry_stays_simulated():
+    assert not any("FOUNDRY" in k for k in app.app_bindings({"tenant_id": TENANT}, {
+        "application_client_id": CLIENT, "semantic_model_id": MODEL,
+        "workspace_id": WS, "data_agent_id": AGENT}))
+    assert list(app.PERMISSIONS) == ["https://analysis.windows.net/powerbi/api"]
+    assert "DataAgent.Execute.All" in app.PERMISSIONS["https://analysis.windows.net/powerbi/api"]
 
 
-def test_portal_links_skip_missing_items_and_end_with_the_workspace():
-    links = app.portal_links({"workspace_id": WS, "report_id": REPORT})
-    assert [link["key"] for link in links] == ["report", "workspace"]
-    assert links[0]["url"] == f"{app.PORTAL}/groups/{WS}/reports/{REPORT}"
-    assert links[-1]["url"] == f"{app.PORTAL}/groups/{WS}/list"
+def test_write_bindings_keeps_other_lines_and_cleans_env_local(tmp_path):
+    (tmp_path / ".env.production.local").write_text(
+        "KEEP=1\nVITE_SEMANTIC_MODEL_ID=old\nVITE_FABRIC_ITEM_ID=stale\n", encoding="utf-8")
+    (tmp_path / ".env.local").write_text("VITE_RAYFIN_API_URL=x\nVITE_SEMANTIC_MODEL_ID=old\n",
+                                         encoding="utf-8")
+    app.write_bindings({"VITE_SEMANTIC_MODEL_ID": MODEL}, tmp_path)
+    for name in app.GENERATED_FILES:
+        text = (tmp_path / name).read_text(encoding="utf-8")
+        assert f"VITE_SEMANTIC_MODEL_ID={MODEL}\n" in text and "old" not in text
+        assert "VITE_FABRIC_" not in text
+    assert "KEEP=1" in (tmp_path / ".env.production.local").read_text(encoding="utf-8")
+    assert (tmp_path / ".env.local").read_text(encoding="utf-8") == "VITE_RAYFIN_API_URL=x\n"
 
 
-def test_portal_items_read_real_state_keys():
-    example = (ROOT / "state.example.json").read_text(encoding="utf-8")
-    for _, _, _, state_key, _ in app.PORTAL_ITEMS:
-        assert f'"{state_key}"' in example, state_key
+def test_merge_required_access_adds_without_dropping():
+    current = [{"resourceAppId": "a", "resourceAccess": [{"id": "1", "type": "Scope"}]}]
+    wanted = [{"resourceAppId": "a", "resourceAccess": [{"id": "1", "type": "Scope"},
+                                                         {"id": "2", "type": "Scope"}]},
+              {"resourceAppId": "b", "resourceAccess": [{"id": "3", "type": "Scope"}]}]
+    merged = {p["resourceAppId"]: [s["id"] for s in p["resourceAccess"]]
+              for p in app.merge_required_access(current, wanted)}
+    assert merged == {"a": ["1", "2"], "b": ["3"]}
+    assert current[0]["resourceAccess"] == [{"id": "1", "type": "Scope"}]
 
 
-def test_demo_questions_are_the_data_agent_fewshots():
-    questions = [q["question"] for q in app.demo_questions()]
-    expected = [q for shots in (da.GQL_FEWSHOTS, da.DAX_FEWSHOTS, da.KQL_FEWSHOTS)
-                for q, _ in shots]
-    assert questions == expected
-    assert len({q["source"] for q in app.demo_questions()}) == 3
+def test_rayfin_up_targets_the_workspace_by_id_in_two_passes():
+    item = app.rayfin_up_args(TENANT, WS, static_hosting=False)
+    assert item == ["up", "--tenant", TENANT, "--workspace-id", WS, "--yes",
+                    "--exclude-services", "staticHosting"]
+    assert app.rayfin_up_args(TENANT, WS, static_hosting=True) == item[:-2]
 
 
-def test_rayfin_up_targets_the_workspace_by_id():
-    state = {"workspace_id": WS}
-    cmd = app.rayfin_up_command({"tenant_id": "<tenant-guid>"}, state)
-    assert cmd[1:] == ["rayfin", "up", "--workspace-id", WS, "--yes",
-                       "--exclude-services", "staticHosting"]
-    cmd = app.rayfin_up_command({"tenant_id": MODEL}, state, dry_run=True)
-    assert cmd[-3:] == ["-t", MODEL, "--dry-run"]
-    assert app.STATIC_DEPLOY[1:] == ["rayfin", "up", "staticapp", "deploy"]
+def test_rayfin_env_uses_the_cli_token_and_drops_inherited_overrides():
+    env = app.rayfin_env("tok", TENANT, WS, {"Path": "/a", "VITE_SEMANTIC_MODEL_ID": "x",
+                                              "RAYFIN_TOKEN": "old", "X": "1"})
+    assert env["RAYFIN_TOKEN"] == "tok" and env["RAYFIN_WORKSPACE_ID"] == WS
+    assert "VITE_SEMANTIC_MODEL_ID" not in env and env["X"] == "1"
+
+
+def test_child_env_dedupes_path_keeping_order():
+    sep = app.os.pathsep
+    env = app.child_env({"Path": sep.join(["/a", "/b", "/a/", "", "/c", "/b"]), "X": "1"})
+    assert env["Path"] == sep.join(["/a", "/b", "/c"])
+    assert env["X"] == "1" and "PATH" not in env
+
+
+def test_target_deployment_refuses_another_workspace(tmp_path):
+    path = tmp_path / ".deployments.json"
+    record = {"fabricItemId": "i", "fabricTenantId": TENANT, "fabricWorkspaceId": WS,
+              "hostingUrl": "https://x.webapp.fabricapps.net"}
+    path.write_text(json.dumps({"deployments": {"k": record}, "active": "k"}), encoding="utf-8")
+    assert app.target_deployment(TENANT.upper(), WS, path) == record
+    with pytest.raises(RuntimeError):
+        app.target_deployment(TENANT, MODEL, path)
+
+
+def test_hosting_origin_and_redirects():
+    origin = app.hosting_origin("https://live-birch-0000-swedencentral.webapp.fabricapps.net/")
+    assert origin.endswith(".webapp.fabricapps.net")
+    with pytest.raises(RuntimeError):
+        app.hosting_origin("http://evil.example.net")
+    uris = app.redirect_uris(["https://old.example"], origin)
+    assert uris == sorted({"https://old.example", app.DEV_REDIRECT, origin, f"{origin}/blank.html"})
+    assert app.redirect_uris([], None) == [app.DEV_REDIRECT]
 
 
 def test_app_portal_url_needs_the_item_and_carries_the_tenant():
@@ -91,13 +135,6 @@ def test_app_portal_url_needs_the_item_and_carries_the_tenant():
     assert app.app_portal_url({"tenant_id": "<tenant-guid>"}, state) == \
         f"{app.PORTAL}/groups/{WS}/appbackends/{MODEL}"
     assert app.app_portal_url({"tenant_id": WS}, state).endswith(f"/appbackends/{MODEL}?ctid={WS}")
-
-
-def test_child_env_dedupes_path_keeping_order():
-    sep = app.os.pathsep
-    env = app.child_env({"Path": sep.join(["/a", "/b", "/a/", "", "/c", "/b"]), "X": "1"})
-    assert env["Path"] == sep.join(["/a", "/b", "/c"])
-    assert env["X"] == "1" and "PATH" not in env
 
 
 def test_hosting_url_is_stripped_from_rayfin_yml():
@@ -116,20 +153,19 @@ def test_committed_rayfin_yml_is_tenant_neutral():
     assert text.startswith("id: App-Zava-Service-Desk\n")
 
 
-def test_deployment_record_is_found_at_any_depth(tmp_path, monkeypatch):
-    (tmp_path / "rayfin").mkdir()
-    (tmp_path / "rayfin" / ".deployments.json").write_text(
-        '{"deployments": [{"env": "prod", "item": {"fabricItemId": "x", "hostingUrl": "u"}}]}',
-        encoding="utf-8")
-    monkeypatch.setattr(app, "APP_DIR", tmp_path)
-    assert app.deployment_record() == {"fabricItemId": "x", "hostingUrl": "u"}
+def test_state_template_lists_the_app_keys():
+    example = (ROOT / "state.example.json").read_text(encoding="utf-8")
+    for key in ("application_client_id", "application_object_id", "app_item_id",
+                "app_url", "app_hosting_url", *app.BOUND_ITEMS):
+        assert f'"{key}"' in example, key
 
 
 def test_app_is_the_last_deploy_step():
     assert deploy_all.STEP_NAMES[-1] == "app"
 
 
-@pytest.mark.parametrize("rel", app.GENERATED_FILES + ("rayfin/.project.json",
+@pytest.mark.parametrize("rel", app.GENERATED_FILES + (".env.local",
+                                                         "rayfin/.project.json",
                                                          "rayfin/.deployments.json",
                                                          "rayfin/.env"))
 def test_tenant_specific_app_files_are_git_ignored(rel):
@@ -138,7 +174,11 @@ def test_tenant_specific_app_files_are_git_ignored(rel):
     assert res.returncode == 0, f"{path} is not git-ignored"
 
 
-def test_app_sources_are_not_ignored_by_the_python_lib_rule():
-    res = subprocess.run(["git", "check-ignore", "-q",
-                          "app-zava-service-desk/src/lib/fabric-client.ts"], cwd=ROOT)
-    assert res.returncode == 1
+def test_frozen_answers_carry_no_identifiers():
+    path = SRC / "data" / "frozen-answers.generated.json"
+    text = path.read_text(encoding="utf-8")
+    assert not re.search(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", text, re.I)
+    assert "onmicrosoft" not in text and HOSTED not in text
+
+
+HOSTED = app.HOSTED_URI_MARKER

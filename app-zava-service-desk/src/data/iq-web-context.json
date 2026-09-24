@@ -1,0 +1,29 @@
+{
+  "scenarioId": "week-38-close-2026",
+  "asOf": "2026-09-23",
+  "simulated": true,
+  "notes": [
+    {
+      "id": "SIM-WEB-FAB-01",
+      "caseId": "fabrikam-zt",
+      "customerId": "CUS-FAB",
+      "publishedOn": "2026-09-10",
+      "source": "Fabrikam Industries newsroom",
+      "headline": "Fabrikam opens an R&D hub in Lyon for 300 hybrid engineers",
+      "summary": "Fabrikam Industries has announced a new R&D hub in Lyon, opening in November 2026, with 300 engineers working in a hybrid model.",
+      "meetingPrompt": "Raise the VPN capacity plan for the Lyon hub at the service review, without presenting the announcement as the cause of the breach.",
+      "simulated": true
+    },
+    {
+      "id": "SIM-WEB-LIT-01",
+      "caseId": "litware-zt",
+      "customerId": "CUS-LIT",
+      "publishedOn": "2026-09-08",
+      "source": "Litware Insurance press room",
+      "headline": "Litware launches a self-service HR portal for its employees",
+      "summary": "Litware Insurance has rolled out a new self-service HR portal to all employees from 14 September 2026.",
+      "meetingPrompt": "The launch explains the surge of access requests. Propose a knowledge article and an automated access workflow in the remediation plan.",
+      "simulated": true
+    }
+  ]
+}

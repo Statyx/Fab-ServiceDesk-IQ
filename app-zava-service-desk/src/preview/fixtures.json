@@ -1,0 +1,587 @@
+{
+  "AGENTS_DAX": [
+    {
+      "dim_agent[agent_name]": "Resolver Agent",
+      "dim_agent[agent_type]": "AI",
+      "dim_agent[role]": "resolver",
+      "[Tickets]": 1185,
+      "[ZeroTouch]": 1185,
+      "[Hitl]": null
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L1-05",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 198,
+      "[ZeroTouch]": null,
+      "[Hitl]": 174
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L1-06",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 192,
+      "[ZeroTouch]": null,
+      "[Hitl]": 167
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L1-01",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 186,
+      "[ZeroTouch]": null,
+      "[Hitl]": 166
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L1-03",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 169,
+      "[ZeroTouch]": null,
+      "[Hitl]": 150
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L1-04",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 159,
+      "[ZeroTouch]": null,
+      "[Hitl]": 144
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L1-02",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 151,
+      "[ZeroTouch]": null,
+      "[Hitl]": 127
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L2-01",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 121,
+      "[ZeroTouch]": null,
+      "[Hitl]": 109
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L2-02",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 104,
+      "[ZeroTouch]": null,
+      "[Hitl]": 96
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L2-04",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 101,
+      "[ZeroTouch]": null,
+      "[Hitl]": 93
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L2-03",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 81,
+      "[ZeroTouch]": null,
+      "[Hitl]": 69
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L3-01",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 49,
+      "[ZeroTouch]": null,
+      "[Hitl]": 41
+    },
+    {
+      "dim_agent[agent_name]": "Service Desk Analyst L3-02",
+      "dim_agent[agent_type]": "Human",
+      "dim_agent[role]": "analyst",
+      "[Tickets]": 40,
+      "[ZeroTouch]": null,
+      "[Hitl]": 37
+    },
+    {
+      "dim_agent[agent_name]": null,
+      "dim_agent[agent_type]": null,
+      "dim_agent[role]": null,
+      "[Tickets]": 34,
+      "[ZeroTouch]": null,
+      "[Hitl]": 32
+    }
+  ],
+  "AUTOMATION_DAX": [
+    {
+      "dim_customer[customer_name]": "Woodgrove Bank",
+      "[Tickets]": 378,
+      "[ZeroTouch]": 0.3862,
+      "[Hitl]": 209,
+      "[Mttr]": 14.4694
+    },
+    {
+      "dim_customer[customer_name]": "Tailspin Airlines",
+      "[Tickets]": 340,
+      "[ZeroTouch]": 0.3912,
+      "[Hitl]": 184,
+      "[Mttr]": 14.3494
+    },
+    {
+      "dim_customer[customer_name]": "Northwind Logistics",
+      "[Tickets]": 379,
+      "[ZeroTouch]": 0.4195,
+      "[Hitl]": 197,
+      "[Mttr]": 13.8318
+    },
+    {
+      "dim_customer[customer_name]": "Fabrikam Industries",
+      "[Tickets]": 768,
+      "[ZeroTouch]": 0.4388,
+      "[Hitl]": 377,
+      "[Mttr]": 11.1278
+    },
+    {
+      "dim_customer[customer_name]": "Litware Insurance",
+      "[Tickets]": 453,
+      "[ZeroTouch]": 0.4525,
+      "[Hitl]": 216,
+      "[Mttr]": 12.1591
+    },
+    {
+      "dim_customer[customer_name]": "Contoso Retail",
+      "[Tickets]": 452,
+      "[ZeroTouch]": 0.4535,
+      "[Hitl]": 222,
+      "[Mttr]": 11.6153
+    }
+  ],
+  "COVER_DAX": [
+    {
+      "[Tickets]": 2770,
+      "[ZeroTouchWeek]": 0.3651,
+      "[OpenTickets]": 34,
+      "[Csat]": 4.2722,
+      "[BreachesWeek]": 2,
+      "[CreditWeek]": 9250
+    }
+  ],
+  "CUSTOMERS_DAX": [
+    {
+      "dim_customer[customer_name]": "Fabrikam Industries",
+      "[LastWeek]": 0.34,
+      "[PreviousWeek]": 0.46,
+      "[ChangePts]": -12,
+      "[Tickets]": 150,
+      "[Target]": 0.4,
+      "[Csat]": 4.0176
+    },
+    {
+      "dim_customer[customer_name]": "Litware Insurance",
+      "[LastWeek]": 0.34,
+      "[PreviousWeek]": 0.46,
+      "[ChangePts]": -12,
+      "[Tickets]": 50,
+      "[Target]": 0.4,
+      "[Csat]": 4.4714
+    },
+    {
+      "dim_customer[customer_name]": "Northwind Logistics",
+      "[LastWeek]": 0.4063,
+      "[PreviousWeek]": 0.4286,
+      "[ChangePts]": -2.2321,
+      "[Tickets]": 32,
+      "[Target]": null,
+      "[Csat]": 4.3636
+    },
+    {
+      "dim_customer[customer_name]": "Tailspin Airlines",
+      "[LastWeek]": 0.36,
+      "[PreviousWeek]": 0.3793,
+      "[ChangePts]": -1.931,
+      "[Tickets]": 25,
+      "[Target]": null,
+      "[Csat]": 4.2649
+    },
+    {
+      "dim_customer[customer_name]": "Contoso Retail",
+      "[LastWeek]": 0.4375,
+      "[PreviousWeek]": 0.45,
+      "[ChangePts]": -1.25,
+      "[Tickets]": 32,
+      "[Target]": 0.35,
+      "[Csat]": 4.3614
+    },
+    {
+      "dim_customer[customer_name]": "Woodgrove Bank",
+      "[LastWeek]": 0.4231,
+      "[PreviousWeek]": 0.375,
+      "[ChangePts]": 4.8077,
+      "[Tickets]": 26,
+      "[Target]": null,
+      "[Csat]": 4.3418
+    }
+  ],
+  "INCIDENTS_DAX": [
+    {
+      "fact_major_incident[major_incident_id]": "MI-FAB-0001",
+      "fact_major_incident[title]": "Corporate VPN drops and Teams call degradation at Fabrikam Lyon",
+      "fact_major_incident[severity]": "Sev2",
+      "fact_major_incident[status]": "open",
+      "fact_major_incident[root_cause]": "Corporate VPN client 6.1.0 rolled out to the Lyon pilot ring",
+      "dim_customer[customer_name]": "Fabrikam Industries",
+      "[Users]": 48,
+      "[Vips]": 8
+    }
+  ],
+  "PORTFOLIO_DAX": [
+    {
+      "[WeekStart]": "2026-09-14T00:00:00",
+      "[Tickets]": 2770,
+      "[TicketsWeek]": 315,
+      "[ZeroTouchWeek]": 0.3651,
+      "[ZeroTouchPrevious]": 0.4323,
+      "[ChangePts]": -6.7235,
+      "[Hitl]": 1405,
+      "[OpenTickets]": 34,
+      "[Mttr]": 12.6098,
+      "[Csat]": 4.2722,
+      "[TimeLostPerSeat]": 228.745,
+      "[MajorIncidents]": 1
+    }
+  ],
+  "SITES_DAX": [
+    {
+      "dim_site[site_id]": "FAB-LYO",
+      "dim_site[site_name]": "Fabrikam Industries Lyon",
+      "dim_customer[customer_name]": "Fabrikam Industries",
+      "[Score]": 79.3755,
+      "[VpnMs]": 67.8406,
+      "[Mos]": 4.0865,
+      "[Crashes]": 1807
+    },
+    {
+      "dim_site[site_id]": "NOR-HAM",
+      "dim_site[site_name]": "Northwind Logistics Hamburg",
+      "dim_customer[customer_name]": "Northwind Logistics",
+      "[Score]": 80.991,
+      "[VpnMs]": 45.0235,
+      "[Mos]": 4.1993,
+      "[Crashes]": 427
+    },
+    {
+      "dim_site[site_id]": "FAB-LIL",
+      "dim_site[site_name]": "Fabrikam Industries Lille",
+      "dim_customer[customer_name]": "Fabrikam Industries",
+      "[Score]": 81.0406,
+      "[VpnMs]": 44.9306,
+      "[Mos]": 4.1994,
+      "[Crashes]": 262
+    },
+    {
+      "dim_site[site_id]": "CON-CHI",
+      "dim_site[site_name]": "Contoso Retail Chicago",
+      "dim_customer[customer_name]": "Contoso Retail",
+      "[Score]": 81.2065,
+      "[VpnMs]": 45.0865,
+      "[Mos]": 4.1979,
+      "[Crashes]": 314
+    },
+    {
+      "dim_site[site_id]": "TAI-MAD",
+      "dim_site[site_name]": "Tailspin Airlines Madrid",
+      "dim_customer[customer_name]": "Tailspin Airlines",
+      "[Score]": 81.2146,
+      "[VpnMs]": 45.0564,
+      "[Mos]": 4.2027,
+      "[Crashes]": 404
+    },
+    {
+      "dim_site[site_id]": "FAB-PAR",
+      "dim_site[site_name]": "Fabrikam Industries Paris",
+      "dim_customer[customer_name]": "Fabrikam Industries",
+      "[Score]": 81.3072,
+      "[VpnMs]": 44.88,
+      "[Mos]": 4.198,
+      "[Crashes]": 482
+    },
+    {
+      "dim_site[site_id]": "FAB-NAN",
+      "dim_site[site_name]": "Fabrikam Industries Nantes",
+      "dim_customer[customer_name]": "Fabrikam Industries",
+      "[Score]": 81.325,
+      "[VpnMs]": 44.8341,
+      "[Mos]": 4.1976,
+      "[Crashes]": 247
+    },
+    {
+      "dim_site[site_id]": "LIT-MAN",
+      "dim_site[site_name]": "Litware Insurance Manchester",
+      "dim_customer[customer_name]": "Litware Insurance",
+      "[Score]": 81.3688,
+      "[VpnMs]": 44.9191,
+      "[Mos]": 4.1962,
+      "[Crashes]": 403
+    },
+    {
+      "dim_site[site_id]": "NOR-MUC",
+      "dim_site[site_name]": "Northwind Logistics Munich",
+      "dim_customer[customer_name]": "Northwind Logistics",
+      "[Score]": 81.408,
+      "[VpnMs]": 44.837,
+      "[Mos]": 4.2007,
+      "[Crashes]": 421
+    },
+    {
+      "dim_site[site_id]": "TAI-BCN",
+      "dim_site[site_name]": "Tailspin Airlines Barcelona",
+      "dim_customer[customer_name]": "Tailspin Airlines",
+      "[Score]": 81.4523,
+      "[VpnMs]": 45.0264,
+      "[Mos]": 4.2018,
+      "[Crashes]": 352
+    },
+    {
+      "dim_site[site_id]": "WOO-BRU",
+      "dim_site[site_name]": "Woodgrove Bank Brussels",
+      "dim_customer[customer_name]": "Woodgrove Bank",
+      "[Score]": 81.6372,
+      "[VpnMs]": 44.9064,
+      "[Mos]": 4.1983,
+      "[Crashes]": 374
+    },
+    {
+      "dim_site[site_id]": "WOO-LUX",
+      "dim_site[site_name]": "Woodgrove Bank Luxembourg",
+      "dim_customer[customer_name]": "Woodgrove Bank",
+      "[Score]": 81.6468,
+      "[VpnMs]": 45.048,
+      "[Mos]": 4.1978,
+      "[Crashes]": 373
+    },
+    {
+      "dim_site[site_id]": "LIT-LON",
+      "dim_site[site_name]": "Litware Insurance London",
+      "dim_customer[customer_name]": "Litware Insurance",
+      "[Score]": 81.6898,
+      "[VpnMs]": 44.8075,
+      "[Mos]": 4.1996,
+      "[Crashes]": 483
+    },
+    {
+      "dim_site[site_id]": "CON-DAL",
+      "dim_site[site_name]": "Contoso Retail Dallas",
+      "dim_customer[customer_name]": "Contoso Retail",
+      "[Score]": 81.8841,
+      "[VpnMs]": 45.1292,
+      "[Mos]": 4.1977,
+      "[Crashes]": 339
+    },
+    {
+      "dim_site[site_id]": "CON-SEA",
+      "dim_site[site_name]": "Contoso Retail Seattle",
+      "dim_customer[customer_name]": "Contoso Retail",
+      "[Score]": 82.3575,
+      "[VpnMs]": 45.1037,
+      "[Mos]": 4.2041,
+      "[Crashes]": 321
+    }
+  ],
+  "XLA_LEDGER_DAX": [
+    {
+      "dim_customer[customer_name]": "Fabrikam Industries",
+      "dim_xla[xla_id]": "XLA-FAB-01",
+      "dim_xla[metric_label]": "Zero-touch resolution rate",
+      "dim_xla[measurement_window]": "weekly",
+      "dim_xla[penalty_pct]": 5,
+      "[Evaluations]": 12,
+      "[Breaches]": 1,
+      "[Credit]": 9250
+    },
+    {
+      "dim_customer[customer_name]": "Woodgrove Bank",
+      "dim_xla[xla_id]": "XLA-WOO-02",
+      "dim_xla[metric_label]": "Time lost per seat",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 4,
+      "[Evaluations]": 2,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Contoso Retail",
+      "dim_xla[xla_id]": "XLA-CON-01",
+      "dim_xla[metric_label]": "Zero-touch resolution rate",
+      "dim_xla[measurement_window]": "weekly",
+      "dim_xla[penalty_pct]": 3,
+      "[Evaluations]": 12,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Northwind Logistics",
+      "dim_xla[xla_id]": "XLA-NOR-02",
+      "dim_xla[metric_label]": "Average device experience score",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 2,
+      "[Evaluations]": 2,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Northwind Logistics",
+      "dim_xla[xla_id]": "XLA-NOR-01",
+      "dim_xla[metric_label]": "Average CSAT score",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 3,
+      "[Evaluations]": 2,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Tailspin Airlines",
+      "dim_xla[xla_id]": "XLA-TAI-02",
+      "dim_xla[metric_label]": "Zero-touch resolution rate",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 2,
+      "[Evaluations]": 2,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Litware Insurance",
+      "dim_xla[xla_id]": "XLA-LIT-01",
+      "dim_xla[metric_label]": "Zero-touch resolution rate",
+      "dim_xla[measurement_window]": "weekly",
+      "dim_xla[penalty_pct]": 0,
+      "[Evaluations]": 12,
+      "[Breaches]": 1,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Contoso Retail",
+      "dim_xla[xla_id]": "XLA-CON-02",
+      "dim_xla[metric_label]": "Average CSAT score",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 1,
+      "[Evaluations]": 2,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Woodgrove Bank",
+      "dim_xla[xla_id]": "XLA-WOO-03",
+      "dim_xla[metric_label]": "Average CSAT score",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 2,
+      "[Evaluations]": 2,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Fabrikam Industries",
+      "dim_xla[xla_id]": "XLA-FAB-02",
+      "dim_xla[metric_label]": "Average CSAT score",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 2,
+      "[Evaluations]": 2,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Woodgrove Bank",
+      "dim_xla[xla_id]": "XLA-WOO-01",
+      "dim_xla[metric_label]": "Zero-touch resolution rate",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 3,
+      "[Evaluations]": 2,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Fabrikam Industries",
+      "dim_xla[xla_id]": "XLA-FAB-03",
+      "dim_xla[metric_label]": "Time lost per seat",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 2,
+      "[Evaluations]": 2,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Litware Insurance",
+      "dim_xla[xla_id]": "XLA-LIT-02",
+      "dim_xla[metric_label]": "Average CSAT score",
+      "dim_xla[measurement_window]": "monthly",
+      "dim_xla[penalty_pct]": 0,
+      "[Evaluations]": 2,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Tailspin Airlines",
+      "dim_xla[xla_id]": "XLA-TAI-01",
+      "dim_xla[metric_label]": "Average device experience score",
+      "dim_xla[measurement_window]": "weekly",
+      "dim_xla[penalty_pct]": 2,
+      "[Evaluations]": 12,
+      "[Breaches]": null,
+      "[Credit]": 0
+    }
+  ],
+  "XLA_TOTALS_DAX": [
+    {
+      "[WeekStart]": "2026-09-14T00:00:00",
+      "[Evaluations]": 68,
+      "[Breaches]": 2,
+      "[Credit]": 9250,
+      "[BreachesWeek]": 2,
+      "[CreditWeek]": 9250
+    }
+  ],
+  "XLA_WEEK_DAX": [
+    {
+      "dim_customer[customer_name]": "Fabrikam Industries",
+      "[ZeroTouch]": 0.34,
+      "[Target]": 0.4,
+      "[Breaches]": 1,
+      "[Credit]": 9250
+    },
+    {
+      "dim_customer[customer_name]": "Litware Insurance",
+      "[ZeroTouch]": 0.34,
+      "[Target]": 0.4,
+      "[Breaches]": 1,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Tailspin Airlines",
+      "[ZeroTouch]": 0.36,
+      "[Target]": null,
+      "[Breaches]": null,
+      "[Credit]": 0
+    },
+    {
+      "dim_customer[customer_name]": "Northwind Logistics",
+      "[ZeroTouch]": 0.4063,
+      "[Target]": null,
+      "[Breaches]": null,
+      "[Credit]": null
+    },
+    {
+      "dim_customer[customer_name]": "Woodgrove Bank",
+      "[ZeroTouch]": 0.4231,
+      "[Target]": null,
+      "[Breaches]": null,
+      "[Credit]": null
+    },
+    {
+      "dim_customer[customer_name]": "Contoso Retail",
+      "[ZeroTouch]": 0.4375,
+      "[Target]": 0.35,
+      "[Breaches]": null,
+      "[Credit]": 0
+    }
+  ]
+}

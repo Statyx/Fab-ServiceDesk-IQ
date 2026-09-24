@@ -1,0 +1,67 @@
+{
+  "scenarioId": "week-38-close-2026",
+  "asOf": "2026-09-23",
+  "week": { "start": "2026-09-14", "end": "2026-09-20", "label": "Week 38" },
+  "cases": [
+    {
+      "id": "fabrikam-zt",
+      "customerId": "CUS-FAB",
+      "customer": "Fabrikam Industries",
+      "facts": {
+        "previous": 0.46,
+        "previousTickets": 50,
+        "previousZeroTouch": 23,
+        "current": 0.34,
+        "tickets": 150,
+        "zeroTouch": 51,
+        "target": 0.4,
+        "credit": 9250
+      },
+      "scope": {
+        "chain": ["Fabrikam Industries", "Site FAB-LYO · Lyon", "MI-FAB-0001 · Sev2, open", "Corporate VPN client 6.1.0"],
+        "relations": ["CustomerHasSite", "MajorIncidentAffectsSite", "MajorIncidentCausedByApp", "TicketPartOfIncident"],
+        "cause": "Corporate VPN client 6.1.0 rolled out to the Lyon pilot ring: VPN drops and degraded Teams calls.",
+        "impacted": "48 users impacted, 8 of them VIP"
+      },
+      "contract": {
+        "reference": "CTR-FAB-2026",
+        "xlaId": "XLA-FAB-01",
+        "treatment": "credit",
+        "penaltyPct": 5,
+        "capPct": 15,
+        "monthlyFeeEur": 185000,
+        "clause": "If the zero-touch resolution rate falls below 40.0% in any ISO week, Zava credits 5% of the monthly service fee for the month containing that week, within the monthly cap of 15%."
+      }
+    },
+    {
+      "id": "litware-zt",
+      "customerId": "CUS-LIT",
+      "customer": "Litware Insurance",
+      "facts": {
+        "previous": 0.46,
+        "previousTickets": 50,
+        "previousZeroTouch": 23,
+        "current": 0.34,
+        "tickets": 50,
+        "zeroTouch": 17,
+        "target": 0.4,
+        "credit": 0
+      },
+      "scope": {
+        "chain": ["Litware Insurance", "Tickets of week 38", "HR Portal · access requests", "No KB article linked"],
+        "relations": ["TicketForCustomer", "TicketForApplication", "TicketUsesKb", "TicketResolvedBy"],
+        "cause": "A surge of HR Portal access requests that no knowledge article covers, so the resolver agent hands them to an analyst.",
+        "impacted": "No major incident: a change in demand, not an outage"
+      },
+      "contract": {
+        "reference": "CTR-LIT-2026",
+        "xlaId": "XLA-LIT-01",
+        "treatment": "remediation",
+        "penaltyPct": 0,
+        "capPct": 0,
+        "monthlyFeeEur": 0,
+        "clause": "If the zero-touch resolution rate falls below 40.0% in any ISO week, Zava delivers a written remediation plan within 10 business days. No service credit applies."
+      }
+    }
+  ]
+}

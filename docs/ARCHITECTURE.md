@@ -212,9 +212,9 @@ After that, `state.json` → `data_agent_mcp_url` wins.
 fabric/_shared/       paths · platform_env (bootstrap) · helpers (profiles, config/state, tokens, KQL)
 fabric/data/          world.yaml · schema.py · generate_data.py
 fabric/eventhouse/    inject_event.py
-fabric/data_agent/    mcp_client.py
-fabric/app/           deploy_app.py (phase 3: config files + rayfin up)
-app-zava-service-desk/  Rayfin console (React + Vite): src/servicedesk/ holds the DAX and the UI
+fabric/data_agent/    mcp_client.py · capture_frozen_answers.py
+fabric/app/           deploy_app.py (phase 3: SPA registration, bindings, rayfin up)
+app-zava-service-desk/  Rayfin console (React + Vite): src/data/queries.ts holds the DAX
 scripts/              check_no_client_leak.py (canonical, byte-identical) · check_repo_leaks.py
 tests/                test_smoke.py · test_leak_scanner.py · test_fabric_definitions.py · test_app.py
 deployments/          per-tenant profiles (git-ignored)
@@ -272,34 +272,41 @@ redeploy (which republishes) after changing instructions.
 
 **Phase 3 — App** `App-Zava-Service-Desk` (`python -m fabric.app.deploy_app`, the last step of
 `deploy_all.py`). It is a Rayfin console: a React + Vite app in `app-zava-service-desk/`,
-hosted by Rayfin inside Fabric and signed in with Fabric auth.
-- **Native dashboard.** Six KPIs, the zero-touch XLA table per customer (breach, credit), the
-  weekly trend against the contractual targets, the top resolvers (AI agent vs analysts) and
-  the digital-experience hot spots. Every number is a DAX query on `SM_ServiceDesk_Analytics`
-  through the Fabric embed proxy, so the app holds no secret and never duplicates a measure.
-  `tests/test_app.py` checks every `table[column]` and `[measure]` in those queries against
-  the model definition.
-- **Launchpad.** Deep links to the RTI dashboard, the report, the Data Agent, the Activator,
-  the semantic model and the workspace, plus the Data Agent questions (its verified
-  few-shots), grouped by source, each with a copy button.
+hosted by Rayfin inside Fabric, ported from the Zava Media console (same shell, style,
+assistant rail and IQ storyboard) and re-pointed at the service desk.
 
-Why links rather than embedded views: a Rayfin app reaches Fabric data through a proxy that
-only runs DAX on semantic models (and SQL on lakehouses and warehouses). It cannot run KQL
-or call the Data Agent, and it gets no Fabric token to embed an item. So the live RTI
-dashboard and the Data Agent chat open in the Fabric portal, one click away. The Foundry
-orchestrator of the storyline stays a scripted narrative: `mcp_client` shows the exact calls
-it would make.
+- **Screens.** Cover, Portfolio, Experience, AI agents, Contracts, XLA & credits. Every number
+  is a measure of `SM_ServiceDesk_Analytics`, evaluated in DAX with Power BI
+  `executeQueries` and the signed-in user's delegated token, so the app never re-derives a
+  measure. All the queries live in `src/data/queries.ts`; `tests/test_app.py` checks every
+  `table[column]` and `[measure]` in them against the model definition.
+- **Zava IQ.** The storyboard of the demo, on two cases that look identical in the figures
+  (Fabrikam and Litware, 34% zero-touch against 40%). It adds one layer at a time: Fabric IQ
+  (figures and ontology scope), the contract clause (Foundry IQ, simulated, read from the
+  ontology's `Xla.clause_text`), Work IQ (simulated mail, Teams, meetings and files) and Web
+  IQ (simulated public news). The consequence changes with each layer (credit vs remediation
+  plan, then "follow up on validation" once Work IQ shows Finance already drafted the credit
+  note), and the last step drafts the message to the person Work IQ identified.
+- **Assistant Zava.** A rail that sends each question to the `ServiceDesk_Analyst` Data Agent
+  (OpenAI-compatible Assistants API on the published agent) and shows which sources fired.
+  Answers recorded by `fabric/data_agent/capture_frozen_answers.py` are replayed when the
+  exact same prompt is sent (`src/data/frozen-answers.generated.json`); any other question
+  goes live.
+- **Foundry stays simulated.** The architecture page shows the supervisor that would call
+  Fabric over A2A; no Foundry resource, scope or variable exists.
 
-`deploy_app` writes three tenant-specific files, all git-ignored: `fabric.yaml` (the
-semantic-model connection), `src/fabric.generated.ts` and `public/app-config.json` (links,
-questions and the console's own portal URL). Then it runs two commands.
-`rayfin up --workspace-id <ws> --exclude-services staticHosting` creates or updates the item.
-`rayfin up staticapp deploy` builds with `npm run build:fabric` and uploads `dist/`. The script
-records `app_item_id`, `app_url` (the item in the portal) and `app_hosting_url` in
-`state.json`. It also removes the hosting URL that the CLI appends to `rayfin.yml`, so the
-committed file stays tenant-neutral; each static deploy registers that URL again.
+Authentication: Rayfin's own session is opaque and only authorizes Rayfin services, so the
+app signs the user in with MSAL against a single-tenant SPA registration. `deploy_app`
+creates or reuses it (delegated `Dataset.Read.All`, `Item.Read.All`,
+`DataAgent.Execute.All`, consented for the deploying user only, no secret), writes the
+public identifiers to the git-ignored `.env.production.local` and `.env.development.local`,
+then runs `rayfin up --exclude-services staticHosting` (the item) and `rayfin up` (the build
+and its hosting) with the Azure CLI token. It registers the hosting origin and
+`/blank.html` as redirect URIs, checks `/`, `/blank.html` and `/diagnostic`, and records
+`application_client_id`, `app_item_id`, `app_url` (the item in the portal) and
+`app_hosting_url` in `state.json`. It also removes the hosting URL that the CLI appends to
+`rayfin.yml`, so the committed file stays tenant-neutral.
 
-The Rayfin CLI has its own sign-in (`npx rayfin login -t <tenant>`), separate from `az login`.
 Subprocesses get a de-duplicated `PATH`. Without that, the nested npx/npm calls under this
 deep repository path overflow what cmd.exe reads, and the build loses `npx`.
 

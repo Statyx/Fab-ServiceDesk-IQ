@@ -1,0 +1,208 @@
+{
+  "generatedBy": "app/scripts/freeze-questions.ts",
+  "entries": [
+    {
+      "id": "xla-breach",
+      "family": "xla",
+      "kind": "mixed",
+      "backend": "fabric",
+      "depth": 1,
+      "label": "Which customers breached an XLA last week, and what does their contract say?",
+      "prompt": "Which customers breached an XLA in the last closed ISO week? Use [XLA Breaches (Last Closed Week)] and [XLA Credit (Last Closed Week)] by dim_customer[customer_name], with [Zero-Touch % (Last Closed Week)] against [Zero-Touch Target %] and [Zero-Touch % (Previous Week)]. For each customer in breach, read the contractual wording in the ontology through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla) and quote Xla.clause_text, then say what the customer is owed. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "xla-fabrikam-credit",
+      "family": "xla",
+      "kind": "single",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "xla-breach",
+      "label": "How big is the Fabrikam drop, and how was the credit worked out?",
+      "prompt": "For dim_customer[customer_name] = \"Fabrikam Industries\", give [Zero-Touch % (Previous Week)], [Zero-Touch % (Last Closed Week)], [Zero-Touch Change (pts)], [Tickets (Last Closed Week)], [Zero-Touch Target %] and [XLA Credit (Last Closed Week)]. Explain the credit as a share of the monthly fee and say whether the monthly cap is reached. Do not recompute the credit. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "xla-litware-contrast",
+      "family": "xla",
+      "kind": "mixed",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "xla-breach",
+      "label": "Litware dropped just as much. Why is no credit due?",
+      "prompt": "Compare dim_customer[customer_name] = \"Litware Insurance\" with \"Fabrikam Industries\" on [Zero-Touch % (Previous Week)], [Zero-Touch % (Last Closed Week)], [XLA Breaches (Last Closed Week)] and [XLA Credit (Last Closed Week)]. Then read both zero-touch clauses through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla) where Xla.metric = 'zero_touch_rate', and explain why the same gap has a different consequence. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "experience-worst-site",
+      "family": "experience",
+      "kind": "single",
+      "backend": "fabric",
+      "depth": 1,
+      "label": "Which site has the worst digital experience?",
+      "prompt": "Which three sites have the lowest [Experience Score]? Rank dim_site[site_name] by [Experience Score] ascending and give [VPN Latency (ms)], [Teams MOS] and [App Crashes] for each. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "experience-lyon-cause",
+      "family": "experience",
+      "kind": "mixed",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "experience-worst-site",
+      "label": "What is causing it, and who is affected?",
+      "prompt": "For the worst site, find the open major incident through (MajorIncident)-[:MajorIncidentAffectsSite]->(Site) and the application behind it through (MajorIncident)-[:MajorIncidentCausedByApp]->(Application); give MajorIncident.root_cause and MajorIncident.severity as recorded. Then count the affected users and VIPs with [Impacted Users] and [Impacted VIP Users]. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "experience-lyon-now",
+      "family": "experience",
+      "kind": "mixed",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "experience-worst-site",
+      "label": "Is Lyon still degraded in the live telemetry?",
+      "prompt": "In the Eventhouse table dem_telemetry, anchored on max(timestamp), give the average experience_score and vpn_latency_ms for site_id \"FAB-LYO\" over the last hour, split by vpn_client_version. Compare with the closed-day [Experience Score] of the Lyon site, and say plainly that the two cover different windows. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "agentops-escalations",
+      "family": "agentops",
+      "kind": "single",
+      "backend": "fabric",
+      "depth": 1,
+      "label": "How much are the AI agents resolving on their own?",
+      "prompt": "By dim_agent[agent_name] and dim_agent[agent_type], give [Tickets], [Zero-Touch Tickets] and [HITL Escalations], keeping only agents with at least one ticket. Say which AI agent hands the most tickets to humans. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "agentops-tool-failures",
+      "family": "agentops",
+      "kind": "mixed",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "agentops-escalations",
+      "label": "Which tool is failing, and for which customer?",
+      "prompt": "In the Eventhouse table agent_traces, anchored on max(timestamp), count spans with status == \"error\" over the last 24 hours by customer_id, tool_name and error_type. Then give [HITL Escalations] and [Zero-Touch % (Last Closed Week)] for the customer with the most failures. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "agentops-throttling",
+      "family": "agentops",
+      "kind": "single",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "agentops-escalations",
+      "label": "Is the AI gateway throttling the agents?",
+      "prompt": "In the Eventhouse table gateway_logs, anchored on max(timestamp), give requests and requests with status_code == 429 over the last 24 hours by customer_id and model, with the throttled share. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "portfolio-week",
+      "family": "portfolio",
+      "kind": "single",
+      "backend": "fabric",
+      "depth": 1,
+      "label": "How did each customer do last week against the week before?",
+      "prompt": "By dim_customer[customer_name], give [Zero-Touch % (Last Closed Week)], [Zero-Touch % (Previous Week)], [Zero-Touch Change (pts)] and [Tickets (Last Closed Week)]. Say which customers moved the most. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "portfolio-csat",
+      "family": "portfolio",
+      "kind": "single",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "portfolio-week",
+      "label": "Where are satisfaction and time lost worst?",
+      "prompt": "By dim_customer[customer_name], give [CSAT Avg], [CSAT Responses], [Time Lost per Seat (min)] and [MTTR (h)]. Say which customer has the lowest satisfaction and which loses the most time per seat. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "portfolio-threshold",
+      "family": "portfolio",
+      "kind": "mixed",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "portfolio-week",
+      "label": "Who is closest to their zero-touch threshold?",
+      "prompt": "Read each zero-touch threshold through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla) where Xla.metric = 'zero_touch_rate', then compare it with [Zero-Touch % (Last Closed Week)] by dim_customer[customer_name]. Rank customers by the margin left above the threshold. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "graph-user-covered",
+      "family": "graph",
+      "kind": "single",
+      "backend": "fabric",
+      "depth": 1,
+      "label": "A Fabrikam user is calling. Is a known incident already covering them?",
+      "prompt": "Is user USR-FAB-0061 affected by an open major incident? Traverse (User)<-[:SiteHostsUser]-(Site)<-[:MajorIncidentAffectsSite]-(MajorIncident) where MajorIncident.status = 'open', and give the user's site, whether they are a VIP, and the incident title and severity. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "graph-vips",
+      "family": "graph",
+      "kind": "single",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "graph-user-covered",
+      "label": "Which VIPs does that incident reach?",
+      "prompt": "For major incident MI-FAB-0001, traverse (MajorIncident)-[:MajorIncidentAffectsSite]->(Site)-[:SiteHostsUser]->(User) where User.is_vip = true, and give how many VIPs are affected and their departments, next to the number of users the incident reaches at that site. There is no VIP target: compare VIPs with all users affected. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "graph-tickets",
+      "family": "graph",
+      "kind": "mixed",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "graph-user-covered",
+      "label": "How many tickets did it generate, and what did that do to zero-touch?",
+      "prompt": "Count the tickets linked to major incident MI-FAB-0001 through (Ticket)-[:TicketPartOfIncident]->(MajorIncident). Then give [Zero-Touch % (Previous Week)] and [Zero-Touch % (Last Closed Week)] for dim_customer[customer_name] = \"Fabrikam Industries\", and relate the two. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "live-vpn",
+      "family": "live",
+      "kind": "single",
+      "backend": "fabric",
+      "depth": 1,
+      "label": "What does VPN latency look like, site by site, right now?",
+      "prompt": "In the Eventhouse table dem_telemetry, anchored on max(timestamp), give the p50 and p95 of vpn_latency_ms, the average experience_score and the device count over the last hour, by site_id and customer_id, worst first. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "live-csat",
+      "family": "live",
+      "kind": "single",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "live-vpn",
+      "label": "What are users saying in the last 24 hours?",
+      "prompt": "In the Eventhouse tables csat_events and conversations, anchored on max(timestamp), give the average CSAT score and the share of negative conversation turns (a turn is negative when its real-valued sentiment, between -1 and 1, is below 0) over the last 24 hours, by customer_id. There is no contractual target on these: compare each customer with the all-customer figure over the same 24 hours. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "live-vs-closed",
+      "family": "live",
+      "kind": "mixed",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "live-vpn",
+      "label": "How does the last hour compare with the closed days?",
+      "prompt": "For the site with the highest live p95 vpn_latency_ms in dem_telemetry over the last hour, compare with its closed-day [VPN Latency (ms)] and [Experience Score] from the semantic model, and say plainly that the two cover different windows. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "contract-zero-touch",
+      "family": "contract",
+      "kind": "single",
+      "backend": "fabric",
+      "depth": 1,
+      "label": "What does each contract promise on zero-touch?",
+      "prompt": "List every zero-touch XLA through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla) where Xla.metric = 'zero_touch_rate': customer, comparator, threshold, measurement window, penalty_pct and a short quote of clause_text. Group them by consequence and count the XLAs in each group, so the groups add up to the total. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "contract-caps",
+      "family": "contract",
+      "kind": "single",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "contract-zero-touch",
+      "label": "How are credits capped, contract by contract?",
+      "prompt": "Through (Customer)-[:CustomerHasContract]->(Contract), give Contract.monthly_fee_eur and Contract.penalty_cap_pct for every customer, and the monthly maximum credit it implies. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    },
+    {
+      "id": "contract-measured",
+      "family": "contract",
+      "kind": "mixed",
+      "backend": "fabric",
+      "depth": 2,
+      "parent": "contract-zero-touch",
+      "label": "Where does each customer sit against those promises?",
+      "prompt": "Read the CSAT and zero-touch thresholds through (Customer)-[:CustomerHasContract]->(Contract)-[:ContractDefinesXla]->(Xla), then give [Zero-Touch % (Last Closed Week)] and [CSAT Avg] by dim_customer[customer_name], and flag every customer below a threshold. Answer the way a service desk lead prepares a customer call, in 90 words at most: the conclusion first, then only the two or three figures that carry it. Always give a measured value next to its target or its previous value. Do not list rows. In the prose, name customers, sites and agents the way they are said out loud, with no identifier, table name or measure name. Finish with a single `### SOURCE` block of six lines at most, carrying the identifiers, tables, measures and relationships used."
+    }
+  ]
+}

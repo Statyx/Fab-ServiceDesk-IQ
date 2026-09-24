@@ -36,7 +36,7 @@ ontology, storyboard and deployment order.
 |---|---|---|
 | 1 | Scaffold, deterministic synthetic data, live injector, Data Agent MCP client, offline tests, leak guard + CI | ✅ done |
 | 2 | Lakehouse, Eventhouse, Ontology + Graph, Semantic model + report, RTI dashboard, Activator, Operations Agent, Data Agent (MCP) | ✅ deployed and verified end to end |
-| 3 | Rayfin console app `App-Zava-Service-Desk`: native DAX dashboard + launchpad | ✅ deployed (`python -m fabric.app.deploy_app`) |
+| 3 | Rayfin console app `App-Zava-Service-Desk`: live DAX screens, Zava IQ storyboard, Data Agent assistant | ✅ deployed (`python -m fabric.app.deploy_app`) |
 
 ## Quickstart (no tenant needed)
 
@@ -129,38 +129,54 @@ python -m fabric.data_agent.mcp_client "What is the VPN latency per site right n
 ## The console app (phase 3)
 
 `App-Zava-Service-Desk` is a Rayfin app hosted in the workspace (React + Vite, in
-[`app-zava-service-desk/`](app-zava-service-desk/)). It has two parts:
-- **A native dashboard**, in DAX on `SM_ServiceDesk_Analytics`: KPIs, the zero-touch XLA per
-  customer (Fabrikam in breach with a 9,250 EUR credit; Litware with the same drop but no
-  credit clause), the weekly trend against the targets, the top resolvers and the
-  digital-experience hot spots (Lyon).
-- **A launchpad**: links to the live RTI dashboard, the report, the Data Agent and the
-  Activator, plus the Data Agent demo questions, ready to copy.
+[`app-zava-service-desk/`](app-zava-service-desk/)), built on the same shell, style and
+patterns as the Zava Media console:
 
-A Rayfin app can only query semantic models, lakehouses and warehouses. It cannot run KQL,
-chat with the Data Agent or embed another item, so those open in Fabric. See
-[ARCHITECTURE §8](docs/ARCHITECTURE.md#8-deployment-order).
+- **Cover and five screens**: Portfolio, Experience, AI agents, Contracts and XLA & credits.
+  Every figure is a measure of `SM_ServiceDesk_Analytics`, evaluated live in DAX with the
+  signed-in user's token (Power BI `executeQueries`). Nothing is bundled: without the
+  bindings the app says "Not connected" instead of showing a confident zero.
+- **Zava IQ** (`/iq-in-practice`): the storyboard. Fabrikam and Litware both fell to 34%
+  zero-touch against a 40% target. Step by step, the dossier adds the contract clause
+  (Fabrikam is owed a 9,250 EUR credit, Litware a remediation plan), Work IQ context (who
+  already acts), Web IQ context (public news), and finally drafts the message to the right
+  person. Each layer can be switched off to show what it contributes.
+- **Assistant Zava**: a rail that asks the `ServiceDesk_Analyst` Data Agent (semantic model,
+  ontology, Eventhouse) and shows which sources fired.
+- **Architecture** and **Diagnostic** (`/diagnostic`, outside the sign-in, checks the bindings
+  and the tokens).
 
-Open the console from Fabric (`app_url` in `state.json`, or the item in the workspace). Its
-DAX goes through the Fabric embed proxy, which only exists inside the portal. On the bare
-hosting URL (`app_hosting_url`), the launchpad works but the dashboard shows an
-"Open in Fabric" banner instead of numbers.
+Foundry, Work IQ and Web IQ are **simulated**: labelled on screen, read from
+`src/data/iq-*.json`. No Foundry resource, scope or variable is used.
 
-Requires Node 20+. The Rayfin CLI has its own sign-in:
+The live Data Agent takes 40–160 s per answer. For a smooth demo, record its answers once;
+the app then replays a recorded answer when the exact same question is asked, and falls back
+to the live agent otherwise:
 
 ```text
-cd app-zava-service-desk && npx rayfin login -t <tenant-id> && cd ..
-python -m fabric.app.deploy_app                  # config from state, build, rayfin up
-python -m fabric.app.deploy_app --configure-only # local config only, then: npm run dev
+cd app-zava-service-desk && npx tsx scripts/freeze-questions.ts && cd ..
+python -m fabric.data_agent.capture_frozen_answers            # openers + follow-ups
+python -m fabric.data_agent.capture_frozen_answers --only xla-breach --force
 ```
 
-If the browser sign-in fails with `AADSTS50197` ("could not find the user"), the browser is
-sending the SSO session of an account that is not in the demo tenant. Run
-`npx rayfin logout`, then `npx rayfin login -t <tenant-id>` from a private browser window. The
-CLI opens the URL with `$BROWSER` when it is set: point `BROWSER` at a script that runs
-`msedge --inprivate`.
+Deploy (Node 20+, the Azure CLI signed in to the demo tenant, `npm ci` done in the app folder):
 
-In the app folder, `npm test` and `npm run lint` run offline. `npm run build` works without a
+```text
+python -m fabric.app.deploy_app --check           # read-only preflight
+python -m fabric.app.deploy_app                   # SPA + bindings + rayfin up + redirects
+python -m fabric.app.deploy_app --configure-only  # SPA + bindings only, then: npm run dev
+```
+
+The script creates (or reuses) a single-tenant Entra SPA registration with delegated
+`Dataset.Read.All`, `Item.Read.All` and `DataAgent.Execute.All`, consented for the deploying
+user only; no secret. It writes the public identifiers to the git-ignored
+`.env.production.local` / `.env.development.local`, runs `rayfin up` with the Azure CLI token
+(item first, then the build), registers the hosting origin as a redirect URI and checks
+`/`, `/blank.html` and `/diagnostic`. `app_url` (the item in the portal) and
+`app_hosting_url` land in `state.json`.
+
+`/preview` (development only) renders every screen from labelled fixtures, without sign-in.
+In the app folder, `npm test` and `npm run lint` run offline; `npm run build` works without a
 tenant.
 
 ## Layout
@@ -177,8 +193,8 @@ fabric/graph/       graph model build + refresh
 fabric/powerbi/     semantic model, DAX verification, report
 fabric/rti/         RTI dashboard, Activator, Operations Agent
 fabric/data_agent/  Data Agent (verified few-shots), MCP client
-fabric/app/         console app config + rayfin up (phase 3)
-app-zava-service-desk/  Rayfin console app (React + Vite, DAX on the semantic model)
+fabric/app/         console app: SPA registration, bindings, rayfin up (phase 3)
+app-zava-service-desk/  Rayfin console app (React + Vite, DAX + Data Agent, Zava IQ)
 scripts/            leak guard
 tests/              offline tests (data, definitions, hygiene)
 docs/               architecture

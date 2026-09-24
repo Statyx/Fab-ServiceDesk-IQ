@@ -1,9 +1,9 @@
 {
-  "templateId": "universal-app",
-  "icon": "universal-app",
+  "templateId": "blankapp",
+  "icon": "blank-app",
   "services": {
     "auth": true,
-    "data": true,
+    "data": false,
     "storage": false,
     "staticHosting": true
   },
