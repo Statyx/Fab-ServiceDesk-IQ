@@ -15,13 +15,14 @@ A selected profile must contain its own ``config.yaml``: there is **no silent fa
 to the root config, so a typo can never deploy into the wrong tenant.
 """
 
+import base64
 import json
 import os
 import re
 import subprocess
 import time
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 import yaml
@@ -207,17 +208,195 @@ def fabric_headers(token: str) -> Dict[str, str]:
     return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
 
+def get_storage_token() -> str:
+    """OneLake (DFS) token — a different audience from the Fabric API one."""
+    return get_token("https://storage.azure.com")
+
+
+def check_account(cfg: Dict[str, Any]) -> str:
+    """Refuse to deploy as anyone but ``deployment.expected_account``."""
+    expected = (cfg.get("deployment") or {}).get("expected_account")
+    actual = subprocess.check_output(
+        ["az", "account", "show", "--query", "user.name", "-o", "tsv"],
+        shell=AZ_NEEDS_SHELL).decode().strip()
+    if not is_placeholder(expected) and actual.lower() != str(expected).lower():
+        raise RuntimeError(f"Signed in as {actual}, profile expects {expected}. "
+                           f"Run `az login` with the right account (AZURE_CONFIG_DIR).")
+    return actual
+
+
+# ── Fabric items ─────────────────────────────────────────────────
+def poll_operation(token: str, api_base: str, operation_id: str,
+                   max_wait: int = 600) -> Dict:
+    """Poll a Fabric long-running operation until it succeeds (or raise)."""
+    headers = fabric_headers(token)
+    deadline = time.time() + max_wait
+    while time.time() < deadline:
+        time.sleep(5)
+        resp = requests.get(f"{api_base}/operations/{operation_id}", headers=headers,
+                            timeout=60)
+        resp.raise_for_status()
+        op = resp.json()
+        status = op.get("status", "")
+        if status == "Succeeded":
+            return op
+        if status in ("Failed", "Cancelled"):
+            raise RuntimeError(f"Operation {status}: {json.dumps(op.get('error', {}))[:1500]}")
+    raise TimeoutError(f"Operation {operation_id} did not complete in {max_wait}s")
+
+
+def wait_lro(token: str, api_base: str, resp: requests.Response,
+             what: str, max_wait: int = 600) -> Optional[Dict]:
+    """Handle a 200/201/202 Fabric response; return the result body when there is one."""
+    if resp.status_code in (200, 201):
+        return resp.json() if resp.content else None
+    if resp.status_code == 202:
+        op_id = resp.headers.get("x-ms-operation-id")
+        if not op_id:
+            return None
+        poll_operation(token, api_base, op_id, max_wait)
+        result = requests.get(f"{api_base}/operations/{op_id}/result",
+                              headers=fabric_headers(token), timeout=60)
+        return result.json() if result.status_code == 200 and result.content else None
+    raise RuntimeError(f"{what} failed ({resp.status_code}): {resp.text[:1500]}")
+
+
+def list_items(token: str, api_base: str, workspace_id: str) -> List[Dict]:
+    """All items of a workspace (no ``?type=`` filter — it 404s in some workspaces)."""
+    headers = fabric_headers(token)
+    url: Optional[str] = f"{api_base}/workspaces/{workspace_id}/items"
+    items: List[Dict] = []
+    while url:
+        resp = requests.get(url, headers=headers, timeout=60)
+        resp.raise_for_status()
+        body = resp.json()
+        items.extend(body.get("value", []))
+        url = body.get("continuationUri")
+    return items
+
+
+def find_item(token: str, api_base: str, workspace_id: str,
+              display_name: str, item_type: str) -> Dict:
+    for item in list_items(token, api_base, workspace_id):
+        if item.get("displayName") == display_name and item.get("type") == item_type:
+            return item
+    raise RuntimeError(f"{item_type} '{display_name}' not found")
+
+
+def find_item_or_none(token: str, api_base: str, workspace_id: str,
+                      display_name: str, item_type: str) -> Optional[Dict]:
+    try:
+        return find_item(token, api_base, workspace_id, display_name, item_type)
+    except RuntimeError:
+        return None
+
+
+def create_fabric_item(token: str, api_base: str, workspace_id: str,
+                       display_name: str, item_type: str, description: str = "",
+                       definition: Optional[Dict] = None,
+                       creation_payload: Optional[Dict] = None) -> Dict:
+    """Create a Fabric item (waiting for the LRO) and return it."""
+    body: Dict[str, Any] = {"displayName": display_name, "type": item_type}
+    if description:
+        body["description"] = description
+    if definition:
+        body["definition"] = definition
+    if creation_payload:
+        body["creationPayload"] = creation_payload
+    resp = requests.post(f"{api_base}/workspaces/{workspace_id}/items",
+                         headers=fabric_headers(token), json=body, timeout=120)
+    result = wait_lro(token, api_base, resp, f"Create {item_type} '{display_name}'")
+    if result and result.get("id"):
+        return result
+    return find_item(token, api_base, workspace_id, display_name, item_type)
+
+
+def update_definition(token: str, api_base: str, workspace_id: str, item_id: str,
+                      definition: Dict, what: str, update_metadata: bool = False) -> None:
+    url = f"{api_base}/workspaces/{workspace_id}/items/{item_id}/updateDefinition"
+    if update_metadata:
+        url += "?updateMetadata=True"
+    resp = requests.post(url, headers=fabric_headers(token),
+                         json={"definition": definition}, timeout=120)
+    wait_lro(token, api_base, resp, f"updateDefinition {what}")
+
+
+def get_definition(token: str, api_base: str, workspace_id: str, item_id: str,
+                   fmt: Optional[str] = None) -> Dict[str, str]:
+    """Return ``{path: decoded payload}`` of an item definition."""
+    url = f"{api_base}/workspaces/{workspace_id}/items/{item_id}/getDefinition"
+    if fmt:
+        url += f"?format={fmt}"
+    resp = requests.post(url, headers=fabric_headers(token), timeout=120)
+    result = wait_lro(token, api_base, resp, "getDefinition") or {}
+    parts = (result.get("definition") or {}).get("parts", [])
+    return {p["path"]: base64.b64decode(p["payload"]).decode("utf-8") for p in parts}
+
+
+def b64encode_json(obj: Any) -> str:
+    """Base64-encode a JSON object for a Fabric definition part."""
+    return base64.b64encode(json.dumps(obj).encode("utf-8")).decode("ascii")
+
+
+def b64encode_text(text: str) -> str:
+    return base64.b64encode(text.encode("utf-8")).decode("ascii")
+
+
+def part(path: str, payload: Any) -> Dict[str, str]:
+    """One inline-base64 definition part; dicts/lists are JSON-encoded, text kept as-is."""
+    data = (b64encode_json(payload) if isinstance(payload, (dict, list))
+            else b64encode_text(payload))
+    return {"path": path, "payload": data, "payloadType": "InlineBase64"}
+
+
+def deploy_context(need_workspace: bool = True
+                   ) -> Tuple[Dict[str, Any], Dict[str, Any], str, str, str]:
+    """(cfg, state, api, workspace_id, fabric token) with the profile's CLI cache set."""
+    cfg, state = load_config(), load_state()
+    configure_profile_cli(cfg)
+    api = require_config(cfg, "fabric_api_base")
+    ws = require_state(state, "workspace_id") if need_workspace else ""
+    return cfg, state, api, ws, get_fabric_token()
+
+
 # ── Kusto (Eventhouse) ───────────────────────────────────────────
 def kusto_mgmt(query_service_uri: str, kusto_token: str, db_name: str,
                command: str) -> Dict:
     """Execute a Kusto management command (``.create-merge table``, ``.ingest inline``…)."""
     headers = {"Authorization": f"Bearer {kusto_token}",
                "Content-Type": "application/json; charset=utf-8"}
-    resp = requests.post(f"{query_service_uri}/v1/rest/mgmt", headers=headers,
-                         json={"db": db_name, "csl": command}, timeout=60)
+    resp = None
+    for attempt in range(4):
+        try:
+            resp = requests.post(f"{query_service_uri}/v1/rest/mgmt", headers=headers,
+                                 json={"db": db_name, "csl": command}, timeout=180)
+        except requests.exceptions.RequestException:
+            if attempt == 3:
+                raise
+            time.sleep(15)
+            continue
+        if resp.status_code < 500 and resp.status_code != 429:
+            break
+        time.sleep(15)
     if resp.status_code >= 400:
         raise RuntimeError(f"Kusto mgmt failed: HTTP {resp.status_code}\n{resp.text[:1000]}")
     return resp.json()
+
+
+def kusto_query(query_service_uri: str, kusto_token: str, db_name: str,
+                query: str, max_attempts: int = 6) -> List[List[Any]]:
+    """Run a KQL query and return the rows of the primary result (retrying 5xx/429)."""
+    headers = {"Authorization": "Bearer " + kusto_token,
+               "Content-Type": "application/json; charset=utf-8"}
+    for attempt in range(max_attempts):
+        resp = requests.post(f"{query_service_uri}/v1/rest/query", headers=headers,
+                             json={"db": db_name, "csl": query}, timeout=120)
+        if resp.status_code < 400:
+            return resp.json()["Tables"][0]["Rows"]
+        if (resp.status_code < 500 and resp.status_code != 429) or attempt == max_attempts - 1:
+            raise RuntimeError(f"Kusto query failed: HTTP {resp.status_code}\n{resp.text[:1000]}")
+        time.sleep(min(60, 5 * 2 ** attempt))
+    return []
 
 
 def kusto_streaming_ingest(query_service_uri: str, kusto_token: str, db_name: str,

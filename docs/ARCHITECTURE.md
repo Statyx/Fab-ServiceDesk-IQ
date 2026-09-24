@@ -229,25 +229,43 @@ Conventions shared with the sibling demos:
 - Config resolution order: `ZAVA_SD_PROFILE_DIR` > `deployments/active-profile.json` > root
   `config.yaml`. A selected profile without its own `config.yaml` is an error, never a
   silent fallback.
-- Deploy scripts will be idempotent and record item IDs in `state.json`.
+- Deploy scripts are idempotent and record item IDs in `state.json`.
 
 ## 8. Deployment order
 
-**Phase 1 (this commit)** — scaffold, synthetic data, live injector, MCP client, offline tests,
-leak guard and CI. Nothing is deployed.
+**Phase 1** — scaffold, synthetic data, live injector, MCP client, offline tests, leak guard
+and CI.
 
-**Phase 2 — Fabric**, one idempotent script per step, orchestrated by `deploy_all`:
-1. Workspace `Zava Service Desk` on the capacity from config
-2. Lakehouse `LH_ServiceDesk` + notebook `NB_Setup_ServiceDesk` (CSV → Delta)
-3. Eventhouse `EH_ServiceDesk` / `KQL_ServiceDesk`: tables (`.create-merge`), streaming
-   ingestion policy, history preload shifted to "now" by whole weeks
-4. Ontology `ONT_ServiceDesk` (entities, relations, TimeSeries) → graph build-and-push → refresh
-5. Semantic model `SM_ServiceDesk_Analytics` (Direct Lake, XLA measures) + report `RPT_ServiceDesk`
-6. RTI dashboard `RTD_ServiceDesk_Operations` (pages *Operations*, *AgentOps*)
-7. Activator `ACT_ServiceDesk_Alerts` (rules on the KQL tile queries → Teams)
-8. Operations Agent `OA_ServiceDesk_Ops`
-9. Data Agent `ServiceDesk_Analyst` (ontology + semantic model + KQL), published, MCP endpoint
-   saved to `state.json`
+**Phase 2 — Fabric** (done). There is one idempotent script per step, and `python deploy_all.py`
+runs them in order (`--from`, `--skip`, `--list`):
+1. `generate_data --shift-weeks auto`: the history ends last Sunday
+2. Workspace `Zava Service Desk` on the capacity from config
+3. Lakehouse `LH_ServiceDesk`, then notebook `NB_Setup_ServiceDesk` (CSV → Delta with explicit
+   types, plus two edge tables so graph edges never point at a null key)
+4. Eventhouse `EH_ServiceDesk` / `KQL_ServiceDesk`: tables (`.create-merge`), streaming
+   ingestion policy, history preload (clear + re-ingest)
+5. Ontology `ONT_ServiceDesk` (entities, relationships, TimeSeries on Device and Agent), then
+   the graph definition built from the real OneLake paths, then RefreshGraph
+6. Semantic model `SM_ServiceDesk_Analytics` (Direct Lake, XLA measures), then
+   `verify_semantic_model` (DAX vs CSVs), then report `RPT_ServiceDesk`
+7. RTI dashboard `RTD_ServiceDesk_Operations` (pages *Operations*, *AgentOps*; every query is
+   anchored on the table's latest timestamp)
+8. Activator `ACT_ServiceDesk_Alerts`: kqlSource on `dem_telemetry` (time-axis, 60 s), split per
+   site, rule "VPN latency 5-min average becomes > 200 ms" → Teams. Deployed **stopped**.
+9. Operations Agent `OA_ServiceDesk_Ops`: goals and instructions for four alerts (VPN latency,
+   experience score, agent errors, gateway 429)
+10. Data Agent `ServiceDesk_Analyst` (ontology + semantic model + KQL): every few-shot is run on
+    its live source first, then the agent is published and its MCP endpoint saved to
+    `state.json`
+
+UI-only steps remain, because the APIs do not cover them:
+- Start the Activator rule.
+- In the Operations Agent, bind the knowledge source, the Teams/e-mail action, the playbook
+  and the schedule.
+
+The MCP endpoint is `{api}/mcp/workspaces/{ws}/dataagents/{id}/agent`, with a JSON-RPC
+`initialize` → `tools/list` → `tools/call`. It answers from the published version only, so
+redeploy (which republishes) after changing instructions.
 
 **Phase 3 — App** `App-Zava-Service-Desk`: a Rayfin console that embeds the RTI dashboard, the
 report and a chat with the Data Agent.

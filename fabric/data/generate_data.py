@@ -24,6 +24,7 @@ from fabric._shared.platform_env import bootstrap
 bootstrap()
 
 import argparse
+import copy
 import csv
 import hashlib
 import io
@@ -251,15 +252,20 @@ def build_reference(world: Dict[str, Any]) -> Tables:
                 "measurement_window": x["window"], "penalty_pct": float(x["penalty_pct"]),
                 "clause_text": x["clause"]})
 
-    clock = Clock(world)
-    for d in clock.days():
+    t["dim_date"] = build_dim_date(world)
+    return t
+
+
+def build_dim_date(world: Dict[str, Any]) -> List[Row]:
+    rows: List[Row] = []
+    for d in Clock(world).days():
         iso = d.isocalendar()
-        t["dim_date"].append({
+        rows.append({
             "date": d, "week_start": d - timedelta(days=d.weekday()), "iso_year": iso[0],
             "iso_week": iso[1], "month_start": d.replace(day=1),
             "month_name": d.strftime("%B"), "day_of_week": d.isoweekday(),
             "is_weekend": d.weekday() >= 5})
-    return t
+    return rows
 
 
 def kb_id(issue_code: str, lang: str, world: Dict[str, Any]) -> str:
@@ -774,7 +780,71 @@ def generate(world: Optional[Dict[str, Any]] = None) -> Tables:
     tables["fact_experience_daily"] = build_experience_daily(world, ref)
     tables["fact_major_incident"] = build_major_incidents(world, ref)
     tables.update(build_eventhouse(world, tickets, csat, ref))
+    tables["bridge_agent_tool"] = build_agent_tools(world, tables["agent_traces"])
+    tables["fact_xla_evaluation"] = build_xla_evaluation(tables, world)
     return tables
+
+
+def build_agent_tools(world: Dict[str, Any], traces: List[Row]) -> List[Row]:
+    """Agent → MCP tool edges observed in the traces (with call counts)."""
+    tool_id = {t["name"]: t["id"] for t in world["mcp_tools"]}
+    calls: Dict[Tuple[str, str], int] = {}
+    for s in traces:
+        if s["tool_name"]:
+            key = (s["agent_id"], tool_id[s["tool_name"]])
+            calls[key] = calls.get(key, 0) + 1
+    return [{"agent_tool_id": f"{a}|{t}", "agent_id": a, "tool_id": t, "call_count": n}
+            for (a, t), n in sorted(calls.items())]
+
+
+def build_xla_evaluation(tables: Tables, world: Dict[str, Any]) -> List[Row]:
+    """``evaluate_xla`` materialised as a table: the contractual source of truth."""
+    contract_of = {x["xla_id"]: x["contract_id"] for x in tables["dim_xla"]}
+    seq: Dict[str, int] = {}
+    rows = []
+    for r in evaluate_xla(tables, world):
+        # A sequence, not the window date: IDs must survive shift_tables unchanged.
+        seq[r["xla_id"]] = seq.get(r["xla_id"], 0) + 1
+        rows.append({"evaluation_id": f"{r['xla_id']}-{seq[r['xla_id']]:03d}",
+                     "xla_id": r["xla_id"], "contract_id": contract_of[r["xla_id"]],
+                     "customer_id": r["customer_id"], "metric": r["metric"],
+                     "measurement_window": r["window"], "window_start": r["window_start"],
+                     "window_end": r["window_end"], "value": r["value"],
+                     "threshold": r["threshold"], "breached": r["breached"],
+                     "penalty_eur": r["penalty_eur"]})
+    return rows
+
+
+def auto_shift_weeks(world: Dict[str, Any], today: Optional[date] = None) -> int:
+    """Whole weeks that move ``reference_date`` (a Sunday) to the last Sunday before today.
+
+    Deployments shift the whole dataset by this many weeks so the incident week is the
+    last closed ISO week. Whole weeks keep every weekly window aligned, so the scenario
+    numbers (46.0% → 34.0%, 9,250 EUR) are unchanged.
+    """
+    today = today or datetime.now(UTC).date()
+    last_sunday = today - timedelta(days=(today.weekday() + 1) % 7 or 7)
+    return max(0, (last_sunday - date.fromisoformat(world["reference_date"])).days // 7)
+
+
+def shift_tables(tables: Tables, world: Dict[str, Any], weeks: int
+                 ) -> Tuple[Tables, Dict[str, Any]]:
+    """Move every date/datetime by ``weeks`` weeks and rebuild ``dim_date`` accordingly."""
+    if weeks == 0:
+        return tables, world
+    off = timedelta(weeks=weeks)
+    shifted_world = copy.deepcopy(world)
+    shifted_world["reference_date"] = (date.fromisoformat(world["reference_date"]) + off).isoformat()
+    sc = shifted_world["scenario"]
+    sc["rollout_at"] = ts(parse_ts(sc["rollout_at"]) + off)
+    out: Tables = {}
+    for table, rows in tables.items():
+        if table == "dim_date":
+            out[table] = build_dim_date(shifted_world)
+            continue
+        out[table] = [{c: (v + off if isinstance(v, date) else v) for c, v in r.items()}
+                      for r in rows]
+    return out, shifted_world
 
 
 def fmt(value: Any) -> str:
@@ -800,8 +870,10 @@ def to_csv(table: str, rows: List[Row]) -> str:
     return buf.getvalue()
 
 
-def write_tables(tables: Tables, out_dir: Path, world: Dict[str, Any]) -> Dict[str, Any]:
-    manifest = {"seed": world["seed"], "reference_date": world["reference_date"], "tables": {}}
+def write_tables(tables: Tables, out_dir: Path, world: Dict[str, Any],
+                 shift_weeks: int = 0) -> Dict[str, Any]:
+    manifest = {"seed": world["seed"], "reference_date": world["reference_date"],
+                "shift_weeks": shift_weeks, "tables": {}}
     for table, rows in tables.items():
         store = "lakehouse" if table in LAKEHOUSE else "eventhouse"
         target = out_dir / store / f"{table}.csv"
@@ -899,11 +971,17 @@ def main(argv: Optional[List[str]] = None) -> int:
     ap = argparse.ArgumentParser(description="Generate the Zava Service Desk synthetic dataset.")
     ap.add_argument("--out", type=Path, default=ARTIFACTS / "data",
                     help="Output directory (default: artifacts/data).")
+    ap.add_argument("--shift-weeks", default="0",
+                    help="Move every date by N whole weeks, or 'auto' so the incident week "
+                         "is the last closed ISO week (what deployments use). Default 0.")
     args = ap.parse_args(argv)
     world = load_world()
     tables = generate(world)
-    manifest = write_tables(tables, args.out, world)
-    print(f"✓ {len(tables)} tables written to {args.out}")
+    weeks = auto_shift_weeks(world) if args.shift_weeks == "auto" else int(args.shift_weeks)
+    tables, world = shift_tables(tables, world, weeks)
+    manifest = write_tables(tables, args.out, world, weeks)
+    print(f"✓ {len(tables)} tables written to {args.out}"
+          + (f" (shifted {weeks} weeks, reference {world['reference_date']})" if weeks else ""))
     for name, info in manifest["tables"].items():
         print(f"  {info['store']:<10} {name:<28} {info['rows']:>8,} rows")
     sc = world["scenario"]

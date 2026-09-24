@@ -109,6 +109,26 @@ LAKEHOUSE: Dict[str, Schema] = {
         ("started_at", "datetime"), ("declared_at", "datetime"), ("resolved_at", "datetime"),
         ("impacted_users", "bigint"), ("impacted_vip_users", "bigint"),
     ],
+    "bridge_agent_tool": [
+        ("agent_tool_id", "string"), ("agent_id", "string"), ("tool_id", "string"),
+        ("call_count", "bigint"),
+    ],
+    # The contract evaluation (generate_data.evaluate_xla) over every CLOSED window: the
+    # source of truth for breaches and credits (monthly cap already applied).
+    "fact_xla_evaluation": [
+        ("evaluation_id", "string"), ("xla_id", "string"), ("contract_id", "string"),
+        ("customer_id", "string"), ("metric", "string"), ("measurement_window", "string"),
+        ("window_start", "datetime"), ("window_end", "datetime"), ("value", "double"),
+        ("threshold", "double"), ("breached", "boolean"), ("penalty_eur", "double"),
+    ],
+}
+
+#: Edge tables derived in the Lakehouse by the setup notebook: the rows of ``source``
+#: where the optional foreign key is set, so graph edges never point at a null key.
+#: name -> (source table, source key column, foreign key column)
+LAKEHOUSE_EDGES: Dict[str, Tuple[str, str, str]] = {
+    "edge_ticket_major_incident": ("fact_ticket", "ticket_id", "major_incident_id"),
+    "edge_ticket_agent": ("fact_ticket", "ticket_id", "resolved_by_agent_id"),
 }
 
 EVENTHOUSE: Dict[str, Schema] = {

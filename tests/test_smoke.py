@@ -503,12 +503,13 @@ def _py_files():
 
 def _entry_points():
     return [p for p in _py_files()
-            if p.parts[len(ROOT.parts)] == "fabric" and 'if __name__ == "__main__"' in p.read_text(encoding="utf-8")]
+            if (p.parts[len(ROOT.parts)] == "fabric" or p.parent == ROOT)
+            and 'if __name__ == "__main__"' in p.read_text(encoding="utf-8")]
 
 
 def test_entry_points_exist():
     names = {p.name for p in _entry_points()}
-    assert {"generate_data.py", "inject_event.py", "mcp_client.py"} <= names
+    assert {"generate_data.py", "inject_event.py", "mcp_client.py", "deploy_all.py"} <= names
 
 
 @pytest.mark.parametrize("py", _entry_points(), ids=lambda p: p.name)

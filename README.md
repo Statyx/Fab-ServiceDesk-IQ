@@ -34,8 +34,8 @@ ontology, storyboard and deployment order.
 
 | Phase | Scope | State |
 |---|---|---|
-| 1 | Scaffold, deterministic synthetic data, live injector, Data Agent MCP client, offline tests, leak guard + CI | ✅ this repo |
-| 2 | Lakehouse, Eventhouse, Ontology + Graph, Semantic model + report, RTI dashboard, Activator, Operations Agent, Data Agent (MCP) | planned |
+| 1 | Scaffold, deterministic synthetic data, live injector, Data Agent MCP client, offline tests, leak guard + CI | ✅ done |
+| 2 | Lakehouse, Eventhouse, Ontology + Graph, Semantic model + report, RTI dashboard, Activator, Operations Agent, Data Agent (MCP) | ✅ deployed and verified end to end |
 | 3 | Rayfin console app | planned |
 
 ## Quickstart (no tenant needed)
@@ -76,15 +76,71 @@ you have two options:
 All of these files are git-ignored. Identifiers can also come from `ZAVA_SD_*` environment
 variables.
 
+## Deploy to Fabric (phase 2)
+
+Requires the Azure CLI signed in (`az login`) as `deployment.expected_account`, and a Fabric
+capacity (F-SKU or trial). The scripts check the account before any write.
+
+```text
+python deploy_all.py                      # every step, in order, then a warm-up
+python deploy_all.py --list               # the 15 steps
+python deploy_all.py --from ontology      # resume after a failure
+python deploy_all.py report dashboard     # re-run only some steps
+```
+
+Each step is idempotent: it finds its item by name, updates it and records its ID in
+`state.json`. The data is regenerated with `--shift-weeks auto`, so the history always ends
+last Sunday and "last closed week" is a real week. Self-checks run along the way:
+- `verify_semantic_model` compares the DAX values with the CSVs (Fabrikam 34.0%, 9,250 EUR).
+- `deploy_data_agent` runs every GQL, DAX and KQL few-shot on its live source before publishing.
+
+| Item | Type | What it shows |
+|---|---|---|
+| `LH_ServiceDesk` + `NB_Setup_ServiceDesk` | Lakehouse + notebook | 19 CSVs -> 21 Delta tables (incl. 2 edge tables), explicit types |
+| `EH_ServiceDesk` / `KQL_ServiceDesk` | Eventhouse | 6 live tables, history preloaded |
+| `ONT_ServiceDesk` + graph | Ontology (Fabric IQ) | 13 entities, 19 relationships, TimeSeries on Device and Agent |
+| `SM_ServiceDesk_Analytics` | Semantic model (Direct Lake) | zero-touch, XLA breaches and credits, experience |
+| `RPT_ServiceDesk` | Report | 3 pages: Service Desk Overview, Experience & Incidents, XLA & Credits |
+| `RTD_ServiceDesk_Operations` | RTI dashboard | pages Operations and AgentOps, 30 s refresh |
+| `ACT_ServiceDesk_Alerts` | Activator | VPN latency > 200 ms (5-min average) per site → Teams |
+| `OA_ServiceDesk_Ops` | Operations Agent | goals and instructions for 4 live alerts |
+| `ServiceDesk_Analyst` | Data Agent | ontology + semantic model + KQL, published, MCP endpoint |
+
+### Before the demo (UI-only steps)
+
+The public APIs cannot do these yet:
+1. **Activator**: the rule is deployed stopped (`activator.start: false`). Open
+   `ACT_ServiceDesk_Alerts`, check the Teams recipient, then **Start**.
+2. **Operations Agent**: open `OA_ServiceDesk_Ops` and add the knowledge source
+   `KQL_ServiceDesk`. Then add a Teams or e-mail action, **Generate playbook**, set the
+   schedule and turn it on.
+3. **Live data**: `python -m fabric.eventhouse.inject_event --scenario vpn-lyon --loop --interval 30`
+   streams "now" into the Eventhouse, so the dashboard, the Activator and the Operations Agent react.
+
+Ask the Data Agent over MCP, as an external orchestrator would:
+
+```text
+python -m fabric.data_agent.mcp_client "Is user USR-FAB-0061 impacted by an open major incident?"
+python -m fabric.data_agent.mcp_client "Is Fabrikam in XLA breach on zero-touch this week, and what credit applies?"
+python -m fabric.data_agent.mcp_client "What is the VPN latency per site right now?"
+```
+
 ## Layout
 
 ```text
+deploy_all.py       phase-2 orchestrator (one python -m process per step)
 fabric/_shared/     bootstrap, paths, helpers (profiles, config/state, tokens, KQL)
 fabric/data/        world.yaml, schema.py, generate_data.py
-fabric/eventhouse/  inject_event.py
-fabric/data_agent/  mcp_client.py
+fabric/workspace/   workspace + capacity
+fabric/lakehouse/   CSV upload, setup notebook (CSV -> Delta)
+fabric/eventhouse/  Eventhouse + KQL tables, history preload, live injector
+fabric/ontology/    ontology definition (entities, relationships, TimeSeries)
+fabric/graph/       graph model build + refresh
+fabric/powerbi/     semantic model, DAX verification, report
+fabric/rti/         RTI dashboard, Activator, Operations Agent
+fabric/data_agent/  Data Agent (verified few-shots), MCP client
 scripts/            leak guard
-tests/              offline smoke tests
+tests/              offline tests (data, definitions, hygiene)
 docs/               architecture
 ```
 
