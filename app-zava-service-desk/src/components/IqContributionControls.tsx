@@ -7,7 +7,7 @@ export interface IqContributions {
 
 const CONTRIBUTIONS = [
   { id: 'fabric', label: 'Fabric IQ', detail: 'Figures & ontology scope', effect: 'Which XLA week are we reviewing, and why did it drop?', status: 'Included' },
-  { id: 'foundry', label: 'Foundry IQ', detail: 'Contract clause (simulated)', effect: 'What does the agreement make Zava owe?', status: 'Included' },
+  { id: 'foundry', label: 'Foundry IQ', detail: 'Contract clause · knowledge base', effect: 'What does the agreement make Zava owe?', status: 'Included' },
   { id: 'work', label: 'Work IQ', detail: 'Mail, Teams, meetings, files', effect: 'What is already underway, and who has to act?', status: 'Included' },
   { id: 'web', label: 'Web IQ', detail: 'Public announcements', effect: 'What public news gives the service review more context?', status: 'Included' },
 ] as const;

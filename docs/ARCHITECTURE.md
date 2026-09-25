@@ -15,7 +15,10 @@ this outage already known? Is this user a VIP? What did we promise this customer
 we about to breach it?
 
 The message: **no agentic service desk at scale without a data foundation.** This repo
-builds that foundation on Microsoft Fabric. The agents that consume it are simulated.
+builds that foundation on Microsoft Fabric. The Foundry agents that consume it — a supervisor,
+a contract agent over a Foundry IQ knowledge base, Work IQ and Web IQ — are part of the story
+and of the architecture, but are not deployed: the console stages them (see
+[`demo/DEMO_SCRIPT.html`](demo/DEMO_SCRIPT.html), section "What is live").
 
 ## 2. Vision — a "Service Desk" layer on Microsoft IQ
 
@@ -25,15 +28,21 @@ flowchart LR
         ORCH[Multi-agent orchestrator<br/>triage · chat · voice · knowledge · resolver]
         COP[Human agent copilot]
         PBI[Power BI / executives]
+        APP[Rayfin console<br/>App-Zava-Service-Desk]
     end
-    subgraph IQ[Service Desk context layer]
-        WIQ[Work IQ<br/>user context]:::vision
-        FIQ[Foundry IQ<br/>knowledge / KB]:::vision
+    subgraph Foundry[Microsoft Foundry — staged in this demo]
+        SUP[Supervisor<br/>Zava-ServiceDesk-Agent]:::vision
+        CTR[Contract agent<br/>Zava-SD-Contracts]:::vision
+        KB[(Foundry IQ knowledge base<br/>Service agreements · 6 contracts)]:::vision
+        WIQ[Work IQ<br/>mail · Teams · meetings]:::vision
+        WEB[Web IQ<br/>public announcements]:::vision
+    end
+    subgraph IQ[Service Desk context layer — Fabric]
         FABIQ[Fabric IQ<br/>Ontology · Graph · Data Agent]
         RTI[Fabric Real-Time Intelligence<br/>Eventhouse · Activator · Operations Agent]
         AOPS[AgentOps<br/>traces · gateway · cost · evals]
     end
-    subgraph Sources[Simulated sources]
+    subgraph Sources[Synthetic sources]
         DEM[DEM telemetry]
         ITSM[ITSM tickets]
         CC[Contact Center conversations]
@@ -46,7 +55,14 @@ flowchart LR
     REF --> FABIQ
     RTI --> FABIQ
     RTI --> AOPS
+    SUP -- A2A: the figures --> FABIQ
+    SUP -- A2A: the clause --> CTR
+    CTR -- retrieval --> KB
+    SUP -- MCP --> WIQ
+    SUP -- tool --> WEB
     FABIQ -- MCP --> ORCH
+    SUP --> APP
+    FABIQ --> APP
     FABIQ --> COP
     FABIQ --> PBI
     RTI --> COP
@@ -55,16 +71,20 @@ flowchart LR
 
 | Layer | Role in the story | In this repo |
 |---|---|---|
-| **Work IQ** | Who the user is, what they work on, their meetings | Vision only |
-| **Foundry IQ** | Knowledge retrieval over KB articles and runbooks | Vision only; KB metadata lives in `dim_kb_article` |
-| **Fabric IQ** | Service Desk **ontology** + **graph** + **Data Agent** (`ServiceDesk_Analyst`), published as an **MCP** endpoint | Phase 2 |
-| **Fabric RTI** | Eventhouse (6 live streams), Activator (alerts), Operations Agent (diagnosis) | Phase 2 |
-| **AgentOps** | Observability of the agent platform itself, **per customer**: zero-touch, HITL escalations, MCP tool failures, latency, tokens, cost per contact | Phase 2 (RTI dashboard page) |
+| **Foundry supervisor** | Dispatches the question to the data agent, the contract agent, Work IQ and Web IQ, and reconciles the answers. Computes nothing | Drawn on the Architecture page; not deployed |
+| **Foundry IQ** | The contract agent `Zava-SD-Contracts` retrieves and cites the applicable XLA clause from a knowledge base over the six signed service agreements | Staged: the clause shown is the ontology's `Xla.clause_text`, transcribed from `fabric/data/world.yaml` |
+| **Work IQ** | What is already underway on the account (mail, Teams, meetings, files) and who owns the next step | Staged from `app-zava-service-desk/src/data/iq-work-context.json` |
+| **Web IQ** | What the customer has announced in public, for the service review | Staged from `app-zava-service-desk/src/data/iq-web-context.json` |
+| **Fabric IQ** | Service Desk **ontology** + **graph** + **Data Agent** (`ServiceDesk_Analyst`), published as an **MCP** endpoint | Deployed |
+| **Fabric RTI** | Eventhouse (6 live streams), Activator (alerts), Operations Agent (diagnosis) | Deployed |
+| **AgentOps** | Observability of the agent platform itself, **per customer**: zero-touch, HITL escalations, MCP tool failures, latency, tokens, cost per contact | Deployed (RTI dashboard page) |
 
-Consumers: a multi-agent orchestrator (external, simulated by `fabric.data_agent.mcp_client`),
-the human agent's copilot, and Power BI. **No Microsoft Foundry and no Azure AI resource is
-deployed.** Contracts and XLA clauses are structured data in the Lakehouse and the ontology,
-so **both the number and the clause come from Fabric**.
+Consumers: a multi-agent orchestrator (external, played by `fabric.data_agent.mcp_client`),
+the human agent's copilot, Power BI and the Rayfin console. **No Microsoft Foundry and no Azure
+AI resource is deployed.** Contracts and XLA clauses are also structured data in the Lakehouse
+and the ontology, so every figure comes from Fabric and the clause the contract agent would cite
+is the same wording the ontology carries: the Foundry hop retrieves and phrases, it never
+produces a number.
 
 ### XLA vs SLA
 
@@ -86,7 +106,7 @@ not the site network.
 |---|---|---|---|
 | 1 | **Detect** | Experience score for Lyon 6.1.0 drops from about 81 to about 41. VPN disconnects appear, Teams MOS falls, tickets and negative conversations spike. | Eventhouse → RTI dashboard → **Activator** → Teams alert |
 | 2 | **Diagnose** | The Operations Agent walks Device → Application → Site → Tickets → Users. Root cause: Corporate VPN 6.1.0 on the Lyon ring. Impact: 48 users, 8 of them VIPs. | Ontology + Graph, **Operations Agent** |
-| 3 | **Act** | A major incident **MI-FAB-0001** (Sev2) is declared in the ITSM, impacted users get a proactive message, and an alert is posted to Teams. | Simulated MCP tools (`itsm.create_incident`, `cc.send_proactive_message`, `teams.post_alert`) |
+| 3 | **Act** | A major incident **MI-FAB-0001** (Sev2) is declared in the ITSM, impacted users get a proactive message, and an alert is posted to Teams. | Staged MCP tools (`itsm.create_incident`, `cc.send_proactive_message`, `teams.post_alert`) |
 | 4 | **Ground** | The orchestrator asks the Data Agent over MCP: *"Is USR-FAB-0061 impacted?"* The answer is yes, the incident is known, so it can reply without escalating (zero-touch). | **Data Agent** `ServiceDesk_Analyst` (MCP) |
 | 5 | **AgentOps** | Per-customer view: `dem.get_device_health` fails on ~70% of Fabrikam incident contacts (≤15% elsewhere), AI Gateway 429s reach ~11% for Fabrikam, HITL escalations rise, and cost per contact stays around 0.02 EUR. | RTI dashboard page *AgentOps* |
 | 6 | **Value** | *"Zero-touch dropped 12 points at Fabrikam this week. Are we in XLA breach, and what is the penalty?"* | Data Agent (DAX for the number, ontology for the clause) |
@@ -257,7 +277,8 @@ runs them in order (`--from`, `--skip`, `--list`):
    site, rule "VPN latency 5-min average becomes > 200 ms" → Teams. Deployed **stopped**.
 9. Operations Agent `OA_ServiceDesk_Ops`: goals and instructions for four alerts (VPN latency,
    experience score, agent errors, gateway 429)
-10. Data Agent `ServiceDesk_Analyst` (ontology + semantic model + KQL, 7 KQL few-shots and\n    routing rules for live, `since the incident` and live-versus-closed questions): every few-shot is run on
+10. Data Agent `ServiceDesk_Analyst` (ontology + semantic model + KQL, 7 KQL few-shots and
+    routing rules for live, `since the incident` and live-versus-closed questions): every few-shot is run on
     its live source first, then the agent is published and its MCP endpoint saved to
     `state.json`
 
@@ -280,10 +301,12 @@ assistant rail and IQ storyboard) and re-pointed at the service desk.
   `executeQueries` and the signed-in user's delegated token, so the app never re-derives a
   measure. All the queries live in `src/data/queries.ts`; `tests/test_app.py` checks every
   `table[column]` and `[measure]` in them against the model definition.
-- **Zava IQ.** The storyboard of the demo, on two customers that miss the same target in the\n  same week (Fabrikam 46% → 34%, Litware 48% → 38%, against 40%). It adds one layer at a time: Fabric IQ
-  (figures and ontology scope), the contract clause (Foundry IQ, simulated, read from the
-  ontology's `Xla.clause_text`), Work IQ (simulated mail, Teams, meetings and files) and Web
-  IQ (simulated public news). The consequence changes with each layer (credit vs remediation
+- **Zava IQ.** The storyboard of the demo, on two customers that miss the same target in the
+  same week (Fabrikam 46% → 34%, Litware 48% → 38%, against 40%). It adds one layer at a time: Fabric IQ
+  (figures and ontology scope), the contract clause (Foundry IQ: `Zava-SD-Contracts` over the
+  Service agreements knowledge base; staged from the ontology's `Xla.clause_text`), Work IQ
+  (mail, Teams, meetings and files) and Web IQ (public news), both staged from
+  `src/data/iq-*.json`. The consequence changes with each layer (credit vs remediation
   plan, then "follow up on validation" once Work IQ shows Finance already drafted the credit
   note), and the last step drafts the message to the person Work IQ identified.
 - **Assistant Zava.** A rail that sends each question to the `ServiceDesk_Analyst` Data Agent
@@ -291,8 +314,18 @@ assistant rail and IQ storyboard) and re-pointed at the service desk.
   Answers recorded by `fabric/data_agent/capture_frozen_answers.py` are replayed when the
   exact same prompt is sent (`src/data/frozen-answers.generated.json`); any other question
   goes live.
-- **Architecture.** The chain has five planes: Foundry (simulated), the Fabric agent and\n  lakehouse, the semantic model, the ontology, and Real-Time Intelligence. The real-time plane\n  shows the Eventhouse queried in KQL by the Data Agent (`right now` questions), the\n  Operations Agent (4 goals), the Activator (every 60 s) and the RTI dashboard. There is no\n  second Data Agent: the reactive real-time agent is `OA_ServiceDesk_Ops`, and one analyst\n  that routes between DAX, GQL and KQL keeps closed-week and live answers side by side.\n- **Foundry stays simulated.** The architecture page shows the supervisor that would call
-  Fabric over A2A; no Foundry resource, scope or variable exists.
+- **Architecture.** The chain has five planes: Foundry (supervisor `Zava-ServiceDesk-Agent`,
+  contract agent `Zava-SD-Contracts` over the Foundry IQ knowledge base *Service agreements*,
+  Work IQ and Web IQ), the Fabric agent and lakehouse, the semantic model, the ontology, and
+  Real-Time Intelligence. The real-time plane
+  shows the Eventhouse queried in KQL by the Data Agent (`right now` questions), the
+  Operations Agent (4 goals), the Activator (every 60 s) and the RTI dashboard. There is no
+  second Data Agent: the reactive real-time agent is `OA_ServiceDesk_Ops`, and one analyst
+  that routes between DAX, GQL and KQL keeps closed-week and live answers side by side.
+- **The Foundry plane is staged, not deployed.** No Foundry resource, scope or variable
+  exists; the console asks the Fabric data agent directly. The screens do not label this (a
+  demo does not narrate its own storyline, guarded by vitest); the presenter does, from
+  [`demo/DEMO_SCRIPT.html`](demo/DEMO_SCRIPT.html).
 
 Authentication: Rayfin's own session is opaque and only authorizes Rayfin services, so the
 app signs the user in with MSAL against a single-tenant SPA registration. `deploy_app`

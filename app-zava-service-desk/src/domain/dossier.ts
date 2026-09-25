@@ -11,9 +11,10 @@
  * below is guarded on the exact case it was written for: if the figures stop matching, the card
  * says "review" rather than applying a clause to numbers it was not written against.
  *
- * The contract layer is labelled "Foundry IQ · contract (simulated)". The clause itself is real
- * — it is the text bound in the ontology as `Xla.clause_text` — but no Foundry agent is called in
- * this demo. Work IQ and Web IQ signals are fictional and flagged `simulated` in their files.
+ * The contract layer is badged "Foundry IQ · contract". The clause itself is real — it is the
+ * text bound in the ontology as `Xla.clause_text` — but no Foundry agent is called in this demo.
+ * Work IQ and Web IQ signals are fictional and flagged `simulated` in their files. The screen
+ * carries none of that framing: the presenter does, from docs/demo/DEMO_SCRIPT.html.
  */
 export type DossierStep = 'facts' | 'contract' | 'work' | 'web' | 'action';
 

@@ -235,9 +235,20 @@ describe('dossier storyboard', () => {
     mount();
     await walkToSend();
     fireEvent.click(within(f()).getByRole('button', { name: 'Send in Teams' }));
-    expect(within(f()).getByRole('status')).toHaveTextContent('Sent to Camille Laurent in Teams (simulated).');
+    expect(within(f()).getByRole('status')).toHaveTextContent('Sent to Camille Laurent in Teams.');
     fireEvent.click(within(l()).getByRole('button', { name: 'Send in Teams' }));
-    expect(within(l()).getByRole('status')).toHaveTextContent('Sent to Priya Shah in Teams (simulated).');
+    expect(within(l()).getByRole('status')).toHaveTextContent('Sent to Priya Shah in Teams.');
+  });
+
+  it('does not label its own storyline on screen', async () => {
+    mount();
+    const user = await walkToSend();
+    for (const panel of ['Contract clause', 'Evidence']) {
+      const button = within(f()).queryByRole('button', { name: panel });
+      if (button) await user.click(button);
+    }
+    fireEvent.click(within(f()).getByRole('button', { name: 'Send in Teams' }));
+    expect(document.body.textContent).not.toMatch(/simulated|fictional|not live/i);
   });
 
   it('shows the contribution of Fabric and Foundry by withholding both drafts when either is excluded', async () => {

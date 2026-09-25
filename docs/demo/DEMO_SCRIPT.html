@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zava Service Desk — demo script and IQ wording</title>
+<style>
+  :root {
+    --bg: #0f1420; --panel: #171e2e; --panel-2: #1e2638; --text: #e8ecf4; --muted: #9aa6bd;
+    --line: #2c3650; --accent: #7aa2ff; --fabric: #2bb3a3; --foundry: #e0a33a;
+    --work: #a67cf0; --web: #4a9eea; --ok: #43c07a; --warn: #f0b429; --bad: #ef5d5d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+  h1 { font-size: 2.1rem; margin: 0 0 6px; }
+  h2 { font-size: 1.45rem; margin: 48px 0 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+  h3 { font-size: 1.1rem; margin: 0 0 8px; }
+  p { margin: 8px 0; }
+  a { color: var(--accent); }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; }
+  code { background: var(--panel-2); padding: 1px 6px; border-radius: 4px; }
+  .lede { color: var(--muted); font-size: 1.1rem; max-width: 820px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
+  .chip { display: inline-block; padding: 3px 10px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); font-size: 0.82rem; color: var(--muted); }
+  .chip.fabric { color: var(--fabric); border-color: var(--fabric); }
+  .chip.foundry { color: var(--foundry); border-color: var(--foundry); }
+  .chip.work { color: var(--work); border-color: var(--work); }
+  .chip.web { color: var(--web); border-color: var(--web); }
+  .chip.live { color: var(--ok); border-color: var(--ok); }
+  .chip.recorded { color: var(--warn); border-color: var(--warn); }
+  .chip.sim { color: var(--bad); border-color: var(--bad); }
+  nav.toc { margin: 24px 0 0; padding: 14px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+  nav.toc ol { margin: 4px 0; padding-left: 22px; columns: 2; }
+  .hero-q { margin: 22px 0; padding: 18px 22px; border-left: 4px solid var(--accent); background: var(--panel); border-radius: 0 10px 10px 0; font-size: 1.2rem; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.95rem; }
+  th, td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: .03em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .card.fabric { border-top: 3px solid var(--fabric); }
+  .card.foundry { border-top: 3px solid var(--foundry); }
+  .card.work { border-top: 3px solid var(--work); }
+  .card.web { border-top: 3px solid var(--web); }
+  .scene { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin: 18px 0; overflow: hidden; }
+  .scene > header { display: flex; align-items: baseline; gap: 12px; padding: 14px 18px; background: var(--panel-2); border-bottom: 1px solid var(--line); }
+  .scene > header .n { font-weight: 700; color: var(--accent); font-size: 1.3rem; }
+  .scene > header .t { font-weight: 600; font-size: 1.1rem; }
+  .scene > header .d { margin-left: auto; color: var(--muted); font-size: 0.9rem; white-space: nowrap; }
+  .scene .body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .scene .col { padding: 14px 18px; }
+  .scene .col + .col { border-left: 1px solid var(--line); }
+  .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; margin: 10px 0 4px; }
+  .label:first-child { margin-top: 0; }
+  .say { margin: 6px 0; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(122,162,255,.07); border-radius: 0 8px 8px 0; font-style: italic; }
+  .wow { margin: 10px 0 0; padding: 10px 14px; border-radius: 8px; background: rgba(67,192,122,.1); border: 1px solid rgba(67,192,122,.35); }
+  .wow::before { content: "Key moment — "; font-weight: 700; color: var(--ok); font-style: normal; }
+  .trap { margin: 10px 0 0; padding: 10px 14px; border-radius: 8px; background: rgba(240,180,41,.08); border: 1px solid rgba(240,180,41,.35); }
+  .trap::before { content: "Watch out — "; font-weight: 700; color: var(--warn); }
+  ul, ol { margin: 6px 0; padding-left: 22px; }
+  li { margin: 3px 0; }
+  .ask { position: relative; margin: 8px 0; padding: 12px 88px 12px 14px; background: #0b0f18; border: 1px solid var(--line); border-radius: 8px; font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.88rem; white-space: pre-wrap; }
+  .ask button { position: absolute; top: 8px; right: 8px; background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; font: inherit; font-size: 0.8rem; }
+  .ask button:hover { border-color: var(--accent); }
+  .do-dont td:first-child { color: var(--ok); }
+  .do-dont td:last-child { color: #f3a3a3; }
+  .checklist li { list-style: none; margin-left: -18px; }
+  .checklist li::before { content: "☐ "; color: var(--accent); }
+  details { margin: 8px 0; }
+  summary { cursor: pointer; color: var(--accent); }
+  footer { margin-top: 56px; color: var(--muted); font-size: 0.85rem; }
+  .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+  .brand-name { font-weight: 700; white-space: nowrap; }
+  .step-cue { margin: 10px 0 0; padding: 8px 12px; border-radius: 8px; background: var(--panel-2); border: 1px dashed var(--line); font-size: 0.92rem; }
+  .step-cue::before { content: "Branding cue — "; font-weight: 700; color: var(--accent); }
+  .screen { margin: 6px 0; padding: 8px 12px; border-radius: 8px; background: #0b0f18; border: 1px solid var(--line); font-size: 0.92rem; }
+  .screen b { color: var(--text); }
+  @media (max-width: 800px) { .scene .body { grid-template-columns: 1fr; } .scene .col + .col { border-left: 0; border-top: 1px solid var(--line); } nav.toc ol { columns: 1; } }
+  @media print {
+    body { background: #fff; color: #111; font-size: 12px; }
+    .card, .scene, nav.toc, .hero-q, .ask { background: #fff !important; border-color: #bbb !important; }
+    .scene > header { background: #f2f2f2; }
+    .ask button { display: none; }
+    h2 { page-break-before: auto; }
+    .scene { page-break-inside: avoid; }
+    .say { background: #f5f7ff; }
+    .muted, th, .lede, .chip { color: #444 !important; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>Zava Service Desk — demo script</h1>
+  <p class="lede">A fictional managed-service operator, six customers, AI agents on the front line, and one question that neither the data nor the contract can answer alone.
+  This script gives the order of the screens, the clicks, what to say and the wording for the <strong>Zava IQ</strong> part,
+  so the audience understands the context of what they are about to see — before they see it.</p>
+  <div class="meta">
+    <span class="chip">≈ 20 min · short version 10 min</span>
+    <span class="chip">Business + technical audience</span>
+    <span class="chip">Script, app and questions in English</span>
+    <span class="chip">Synthetic data · seed 42</span>
+  </div>
+  <nav class="toc" aria-label="Contents">
+    <ol>
+      <li><a href="#storyline">The storyline</a></li>
+      <li><a href="#before">Before the demo</a></li>
+      <li><a href="#screens">Screen by screen</a></li>
+      <li><a href="#iq">Zava IQ — layers and wording</a></li>
+      <li><a href="#iq-steps">Zava IQ — step-by-step walkthrough</a></li>
+      <li><a href="#live">Live, recorded, staged</a></li>
+      <li><a href="#challenge">Challenge questions for the room</a></li>
+      <li><a href="#planb">Plan B</a></li>
+      <li><a href="#questions">Questions to paste</a></li>
+    </ol>
+  </nav>
+</header>
+
+<section id="storyline">
+  <h2>1. The storyline</h2>
+  <div class="hero-q">“Fabrikam and Litware both fell below the same 40% zero-touch XLA last week — what does each contract make Zava owe?”</div>
+  <p>The rate is calculated in <strong>Fabric</strong>, in DAX, on a Direct Lake semantic model. The clause is retrieved by the <strong>Foundry</strong> contracts agent from the Foundry IQ knowledge base.
+  The language model routes, cites and phrases — <strong>it never calculates</strong>, and never turns a clause into an invented rule.</p>
+
+  <table>
+    <thead><tr><th>Customer, ISO week 38</th><th class="num">Zero-touch</th><th>Contract</th><th>Consequence</th></tr></thead>
+    <tbody>
+      <tr><td>Fabrikam Industries</td><td class="num"><strong>34.0%</strong> (was 46.0%)</td><td>CTR-FAB-2026 · XLA-FAB-01</td><td>A <strong>service credit of 9,250 EUR</strong>: 5% of the 185,000 EUR monthly fee, capped at 15%.</td></tr>
+      <tr><td>Litware Insurance</td><td class="num"><strong>38.0%</strong> (was 48.0%)</td><td>CTR-LIT-2026</td><td><strong>No credit.</strong> A written remediation plan within 10 business days — due 2 October.</td></tr>
+    </tbody>
+  </table>
+  <p>Behind the Fabrikam drop: a Corporate VPN update breaks remote access and Teams calls at <strong>Fabrikam Lyon</strong>. Tickets pile up, the AI agents escalate, a device-health tool fails upstream, and zero-touch falls through the XLA.
+  The chain runs <em>Detect → Diagnose → Act → Ground → AgentOps → Value</em>.</p>
+  <div class="say">Same target, same week, close numbers. Two opposite obligations. The figures say <strong>how much</strong>; the contract says <strong>what we owe</strong>; the work context says <strong>who acts</strong>. None of them is enough on its own.</div>
+</section>
+
+<section id="before">
+  <h2>2. Before the demo</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>The day before</h3>
+      <ul class="checklist">
+        <li>Fabric capacity running (a paused capacity breaks everything and answers 404).</li>
+        <li>Offline gate green: <code>python -m pytest tests -q</code> and <code>npm test</code> in <code>app-zava-service-desk/</code>.</li>
+        <li>Activator started and Operations Agent bindings done (UI-only, see <code>docs/DEPLOYMENT.md</code>).</li>
+        <li>Full rehearsal in the browser you will use on stage, already signed in to the demo tenant.</li>
+        <li>Optional: re-record the prepared answers with <code>python -m fabric.data_agent.capture_frozen_answers</code>. A 401 means the token expired: run it again.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>One hour before</h3>
+      <ul class="checklist">
+        <li><code>python deploy_all.py --warmup</code> — pay the cold start off stage.</li>
+        <li>Start the live stream: <code>python -m fabric.eventhouse.inject_event --scenario vpn-lyon --loop --interval 30</code>.</li>
+        <li>Open the application <strong>from its Fabric item</strong> (<code>app_url</code> in <code>state.json</code>) and sign in.</li>
+        <li>Ask one free question in the assistant: it wakes up the Data Agent.</li>
+        <li>Second tab open on <code>/diagnostic</code> (not in the navigation, reachable without signing in).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Five minutes before</h3>
+      <ul class="checklist">
+        <li>Browser zoom at 100%, full-screen window, theme chosen.</li>
+        <li>Back to the cover; close the assistant if it still holds rehearsal answers.</li>
+        <li>On Zava IQ, click <strong>Reset</strong>.</li>
+        <li>Notifications off.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="screens">
+  <h2>3. Screen by screen</h2>
+  <p>Text in quotes is exactly what the app displays. Timings are indicative; the short version (10 min) keeps scenes 1, 6, 7 and 8.</p>
+
+  <article class="scene">
+    <header><span class="n">1</span><span class="t">Cover — “Your service desk. Connected.”</span><span class="d">1 min 30</span></header>
+    <div class="body">
+      <div class="col">
+        <div class="label">What to show</div>
+        <ul>
+          <li>The six indicators: 2,792 tickets, zero-touch last week 36.8%, open tickets, CSAT 4.30, 2 XLA breaches last week, 9,250 EUR credit owed.</li>
+          <li>The navigation: Portfolio, Experience, AI agents, Contracts, XLA &amp; credits, Zava IQ, Architecture.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <div class="label">What to say</div>
+        <div class="say">This is a service desk run largely by AI agents, for six customers, under contract. Every figure here is a named measure in Fabric, evaluated live with my own identity.</div>
+        <div class="say">Two XLA breaches last week, and a credit owed. The question is not only how much — it is what each contract actually makes us do.</div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scene">
+    <header><span class="n">2</span><span class="t">Portfolio — where the six customers stand</span><span class="d">2 min</span></header>
+    <div class="body">
+      <div class="col">
+        <div class="label">What to show</div>
+        <ul>
+          <li>Zero-touch last week against the week before, per customer: Fabrikam −12 pts, Litware −10 pts.</li>
+          <li>Open the assistant with the starter <em>“How did each customer do last week against the week before?”</em> — replayed after a 5 s pause.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <div class="label">What to say</div>
+        <div class="say">Zero-touch is the share of tickets the agents resolve with no human. It drops six points across the portfolio — and two customers carry most of it.</div>
+        <div class="trap">Do not explain the drop yet. Let the Experience screen do it.</div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scene">
+    <header><span class="n">3</span><span class="t">Experience — what users live through</span><span class="d">2 min 30</span></header>
+    <div class="body">
+      <div class="col">
+        <div class="label">What to show</div>
+        <ul>
+          <li>Closed days by site: Fabrikam Lyon has the worst experience score, VPN latency and Teams call quality.</li>
+          <li>The live stream: Lyon VPN latency p95 well above the other sites.</li>
+          <li>Assistant: <em>“Which site has the worst digital experience?”</em> then <em>“What is causing it, and who is affected?”</em>.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <div class="label">What to say</div>
+        <div class="say">This is Digital Employee Experience telemetry, landed in the Eventhouse. The history is in the Lakehouse, the last hour is live — same model, two speeds.</div>
+        <div class="wow">The ontology walks from the site to its devices, its failing application and its VIPs — a Corporate VPN update, and a major incident already open.</div>
+        <div class="trap">“Is Lyon still degraded in the live telemetry?” took six minutes live when it was recorded. Use the prepared button, never type it.</div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scene">
+    <header><span class="n">4</span><span class="t">AI agents — AgentOps per customer</span><span class="d">2 min</span></header>
+    <div class="body">
+      <div class="col">
+        <div class="label">What to show</div>
+        <ul>
+          <li>Zero-touch, escalations to a human, tool failures, latency and cost per contact, per customer.</li>
+          <li>The failing tool: <code>dem.get_device_health</code>, upstream 503, at Fabrikam; gateway throttling (429) around 11%.</li>
+          <li>Assistant: <em>“Which tool is failing, and for which customer?”</em>.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <div class="label">What to say</div>
+        <div class="say">When the agents cannot check a device, they hand the ticket to a human. That is the zero-touch drop, explained by the agents' own traces.</div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scene">
+    <header><span class="n">5</span><span class="t">Contracts — six agreements, three regimes</span><span class="d">1 min 30</span></header>
+    <div class="body">
+      <div class="col">
+        <div class="label">What to show</div>
+        <ul>
+          <li>The six contracts and their XLAs: the same zero-touch vocabulary, different thresholds and consequences.</li>
+          <li>“Six contracts, three consequences”: a service credit, a remediation plan with no credit, or measured and reported with no consequence attached.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <div class="label">What to say</div>
+        <div class="say">Every contract uses the same words. What happens when a target is missed is where they diverge — and that is text, not a measure.</div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scene">
+    <header><span class="n">6</span><span class="t">XLA &amp; credits — measured against promised</span><span class="d">2 min</span></header>
+    <div class="body">
+      <div class="col">
+        <div class="label">What to show</div>
+        <ul>
+          <li>Fabrikam 34.0% against 40%: one breach, 9,250 EUR credit. Litware 38.0% against 40%: one breach, 0 EUR.</li>
+          <li>Assistant: <em>“Which customers breached an XLA last week, and what does their contract say?”</em>.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <div class="label">What to say</div>
+        <div class="say">The credit is computed in Fabric: 5% of 185,000 EUR, under a 15% cap. Not in a prompt. There is only one definition of it, and it is auditable.</div>
+        <div class="wow">Litware missed the same target and owes nothing in euros. The number alone would have sent the wrong message to both customers.</div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scene">
+    <header><span class="n">7</span><span class="t">Zava IQ — “Which XLA breaches need action?”</span><span class="d">5 min</span></header>
+    <div class="body">
+      <div class="col">
+        <div class="label">What to show</div>
+        <p>The full walkthrough is in <a href="#iq-steps">section 5</a>: facts, contract, Work IQ, Web IQ, the right person, send in Teams.</p>
+        <p>Then switch a layer off in “Change the context included in both cases” to show what it contributes.</p>
+      </div>
+      <div class="col">
+        <div class="label">What to say</div>
+        <div class="say">Each layer answers one question. Fabric IQ: what happened. Foundry IQ: what the contract says. Work IQ: who already acts. Web IQ: what the customer announced.</div>
+        <div class="wow">Without Foundry IQ the screen says “The contractual treatment is not established.” It does not guess.</div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scene">
+    <header><span class="n">8</span><span class="t">Architecture — the chain</span><span class="d">2 min</span></header>
+    <div class="body">
+      <div class="col">
+        <div class="label">What to show</div>
+        <ul>
+          <li>The supervisor <code>Zava-ServiceDesk-Agent</code> fans out to the contracts agent <code>Zava-SD-Contracts</code> (A2A), Work IQ (MCP), Web IQ (tool) and the Fabric Data Agent (A2A).</li>
+          <li>The contracts agent reads the Service agreements knowledge base through Foundry IQ.</li>
+          <li>The Fabric plane: semantic model, ontology, Eventhouse, RTI dashboard, Activator, Operations Agent.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <div class="label">What to say</div>
+        <div class="say">Fabric computes every figure. Foundry cites the clause and phrases. The Data Agent is a <em>tool</em> — it returns an answer; the contracts are a <em>knowledge source</em> — they return text.</div>
+        <div class="trap">If asked what is deployed: the Fabric plane is live; the Foundry plane is staged for this demo (section 6).</div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scene">
+    <header><span class="n">9</span><span class="t">Optional — one live question</span><span class="d">2 min</span></header>
+    <div class="body">
+      <div class="col">
+        <div class="label">What to show</div>
+        <p>Paste Q1 from <a href="#questions">section 9</a> into the assistant, or ask it over MCP from a terminal.</p>
+      </div>
+      <div class="col">
+        <div class="label">What to say</div>
+        <div class="say">This one is live: the Data Agent traverses the graph now. It takes about a minute — that is the price of an answer with a single definition behind it.</div>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section id="iq">
+  <h2>4. Zava IQ — layers and wording</h2>
+  <div class="grid">
+    <div class="card fabric"><h3><span class="chip fabric">Fabric IQ</span></h3><p>The semantic model computes the zero-touch rates and the XLA credit. The ontology and its graph link the customer to its sites, incidents, applications and XLA clauses.</p></div>
+    <div class="card foundry"><h3><span class="chip foundry">Foundry IQ</span></h3><p>The Zava-SD-Contracts agent retrieves the applicable clause from the Service agreements knowledge base, cites the signed agreement and computes nothing.</p></div>
+    <div class="card work"><h3><span class="chip work">Work IQ</span></h3><p>Mail, Teams chats, meetings and files show what is already underway and who owns each case. That decides who receives the message.</p></div>
+    <div class="card web"><h3><span class="chip web">Web IQ</span></h3><p>Public customer announcements add context for the service review, without changing contractual conclusions.</p></div>
+  </div>
+  <table class="do-dont">
+    <thead><tr><th>Say</th><th>Avoid</th></tr></thead>
+    <tbody>
+      <tr><td>“Foundry IQ retrieves the clause and cites the agreement.”</td><td>“The AI decides what we owe.”</td></tr>
+      <tr><td>“The credit is a Fabric measure.”</td><td>“The agent calculates the penalty.”</td></tr>
+      <tr><td>“Work IQ shows who already acts.”</td><td>“Work IQ reads everyone's mailbox.”</td></tr>
+      <tr><td>“Web IQ adds context, not obligations.”</td><td>“The news changes the contract.”</td></tr>
+      <tr><td>“The same wording is bound in the ontology.”</td><td>“The model summarised the contract.”</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="iq-steps">
+  <h2>5. Zava IQ — step-by-step walkthrough</h2>
+  <p>The page opens on the week 38 close. Each button reveals one layer; wait for the short pause before speaking over it.</p>
+  <table>
+    <thead><tr><th>#</th><th>Click</th><th>On screen</th><th>What to say</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>—</td><td>“Two breaches. Consequence still unknown.” Fabrikam 34%, Litware 38%, target 40%.</td><td>Fabric tells us both customers breached. It cannot tell us what we owe.</td></tr>
+      <tr><td>2</td><td><strong>Read the contracts</strong></td><td>“Foundry IQ is reading the two XLA clauses…”, then “Same target. Different obligations.” Fabrikam: “Service credit of €9,250 under XLA-FAB-01”. Litware: “Remediation plan due, no credit”, by 2 October.</td><td>Same target, same week. One contract owes money, the other a written plan. Open <em>Contract clause</em> to show the cited text.</td></tr>
+      <tr><td>3</td><td><strong>Add Work IQ</strong></td><td>“Work IQ shows what is already underway, and who owns it.” Fabrikam becomes “Follow up on validation”: Finance already drafted the credit note. Litware: the IT director asked for an explanation and nobody answered.</td><td>Work IQ does not change the obligation. It changes who acts next — and stops us asking Finance twice.</td></tr>
+      <tr><td>4</td><td><strong>Add Web IQ</strong></td><td>“Public news adds context to the service review.” Fabrikam opens an R&amp;D hub in Lyon; Litware launched a self-service HR portal.</td><td>Useful for the conversation. It never touches what the contract says.</td></tr>
+      <tr><td>5</td><td><strong>Find who to tell</strong></td><td>“The right person, with the full context.” Camille Laurent (Fabrikam), Priya Shah (Litware).</td><td>The message carries every source. Nobody has to rebuild the case.</td></tr>
+      <tr><td>6</td><td><strong>Send in Teams</strong></td><td>“Sent to Camille Laurent in Teams.”</td><td>From an XLA breach to the right person, in one screen.</td></tr>
+      <tr><td>7</td><td>Switch Foundry IQ off</td><td>“The contractual treatment is not established.”</td><td>Remove the contract and the answer degrades honestly. That is the proof each layer earns its place.</td></tr>
+    </tbody>
+  </table>
+  <p>Finish with <strong>Reset</strong> so the page is ready for the next run.</p>
+</section>
+
+<section id="live">
+  <h2>6. Live, recorded, staged</h2>
+  <table>
+    <thead><tr><th>Element</th><th>Status</th><th>How it shows on screen</th></tr></thead>
+    <tbody>
+      <tr><td>Indicators, charts, tables on the five screens</td><td><span class="chip live">live</span></td><td>DAX queries on the deployed semantic model, with the signed-in user's token.</td></tr>
+      <tr><td>Free questions typed in the assistant</td><td><span class="chip live">live</span></td><td>The Data Agent answers in 40–160 s, with the sources that fired.</td></tr>
+      <tr><td>Prepared questions (cover cards, starters, follow-ups)</td><td><span class="chip recorded">recorded</span></td><td>The answer recorded from the live agent appears after a 5 s pause. The presenter owns the framing.</td></tr>
+      <tr><td>RTI dashboard, Activator, Operations Agent</td><td><span class="chip live">live</span></td><td>Fed by the injector streaming “now” into the Eventhouse.</td></tr>
+      <tr><td>Zava IQ — facts</td><td><span class="chip recorded">example</span></td><td>The week 38 close, from the repository reference, matching the live measures.</td></tr>
+      <tr><td>Foundry supervisor, contracts agent, Foundry IQ, Work IQ, Web IQ, Teams send</td><td><span class="chip sim">staged</span></td><td>Played from versioned files. The clause text is the one bound in the ontology as <code>Xla.clause_text</code>. The short pauses are staging.</td></tr>
+    </tbody>
+  </table>
+  <p>Simple rule: the screen carries no “simulated” labels; if someone asks what is wired, answer with this table.</p>
+</section>
+
+<section id="challenge">
+  <h2>7. Challenge questions for the room</h2>
+  <p>Deliberate traps. The expected answers are locked in by the test suite and by the Data Agent's verified few-shots.</p>
+  <table>
+    <thead><tr><th>Audience question</th><th>Expected answer</th></tr></thead>
+    <tbody>
+      <tr><td>Litware is below 40% too. Do we owe a credit?</td><td>No. Its contract carries no credit: a written remediation plan within 10 business days, due 2 October.</td></tr>
+      <tr><td>How was the Fabrikam credit worked out?</td><td>5% of the 185,000 EUR monthly service fee, 9,250 EUR, under a 15% cap. Computed as a Fabric measure.</td></tr>
+      <tr><td>Why not put the calculation rule in the prompt?</td><td>Because we would have two definitions of zero-touch and of the credit. The measure stays in Fabric, auditable.</td></tr>
+      <tr><td>A Fabrikam user is calling. Is a known incident already covering them?</td><td>Yes: Louis Dubois, Lyon, a VIP, is covered by the open Sev2 major incident on VPN and Teams — the agent can answer without a human.</td></tr>
+      <tr><td>What broke zero-touch at Fabrikam?</td><td>A Corporate VPN update at Lyon; the device-health tool failed upstream, so the agents escalated to humans.</td></tr>
+      <tr><td>Is Foundry live in this demo?</td><td>No: the Foundry plane is staged. The figures are live, and the Data Agent answers “figures + contract” questions live from the ontology.</td></tr>
+      <tr><td>Does Work IQ read everyone's mailbox?</td><td>No: it works with the signed-in user's permissions. Here the context is staged, and names only the two people who own the cases.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="planb">
+  <h2>8. Plan B</h2>
+  <table>
+    <thead><tr><th>Symptom</th><th>What to do on stage</th></tr></thead>
+    <tbody>
+      <tr><td>A live question takes more than 100 s or fails</td><td>“This is the full Fabric chain running live.” Switch to an equivalent prepared question, and say it is recorded.</td></tr>
+      <tr><td>A screen shows “Not connected” or an error</td><td>Retry once. Otherwise open the <code>/diagnostic</code> tab: it shows which binding or token failed.</td></tr>
+      <tr><td>The app shows only a launchpad</td><td>It was opened from the hosting URL. Open it from the Fabric item instead.</td></tr>
+      <tr><td>Unexpected sign-in screen</td><td>Sign in again with the demo tenant account, in the same browser as the rehearsal.</td></tr>
+      <tr><td>The dashboard or the alert does not move</td><td>The injector stopped: restart <code>inject_event --scenario vpn-lyon --loop</code>. Carry on with the closed days meanwhile.</td></tr>
+      <tr><td>Everything is stuck</td><td>Tell the story with the table in section 1 and the architecture: the message stands without the screen.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="questions">
+  <h2>9. Questions to paste</h2>
+  <p><strong>Q1 — live, graph traversal</strong> <span class="chip">rehearse before use · about 1 min</span></p>
+  <div class="ask"><button type="button" data-copy>Copy</button>Is user USR-FAB-0061 impacted by an open major incident, and is that user a VIP?</div>
+
+  <p><strong>Q2 — live, figures + contract</strong> <span class="chip">rehearse before use · about 1 min 30</span></p>
+  <div class="ask"><button type="button" data-copy>Copy</button>Is Fabrikam in XLA breach on zero-touch last week, and what credit applies under its contract?</div>
+
+  <p><strong>Q3 — live telemetry</strong> <span class="chip">rehearse before use · about 1 min</span></p>
+  <div class="ask"><button type="button" data-copy>Copy</button>What is the VPN latency per site in the last hour?</div>
+
+  <details>
+    <summary>Prepared questions (recorded replay) usable on stage</summary>
+    <ul>
+      <li>“Which customers breached an XLA last week, and what does their contract say?” — figures + contract, 90 s live.</li>
+      <li>“Litware missed the target too. Why is no credit due?” — figures + contract, 77 s live.</li>
+      <li>“A Fabrikam user is calling. Is a known incident already covering them?” — graph, 56 s live.</li>
+      <li>“Which tool is failing, and for which customer?” — AgentOps, 91 s live.</li>
+      <li>“What does VPN latency look like, site by site, right now?” — live telemetry, 65 s live.</li>
+    </ul>
+    <p>Never type “Is Lyon still degraded in the live telemetry?”: it took six minutes live. Use its prepared button only.</p>
+  </details>
+</section>
+
+<footer>
+  Zava is a fictional managed-service operator; customers, users, contracts, Work IQ notes and Web IQ announcements are synthetic.
+  This document contains no tenant identifier or deployment URL: they live in <code>state.json</code>, which is not versioned.
+</footer>
+</main>
+<script>
+  document.querySelectorAll('[data-copy]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var text = button.parentElement.textContent.replace(button.textContent, '').trim();
+      var done = function () { button.textContent = 'Copied'; setTimeout(function () { button.textContent = 'Copy'; }, 1500); };
+      if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, function () { button.textContent = 'Failed'; }); }
+    });
+  });
+</script>
+</body>
+</html>

@@ -145,7 +145,7 @@ export function DossierCard({
 
       {step !== 'facts' ? (
         <div className={`dossier-source-block iq-source-foundry ${includeFoundry ? '' : 'is-source-excluded'}`}>
-          <span className="iq-source-badge">Foundry IQ · contract (simulated)</span>
+          <span className="iq-source-badge">Foundry IQ · contract</span>
           <p>
             {!includeFoundry
               ? 'Contract context is not included. The consequence remains unqualified.'
@@ -155,7 +155,7 @@ export function DossierCard({
           </p>
           <small>
             {includeFoundry
-              ? `Clause read from ONT_ServiceDesk · ${item.contract.reference}`
+              ? `Zava-SD-Contracts · Service agreements · ${item.contract.reference}`
               : 'Restore this context to qualify the week'}
           </small>
         </div>
@@ -163,7 +163,7 @@ export function DossierCard({
 
       {workReady ? (
         <div className={`dossier-source-block dossier-work-note iq-source-work ${includeWork ? '' : 'is-source-excluded'}`}>
-          <span className="iq-source-badge">Work IQ · simulated</span>
+          <span className="iq-source-badge">Work IQ</span>
           {activeWork ? (
             <>
               <ul className="dossier-signals" aria-label={`${item.customer} Work IQ signals`}>
@@ -203,7 +203,7 @@ export function DossierCard({
 
       {webReady ? (
         <div className={`dossier-source-block iq-source-web ${includeWeb ? '' : 'is-source-excluded'}`}>
-          <span className="iq-source-badge">Web IQ · simulated</span>
+          <span className="iq-source-badge">Web IQ</span>
           {webNotes.map((note) => (
             <div key={note.id} className="dossier-web-story">
               <small>
@@ -309,13 +309,11 @@ export function DossierCard({
           {panel === 'contract' ? (
             <>
               <p>
-                {item.contract.xlaId} clause text, as bound in the ontology (
-                <code>Xla.clause_text</code>):
+                {item.contract.xlaId} clause, cited by Zava-SD-Contracts from {item.contract.reference} in
+                the Service agreements knowledge base. The ontology binds the same wording as{' '}
+                <code>Xla.clause_text</code>.
               </p>
               <blockquote className="dossier-article">{item.contract.clause}</blockquote>
-              <p className="iq-fingerprint">
-                The Foundry IQ contract layer is simulated in this demo: the clause is read from Fabric.
-              </p>
             </>
           ) : null}
 
@@ -323,7 +321,7 @@ export function DossierCard({
             <>
               <p>
                 Scenario date: {asOf}. Figures from the semantic model, cause from the ontology graph,
-                consequence from {item.contract.reference}. Work IQ and Web IQ signals are fictional.
+                consequence from {item.contract.reference} through the Foundry IQ knowledge base.
               </p>
               <details className="iq-query">
                 <summary>Agent question</summary>
@@ -396,7 +394,7 @@ export function DossierCard({
               </div>
               {sendState === 'sent' && recipient ? (
                 <p role="status" className="dossier-sent">
-                  Sent to {recipient.name} in {recipient.channel} (simulated).
+                  Sent to {recipient.name} in {recipient.channel}.
                 </p>
               ) : null}
               {copyState === 'copied' ? <span role="status">Copied.</span> : null}

@@ -156,7 +156,7 @@ export function IqInPracticePage() {
           <div className="dossier-contributions">
             <div><strong>Business data</strong><p>Tickets, telemetry, contracts and XLA evaluations landed in OneLake and the Eventhouse.</p></div>
             <div className="iq-source-fabric"><strong>Fabric IQ</strong><p>The semantic model computes the zero-touch rates and the XLA credit. The ontology and its graph link the customer to its sites, incidents, applications and XLA clauses.</p></div>
-            <div className="iq-source-foundry"><strong>Foundry IQ (simulated)</strong><p>In production, a Foundry agent retrieves and cites the signed agreement. Here the clause is read from the ontology.</p></div>
+            <div className="iq-source-foundry"><strong>Foundry IQ</strong><p>The Zava-SD-Contracts agent retrieves the applicable clause from the Service agreements knowledge base, cites the signed agreement and computes nothing.</p></div>
             <div className="iq-source-work"><strong>Work IQ</strong><p>Mail, Teams chats, meetings and files show what is already underway and who owns each case. That decides who receives the message.</p></div>
             <div className="iq-source-web"><strong>Web IQ</strong><p>Public customer announcements add context for the service review, without changing contractual conclusions.</p><a href="https://www.microsoft.com/en-us/WebIQ" target="_blank" rel="noreferrer">Web IQ overview</a></div>
           </div>

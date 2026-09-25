@@ -1,204 +1,218 @@
-# Zava Service Desk — the data foundation of an agentic service desk on Microsoft Fabric
+# Zava Service Desk — Fabric IQ × Foundry demo
 
-AI agents can resolve a password reset on their own. Running a whole **service desk** on
-agents, for many customers and under contract, also requires them to share one trusted
-context: who the user is, which device and application are failing, whether an outage is
-already known, and what was promised to the customer. This demo builds that context on
-**Microsoft Fabric**. The ontology, graph and Data Agent come from Fabric IQ; real-time
-intelligence, alerts and AgentOps observability come from Fabric RTI.
+![License](https://img.shields.io/github/license/Statyx/Fab-ServiceDesk-IQ?style=flat-square)
+![Last commit](https://img.shields.io/github/last-commit/Statyx/Fab-ServiceDesk-IQ?style=flat-square)
+![Python](https://img.shields.io/badge/python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)
+![Microsoft Fabric](https://img.shields.io/badge/Microsoft_Fabric-IQ_%2B_RTI-6264A7?style=flat-square&logo=microsoft&logoColor=white)
+![Microsoft Foundry](https://img.shields.io/badge/Microsoft_Foundry-Agents_%2B_Foundry_IQ-8661C5?style=flat-square&logo=microsoftazure&logoColor=white)
+![Console](https://img.shields.io/badge/console-React_%2B_Vite_7-61DAFB?style=flat-square&logo=react&logoColor=black)
 
-> **Fully synthetic.** Zava is a fictional managed-service operator. Its customers
-> (Contoso, Fabrikam, Litware, Northwind, Tailspin, Woodgrove), users, devices, tickets,
-> contracts and clauses are all generated from a seed. Tools are named generically: ITSM,
-> DEM, Contact Center, CSAT tool, Corporate VPN.
+<!-- HERO VISUAL — drop the teaser video here once recorded. Upload it via a GitHub
+     comment to get a user-attachments URL; do not commit large media to the repo. -->
 
-## The storyline
+A managed service desk demo built on Microsoft Fabric and Microsoft Foundry. AI agents
+resolve tickets on their own; running a whole service desk on them, for six customers and
+under contract, needs one trusted context. The demo answers a question that neither the
+data nor the contract can answer alone:
 
-A Corporate VPN client update breaks remote access and Teams calls for most users at
-**Fabrikam Lyon**.
+> **"Fabrikam and Litware both fell below the same 40% zero-touch XLA last week — what
+> does each contract make Zava owe?"**
 
-1. **Detect** — Device experience drops, tickets and negative conversations spike, and an Activator alert fires.
-2. **Diagnose** — The Operations Agent traverses Device → Application → Site → Tickets → Users (VIPs included) and finds the root cause.
-3. **Act** — A major incident is declared, impacted users get a proactive message, and a Teams alert is posted.
-4. **Ground** — An external orchestrator asks the Data Agent over **MCP**: *"Is this user impacted?"* The answer lets it resolve the contact with no human (zero-touch).
-5. **AgentOps** — Per-customer view of zero-touch, HITL escalations, MCP tool failures, latency, tokens and cost per contact.
-6. **Value** — *"Zero-touch dropped 12 points at Fabrikam this week. Are we in XLA breach, and what is the penalty?"* → 46.0% → 34.0% against a 40% XLA, so **9,250 EUR** of service credit. Litware also misses the target (48.0% → 38.0%), but its contract carries no credit.
+The rate is computed in Fabric, in DAX, over a Direct Lake semantic model. The clause is
+retrieved by a Foundry contracts agent from a Foundry IQ knowledge base. The language
+model routes, cites and phrases — it never computes, and never turns a clause into an
+invented rule.
 
-An **XLA** (eXperience Level Agreement) commits to the user experience (zero-touch rate,
-CSAT, device experience score, time lost), where an SLA only commits to technical targets.
+> **Synthetic data.** Zava is a fictional managed-service operator. Its customers,
+> users, devices, tickets, contracts and clauses are generated from seed 42 by
+> [`fabric/data/generate_data.py`](fabric/data/generate_data.py). No real customer, GUID
+> or endpoint appears anywhere in this repository.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the vision, data model, target
-ontology, storyboard and deployment order.
+---
 
-## Status
+## Screens
 
-| Phase | Scope | State |
+| Zava IQ — from a breach to the right person | Portfolio — live DAX | Architecture — the chain |
 |---|---|---|
-| 1 | Scaffold, deterministic synthetic data, live injector, Data Agent MCP client, offline tests, leak guard + CI | ✅ done |
-| 2 | Lakehouse, Eventhouse, Ontology + Graph, Semantic model + report, RTI dashboard, Activator, Operations Agent, Data Agent (MCP) | ✅ deployed and verified end to end |
-| 3 | Rayfin console app `App-Zava-Service-Desk`: live DAX screens, Zava IQ storyboard, Data Agent assistant | ✅ deployed (`python -m fabric.app.deploy_app`) |
+| ![Zava IQ](docs/images/zava-iq.png) | ![Portfolio](docs/images/portfolio.png) | ![Architecture](docs/images/architecture.png) |
 
-## Quickstart (no tenant needed)
+---
 
-Requires Python 3.10+.
+## At a glance
 
-```text
+| | |
+|---|---|
+| **Domain** | Managed IT service desk — tickets, digital employee experience, AI agents, XLAs |
+| **Company** | Zava (fictional operator), six fictional customers: Contoso, Fabrikam, Litware, Northwind, Tailspin, Woodgrove |
+| **Fabric items** | Lakehouse · Eventhouse · Ontology + graph (Fabric IQ) · Semantic model · Report · RTI dashboard · Activator · Operations Agent · Data Agent (MCP) · Rayfin app |
+| **Foundry plane** | Supervisor agent · contracts agent · Foundry IQ knowledge base over the contracts · Work IQ · Web IQ — **staged in this demo** |
+| **Hosted application** | Rayfin Fabric App · React/Vite console · single-tenant Entra SPA, delegated scopes, no secret |
+| **Contracts** | Six service agreements, the same XLA vocabulary, **deliberately divergent** consequences |
+| **Runs without a tenant?** | Data generation, live-stream replay and tests: yes. Deployment: no. |
+
+---
+
+## The question the demo answers
+
+Two customers miss the same target in the same week. Their **numbers are close**. Their
+**contractual consequences are opposite**.
+
+| Customer, ISO week 38 | Zero-touch (previous week) | XLA | Contract | Answer |
+|---|---:|---|---|---|
+| Fabrikam Industries | **34.0%** (46.0%) | ≥ 40% | CTR-FAB-2026 · XLA-FAB-01 | **A service credit of 9,250 EUR** — 5% of the 185,000 EUR monthly fee, capped at 15% |
+| Litware Insurance | **38.0%** (48.0%) | ≥ 40% | CTR-LIT-2026 | **No credit.** A written remediation plan within 10 business days — due 2 October |
+
+The data says *"zero-touch fell 12 points."* The contract says *"5% of the monthly fee."*
+Only the two together produce an answer. Behind the drop sits the storyline: a Corporate
+VPN update breaks remote access at **Fabrikam Lyon**, the tickets pile up, the AI agents
+escalate, and the zero-touch rate falls through the XLA.
+
+An **XLA** (eXperience Level Agreement) commits to what users live through — zero-touch
+rate, CSAT, device experience, time lost — where an SLA only commits to technical targets.
+
+---
+
+## The boundary rule
+
+The data world stays on the data side.
+
+- Measures, aggregation logic and entity semantics live in **Fabric** — in the semantic
+  model, the ontology, the Eventhouse and the Data Agent that queries them.
+- **Foundry** orchestrates, retrieves the contractual clause through Foundry IQ, and
+  writes the answer. It **never reimplements a metric**.
+- **Work IQ** and **Web IQ** add who already acts and what was announced publicly. They
+  never produce a figure either.
+
+The Fabric hop costs latency (the Data Agent takes 40–160 s per answer). That cost is
+accepted deliberately: two definitions of "zero-touch", one in Fabric and one in a prompt,
+would be unauditable.
+
+---
+
+## How it fits together
+
+```mermaid
+flowchart LR
+  subgraph src[Synthetic sources]
+    CSV[ITSM, DEM, CSAT, contracts<br/>reference + 90 days]
+    LIVE[Live streams<br/>telemetry, traces, tickets]
+  end
+
+  subgraph fabric[Microsoft Fabric]
+    LH[(Lakehouse<br/>LH_ServiceDesk)]
+    EH[(Eventhouse<br/>KQL_ServiceDesk)]
+    ONT[Ontology + graph<br/>ONT_ServiceDesk]
+    SM[Semantic model<br/>SM_ServiceDesk_Analytics]
+    DA[Data Agent<br/>ServiceDesk_Analyst]
+    RTI[RTI dashboard · Activator<br/>Operations Agent]
+  end
+
+  subgraph foundry[Microsoft Foundry — staged in this demo]
+    SUP[Supervisor<br/>Zava-ServiceDesk-Agent]
+    CTR[Contracts agent<br/>Zava-SD-Contracts]
+    KB[Foundry IQ<br/>Service agreements]
+    WIQ[Work IQ<br/>mail, Teams, meetings]
+    WEB[Web IQ<br/>public announcements]
+  end
+
+  CSV --> LH
+  LIVE --> EH
+  LH --> ONT
+  LH --> SM
+  EH --> ONT
+  EH --> RTI
+  ONT --> DA
+  SM --> DA
+  EH -->|KQL| DA
+  DA -->|MCP tool| SUP
+  KB -->|retrieval| CTR
+  CTR -->|A2A| SUP
+  WIQ -->|MCP| SUP
+  WEB -->|tool| SUP
+  SUP --> APP[Rayfin Fabric App<br/>Zava Service Desk console]
+  SM -->|DAX| APP
+
+  classDef vision stroke-dasharray: 5 4
+  class SUP,CTR,KB,WIQ,WEB vision
+```
+
+Two attachment kinds, and they are not interchangeable: the **Data Agent is a tool** — the
+supervisor delegates the *question* and Fabric returns an *answer*. The **contract corpus
+is a knowledge source** — text comes back and the contracts agent reasons over it.
+
+The Fabric plane is deployed and live. The Foundry plane is **staged**: the console plays
+it from versioned JSON (`app-zava-service-desk/src/data/iq-*.json`) with no Foundry
+resource, and the screen carries no label about it — the presenter owns that framing, as
+written in the [demo script](docs/demo/DEMO_SCRIPT.html).
+
+---
+
+## Repository structure
+
+Deployment code is grouped **one folder per Fabric workload**. The folder tells you which
+artifact the code produces.
+
+| Path | What lives there |
+|---|---|
+| `deploy_all.py` | One-shot idempotent orchestrator, plus the pre-demo warm-up |
+| `fabric/` | Deployment code, one package per workload — `_shared`, `data`, `workspace`, `lakehouse`, `eventhouse`, `ontology`, `graph`, `powerbi`, `rti`, `data_agent`, `app` |
+| `app-zava-service-desk/` | The Rayfin console — React + Vite, live DAX, Data Agent assistant, Zava IQ |
+| `docs/` | Architecture, deployment runbook, engineering notes, demo script, screenshots |
+| `tests/` | The offline gate, run before every deploy |
+| `scripts/` | Repository leak guard (also run in CI) |
+
+Regenerate the full file list with `git ls-files` — it is not duplicated here, so it
+cannot drift.
+
+---
+
+## Quick start
+
+Offline first — no tenant, no network. Python 3.12, dependencies in
+[`requirements.txt`](requirements.txt):
+
+```bash
+git clone https://github.com/Statyx/Fab-ServiceDesk-IQ.git
+cd Fab-ServiceDesk-IQ
 pip install -r requirements.txt
-
-# 1. Reference data + 90 days of history -> artifacts/data/{lakehouse,eventhouse}/*.csv
-python -m fabric.data.generate_data
-
-# 2. Live streams: one tick of normal traffic, printed as JSON lines
-python -m fabric.eventhouse.inject_event --dry-run
-
-#    Replay the Lyon incident, ramping up over 6 ticks, into JSONL files
+python -m fabric.data.generate_data                          # artifacts/data/, byte-identical everywhere
 python -m fabric.eventhouse.inject_event --scenario vpn-lyon --loop --cycles 6 --out artifacts/live
-
-# 3. The MCP messages an orchestrator would send to the Data Agent
-python -m fabric.data_agent.mcp_client --dry-run "Is USR-FAB-0061 impacted by an open incident?"
-
-# 4. Tests and leak guard
-python -m pytest tests -q
-python scripts/check_repo_leaks.py
+python -m pytest tests -q                                    # offline gate
+python scripts/check_repo_leaks.py                           # no tenant identifier in the repo
 ```
 
-The dataset is byte-identical on every machine. Its only input is
-[`fabric/data/world.yaml`](fabric/data/world.yaml) (seed 42).
+The console runs offline too: `npm ci`, `npm test` and `npx vite` in
+`app-zava-service-desk/`, then open `/preview` to see every screen from fixtures.
 
-## Configuration
+Then deploy — idempotent and resumable. Needs a Fabric capacity (F-SKU or trial), the
+Azure CLI signed in to the demo tenant, and Node.js 20+:
 
-`config.example.yaml` and `state.example.json` are templates. To target a tenant (phase 2),
-you have two options:
-- copy them to `config.yaml` / `state.json`;
-- keep one folder per tenant in `deployments/<name>/`, selected by
-  `deployments/active-profile.json` or the `ZAVA_SD_PROFILE_DIR` environment variable.
-
-All of these files are git-ignored. Identifiers can also come from `ZAVA_SD_*` environment
-variables.
-
-## Deploy to Fabric (phase 2)
-
-Requires the Azure CLI signed in (`az login`) as `deployment.expected_account`, and a Fabric
-capacity (F-SKU or trial). The scripts check the account before any write.
-
-```text
-python deploy_all.py                      # every step, in order, then a warm-up
-python deploy_all.py --list               # the 16 steps
-python deploy_all.py --from ontology      # resume after a failure
-python deploy_all.py report dashboard     # re-run only some steps
+```bash
+cp config.example.yaml config.yaml          # then fill the capacity and the expected account
+python deploy_all.py --list                 # the steps, in order
+python deploy_all.py                        # every step, then a warm-up
+python deploy_all.py --from ontology        # resume after a failure
+python -m fabric.app.deploy_app             # redeploy the console alone
 ```
 
-Each step is idempotent: it finds its item by name, updates it and records its ID in
-`state.json`. The data is regenerated with `--shift-weeks auto`, so the history always ends
-last Sunday and "last closed week" is a real week. Self-checks run along the way:
-- `verify_semantic_model` compares the DAX values with the CSVs (Fabrikam 34.0%, 9,250 EUR).
-- `deploy_data_agent` runs every GQL, DAX and KQL few-shot on its live source before publishing\n  (7 KQL few-shots cover live latency, agent errors, gateway throttling, experience, incoming\n  tickets, conversation sentiment and live CSAT).
+A few steps are UI-only (Activator start, Operations Agent bindings). The
+[deployment runbook](docs/DEPLOYMENT.md) lists them, with the MCP calls and the recorded
+answers. Run `python deploy_all.py --warmup` right before the demo, to pay the cold start
+off-stage.
 
-| Item | Type | What it shows |
-|---|---|---|
-| `LH_ServiceDesk` + `NB_Setup_ServiceDesk` | Lakehouse + notebook | 19 CSVs -> 21 Delta tables (incl. 2 edge tables), explicit types |
-| `EH_ServiceDesk` / `KQL_ServiceDesk` | Eventhouse | 6 live tables, history preloaded |
-| `ONT_ServiceDesk` + graph | Ontology (Fabric IQ) | 13 entities, 19 relationships, TimeSeries on Device and Agent |
-| `SM_ServiceDesk_Analytics` | Semantic model (Direct Lake) | zero-touch, XLA breaches and credits, experience |
-| `RPT_ServiceDesk` | Report | 3 pages: Service Desk Overview, Experience & Incidents, XLA & Credits |
-| `RTD_ServiceDesk_Operations` | RTI dashboard | pages Operations and AgentOps, 30 s refresh |
-| `ACT_ServiceDesk_Alerts` | Activator | VPN latency > 200 ms (5-min average) per site → Teams |
-| `OA_ServiceDesk_Ops` | Operations Agent | goals and instructions for 4 live alerts |
-| `ServiceDesk_Analyst` | Data Agent | ontology + semantic model + KQL, published, MCP endpoint |
-| `App-Zava-Service-Desk` | Rayfin app | the service desk console (phase 3, below) |
+---
 
-### Before the demo (UI-only steps)
+## Documentation
 
-The public APIs cannot do these yet:
-1. **Activator**: the rule is deployed stopped (`activator.start: false`). Open
-   `ACT_ServiceDesk_Alerts`, check the Teams recipient, then **Start**.
-2. **Operations Agent**: open `OA_ServiceDesk_Ops` and add the knowledge source
-   `KQL_ServiceDesk`. Then add a Teams or e-mail action, **Generate playbook**, set the
-   schedule and turn it on.
-3. **Live data**: `python -m fabric.eventhouse.inject_event --scenario vpn-lyon --loop --interval 30`
-   streams "now" into the Eventhouse, so the dashboard, the Activator and the Operations Agent react.
+| Document | For |
+|---|---|
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Why the pieces are wired this way: data model, ontology, storyboard |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Deploy steps, items, UI-only steps, the console, `state.json` |
+| [`docs/ENGINEERING-NOTES.md`](docs/ENGINEERING-NOTES.md) | Failure modes and the workarounds that hold them |
+| [`docs/demo/DEMO_SCRIPT.html`](docs/demo/DEMO_SCRIPT.html) | Screen by screen, what to say, live vs staged, plan B |
 
-Ask the Data Agent over MCP, as an external orchestrator would:
-
-```text
-python -m fabric.data_agent.mcp_client "Is user USR-FAB-0061 impacted by an open major incident?"
-python -m fabric.data_agent.mcp_client "Is Fabrikam in XLA breach on zero-touch this week, and what credit applies?"
-python -m fabric.data_agent.mcp_client "What is the VPN latency per site right now?"
-```
-
-## The console app (phase 3)
-
-`App-Zava-Service-Desk` is a Rayfin app hosted in the workspace (React + Vite, in
-[`app-zava-service-desk/`](app-zava-service-desk/)), built on the same shell, style and
-patterns as the Zava Media console:
-
-- **Cover and five screens**: Portfolio, Experience, AI agents, Contracts and XLA & credits.
-  Every figure is a measure of `SM_ServiceDesk_Analytics`, evaluated live in DAX with the
-  signed-in user's token (Power BI `executeQueries`). Nothing is bundled: without the
-  bindings the app says "Not connected" instead of showing a confident zero.
-- **Zava IQ** (`/iq-in-practice`): the storyboard. Fabrikam fell to 34% and Litware to\n  38% zero-touch, both under the same 40% target. Step by step, the dossier adds the contract clause
-  (Fabrikam is owed a 9,250 EUR credit, Litware a remediation plan), Work IQ context (who
-  already acts), Web IQ context (public news), and finally drafts the message to the right
-  person. Each layer can be switched off to show what it contributes.
-- **Assistant Zava**: a rail that asks the `ServiceDesk_Analyst` Data Agent (semantic model,
-  ontology, Eventhouse) and shows which sources fired.
-- **Architecture**: the agent chain, with the Real-Time Intelligence path drawn in full\n  (Eventhouse queried in KQL by the Data Agent, the Operations Agent, the Activator and the RTI\n  dashboard).\n- **Diagnostic** (`/diagnostic`, outside the sign-in, checks the bindings
-  and the tokens).
-
-Foundry, Work IQ and Web IQ are **simulated**: labelled on screen, read from
-`src/data/iq-*.json`. No Foundry resource, scope or variable is used.
-
-The live Data Agent takes 40–160 s per answer. For a smooth demo, record its answers once;
-the app then replays a recorded answer when the exact same question is asked, and falls back
-to the live agent otherwise:
-
-```text
-cd app-zava-service-desk && npx tsx scripts/freeze-questions.ts && cd ..
-python -m fabric.data_agent.capture_frozen_answers            # openers + follow-ups
-python -m fabric.data_agent.capture_frozen_answers --only xla-breach --force
-```
-
-Deploy (Node 20+, the Azure CLI signed in to the demo tenant, `npm ci` done in the app folder):
-
-```text
-python -m fabric.app.deploy_app --check           # read-only preflight
-python -m fabric.app.deploy_app                   # SPA + bindings + rayfin up + redirects
-python -m fabric.app.deploy_app --configure-only  # SPA + bindings only, then: npm run dev
-```
-
-The script creates (or reuses) a single-tenant Entra SPA registration with delegated
-`Dataset.Read.All`, `Item.Read.All` and `DataAgent.Execute.All`, consented for the deploying
-user only; no secret. It writes the public identifiers to the git-ignored
-`.env.production.local` / `.env.development.local`, runs `rayfin up` with the Azure CLI token
-(item first, then the build), registers the hosting origin as a redirect URI and checks
-`/`, `/blank.html` and `/diagnostic`. `app_url` (the item in the portal) and
-`app_hosting_url` land in `state.json`.
-
-`/preview` (development only) renders every screen from labelled fixtures, without sign-in.
-In the app folder, `npm test` and `npm run lint` run offline; `npm run build` works without a
-tenant.
-
-## Layout
-
-```text
-deploy_all.py       phase-2 orchestrator (one python -m process per step)
-fabric/_shared/     bootstrap, paths, helpers (profiles, config/state, tokens, KQL)
-fabric/data/        world.yaml, schema.py, generate_data.py
-fabric/workspace/   workspace + capacity
-fabric/lakehouse/   CSV upload, setup notebook (CSV -> Delta)
-fabric/eventhouse/  Eventhouse + KQL tables, history preload, live injector
-fabric/ontology/    ontology definition (entities, relationships, TimeSeries)
-fabric/graph/       graph model build + refresh
-fabric/powerbi/     semantic model, DAX verification, report
-fabric/rti/         RTI dashboard, Activator, Operations Agent
-fabric/data_agent/  Data Agent (verified few-shots), MCP client
-fabric/app/         console app: SPA registration, bindings, rayfin up (phase 3)
-app-zava-service-desk/  Rayfin console app (React + Vite, DAX + Data Agent, Zava IQ)
-scripts/            leak guard
-tests/              offline tests (data, definitions, hygiene)
-docs/               architecture
-```
+---
 
 ## License
 
-[MIT](LICENSE)
+MIT. See [LICENSE](LICENSE).

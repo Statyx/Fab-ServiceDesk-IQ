@@ -56,7 +56,7 @@ export function ChainDiagram() {
       viewBox={`0 0 ${W} ${H}`}
       className="wf-svg h-auto w-full"
       role="img"
-      aria-label="The deployed chain, from the supervisor down to the lakehouse"
+      aria-label="The chain, from the supervisor down to the lakehouse"
     >
       <defs>
         <marker

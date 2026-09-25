@@ -6,17 +6,21 @@
  * actually observed is worse than no claim at all. Every field below is a statement about what
  * was deployed, and the page says exactly that — nothing here reports a health check.
  *
- * One box is not deployed, and says so. The Foundry supervisor is part of the story — it is
- * where the service desk's own agents would call Fabric from — but in this demo it is
- * **simulated**: the console talks to the Fabric data agent directly. Drawing it as if it ran
- * would be the exact quiet overstatement the app exists to avoid.
+ * The Foundry plane is the target architecture the Zava IQ page tells: a supervisor that asks the
+ * Fabric data agent for the figures, a contract agent that retrieves the clause from a Foundry IQ
+ * knowledge base over the six service agreements, and Work IQ and Web IQ for what is underway and
+ * what is public. In this demo that plane is not deployed: the console asks the data agent
+ * directly and the clause is read from the ontology (`Xla.clause_text`). The screen does not say
+ * so — the presenter does (docs/demo/DEMO_SCRIPT.html) — and nothing on it pretends to a health
+ * check either.
  *
  * `row` is data, not insertion order. The renderer places a node at `row` within its `layer`,
- * and the rows are chosen so no two hops cross: the analyst sits above the operations agent, and
- * the three stores the analyst reads sit in the order it reaches them. Everything else that reads
- * the Eventhouse sits below the analyst, and the live signals that feed it sit last, so the
- * real-time hops fan into one box without crossing. In a picture whose whole job is "who talks
- * to what", a crossing reads as a wiring mistake.
+ * and the rows are chosen so no two hops cross: the contract agent sits above the Work IQ and
+ * Web IQ tools and above the analyst, and its knowledge base sits above the three stores the
+ * analyst reads, in the order it reaches them. Everything else that reads the Eventhouse sits
+ * below, and the live signals that feed it sit last, so the real-time hops fan into one box
+ * without crossing. In a picture whose whole job is "who talks to what", a crossing reads as a
+ * wiring mistake.
  *
  * The real-time plane is drawn in full because it is half of the demo: the data agent reads the
  * Eventhouse in KQL when a question says "right now", and the reactive loop (Activator watching
@@ -48,12 +52,48 @@ export interface ChainEdge {
 export const CHAIN_NODES: ChainNode[] = [
   {
     id: 'supervisor',
-    label: 'Foundry supervisor',
-    detail: 'simulated in this demo',
+    label: 'Zava-ServiceDesk-Agent',
+    detail: 'orchestration',
     plane: 'foundry',
     layer: 0,
     row: 0,
-    role: 'Where the service desk agents would call Fabric from. Simulated here: the console asks the data agent directly.',
+    role: 'Foundry supervisor. Dispatches the question to the data agent, the contract agent, Work IQ and Web IQ, and reconciles the answers; computes nothing itself.',
+  },
+  {
+    id: 'contracts',
+    label: 'Zava-SD-Contracts',
+    detail: 'contract agent',
+    plane: 'foundry',
+    layer: 1,
+    row: 0,
+    role: 'Foundry contract agent. Retrieves and cites the applicable XLA clause and its consequence (credit, remediation plan, reported only). Computes nothing.',
+  },
+  {
+    id: 'workiq',
+    label: 'Work IQ',
+    detail: 'mail, Teams, meetings',
+    plane: 'foundry',
+    layer: 1,
+    row: 1,
+    role: 'Work IQ. What is already underway on the account and who owns the next step: escalations, meetings, the service manager to write to.',
+  },
+  {
+    id: 'webiq',
+    label: 'Web IQ',
+    detail: 'public announcements',
+    plane: 'foundry',
+    layer: 1,
+    row: 2,
+    role: 'Web IQ. What the customer has said in public that gives the service review more context.',
+  },
+  {
+    id: 'corpus',
+    label: 'Service agreements',
+    detail: 'Foundry IQ · 6 contracts',
+    plane: 'foundry',
+    layer: 2,
+    row: 0,
+    role: 'Foundry IQ knowledge base. The six signed managed service agreements (CTR-FAB-2026 to CTR-WOO-2026), searched as text. No figure is stored here.',
   },
   {
     id: 'analyst',
@@ -61,7 +101,7 @@ export const CHAIN_NODES: ChainNode[] = [
     detail: 'data agent · DAX, GQL, KQL',
     plane: 'fabric',
     layer: 1,
-    row: 0,
+    row: 3,
     role: 'Fabric data agent. Reads the measures, traverses the graph and, for anything "right now", queries the Eventhouse in KQL. Computes no credit itself.',
   },
   {
@@ -97,8 +137,8 @@ export const CHAIN_NODES: ChainNode[] = [
     detail: 'scenario injector · 6 streams',
     plane: 'realtime',
     layer: 1,
-    row: 1,
-    role: 'Device telemetry, agent spans, gateway logs, ticket, conversation and CSAT events, pushed by the scenario injector. Simulated sources, real streaming ingestion.',
+    row: 4,
+    role: 'Device telemetry, agent spans, gateway logs, ticket, conversation and CSAT events, pushed by the scenario injector. Real streaming ingestion.',
   },
   {
     id: 'semantic',
@@ -106,7 +146,7 @@ export const CHAIN_NODES: ChainNode[] = [
     detail: '28 measures — every figure',
     plane: 'semantic',
     layer: 2,
-    row: 0,
+    row: 1,
     role: 'Semantic model. The single definition of every figure the console prints, credits included.',
   },
   {
@@ -115,7 +155,7 @@ export const CHAIN_NODES: ChainNode[] = [
     detail: '13 entities · XLA clauses',
     plane: 'ontology',
     layer: 2,
-    row: 1,
+    row: 2,
     role: 'Ontology. Answers user - site - incident by traversal, and carries the contractual wording of every XLA.',
   },
   {
@@ -124,7 +164,7 @@ export const CHAIN_NODES: ChainNode[] = [
     detail: 'KQL database · 6 live tables',
     plane: 'realtime',
     layer: 2,
-    row: 2,
+    row: 3,
     role: 'Eventhouse. What is happening right now: device telemetry, agent traces, gateway logs, tickets, conversations and surveys as they arrive.',
   },
   {
@@ -139,7 +179,11 @@ export const CHAIN_NODES: ChainNode[] = [
 ];
 
 export const CHAIN_EDGES: ChainEdge[] = [
-  { from: 'supervisor', to: 'analyst', protocol: 'A2A', short: 'simulated' },
+  { from: 'supervisor', to: 'contracts', protocol: 'A2A', short: 'the clause' },
+  { from: 'supervisor', to: 'workiq', protocol: 'MCP', short: 'Microsoft 365' },
+  { from: 'supervisor', to: 'webiq', protocol: 'Tool', short: 'web grounding' },
+  { from: 'supervisor', to: 'analyst', protocol: 'A2A', short: 'the figures' },
+  { from: 'contracts', to: 'corpus', protocol: 'Foundry IQ', short: 'retrieval' },
   { from: 'analyst', to: 'semantic', protocol: 'DAX' },
   { from: 'analyst', to: 'ontology', protocol: 'GQL' },
   { from: 'analyst', to: 'realtime', protocol: 'KQL', short: 'right now' },
@@ -152,7 +196,7 @@ export const CHAIN_EDGES: ChainEdge[] = [
 ];
 
 export const PLANE_LABEL: Record<Plane, string> = {
-  foundry: 'Foundry — orchestration (simulated)',
+  foundry: 'Foundry — agents, Foundry IQ',
   fabric: 'Fabric — agent, lakehouse',
   semantic: 'Semantic model (DAX)',
   ontology: 'Ontology (GQL)',

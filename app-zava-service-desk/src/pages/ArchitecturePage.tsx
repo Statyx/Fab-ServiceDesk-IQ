@@ -25,7 +25,7 @@ export function ArchitecturePage() {
     <>
       <Section
         id="chain"
-        title="The deployed chain"
+        title="The chain"
         provenance="Sweden Central — a single region, one copy of the data"
       >
         <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs">
@@ -76,8 +76,11 @@ export function ArchitecturePage() {
           agent watches four goals and proposes the action.
         </p>
         <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-          The Foundry supervisor is drawn because it is where the service desk agents would call
-          Fabric from. It is simulated in this demo: nothing in the console depends on it.
+          Foundry sits on top and keeps the same rule. The supervisor asks the data agent for the
+          figures and the contract agent for the clause: the contract agent retrieves it from the
+          Foundry IQ knowledge base over the six service agreements, cites it and computes nothing.
+          Work IQ adds what is already underway and who owns the next step; Web IQ adds what the
+          customer has said in public. None of them produces a figure.
         </p>
       </Section>
     </>

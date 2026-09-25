@@ -174,10 +174,33 @@ describe('the architecture chain', () => {
     }
   });
 
-  it('says the Foundry hop is simulated', () => {
-    const foundry = CHAIN_EDGES.filter((e) => e.from === 'supervisor');
-    expect(foundry.length).toBeGreaterThan(0);
-    for (const e of foundry) expect(e.short).toMatch(/simulated/i);
+  it('draws the Foundry plane: supervisor, contract agent over its Foundry IQ knowledge base, Work IQ, Web IQ', () => {
+    const fromSupervisor = CHAIN_EDGES.filter((e) => e.from === 'supervisor').map((e) => e.to);
+    expect(fromSupervisor).toEqual(expect.arrayContaining(['analyst', 'contracts', 'workiq', 'webiq']));
+    const retrieval = CHAIN_EDGES.find((e) => e.from === 'contracts');
+    expect(retrieval?.to).toBe('corpus');
+    expect(retrieval?.protocol).toBe('Foundry IQ');
+    const corpus = CHAIN_NODES.find((n) => n.id === 'corpus');
+    expect(corpus?.plane).toBe('foundry');
+    // The contract side cites; it never produces a figure.
+    expect(CHAIN_EDGES.some((e) => e.from === 'contracts' && e.to !== 'corpus')).toBe(false);
+  });
+
+  it('never crosses two hops between the same pair of layers', () => {
+    const at = new Map(CHAIN_NODES.map((n) => [n.id, n]));
+    const hops = CHAIN_EDGES.map((e) => ({ a: at.get(e.from)!, b: at.get(e.to)! }));
+    for (const x of hops) {
+      for (const y of hops) {
+        if (x === y || x.a.layer !== y.a.layer || x.b.layer !== y.b.layer) continue;
+        const crosses = (x.a.row - y.a.row) * (x.b.row - y.b.row) < 0;
+        expect(crosses, `${x.a.id}->${x.b.id} x ${y.a.id}->${y.b.id}`).toBe(false);
+      }
+    }
+  });
+
+  it('does not label the storyline on screen', () => {
+    const onScreen = [...CHAIN_NODES.flatMap((n) => [n.label, n.detail, n.role]), ...CHAIN_EDGES.map((e) => e.short ?? '')];
+    for (const text of onScreen) expect(text).not.toMatch(/simulated|fictional|not live/i);
   });
 
   it('draws the real-time path from the analyst through KQL to the reactive items', () => {

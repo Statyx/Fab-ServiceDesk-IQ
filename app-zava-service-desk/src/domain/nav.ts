@@ -111,7 +111,7 @@ export const SECONDARY_NAV: NavEntry[] = [
   {
     to: ARCHITECTURE_ROUTE,
     label: 'Architecture',
-    blurb: 'How the chain is wired, and why both the number and the clause come from Fabric.',
+    blurb: 'How the chain is wired: Fabric computes every figure, Foundry cites the clause and phrases.',
     icon: STACK,
   },
 ];
