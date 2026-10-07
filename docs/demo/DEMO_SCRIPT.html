@@ -289,7 +289,7 @@
     <div class="body">
       <div class="col">
         <div class="label">What to show</div>
-        <p>The full walkthrough is in <a href="#iq-steps">section 5</a>: facts, contract, Work IQ, Web IQ, the right person, send in Teams.</p>
+        <p>The full playground run is in <a href="#iq-steps">section 5</a>: facts, contract, Work IQ, Web IQ, the plan, the approval.</p>
         <p>Then switch a layer off in “Change the context included in both cases” to show what it contributes.</p>
       </div>
       <div class="col">
@@ -355,21 +355,24 @@
 </section>
 
 <section id="iq-steps">
-  <h2>5. Zava IQ — step-by-step walkthrough</h2>
-  <p>The page opens on the week 38 close. Each button reveals one layer; wait for the short pause before speaking over it.</p>
+  <h2>5. Zava IQ ? step-by-step playground</h2>
+  <p>The page opens as a Copilot-style chat: ?What can I do for you??. Click the suggested chip or the first upcoming task; each answer streams after its thinking steps, then offers the next prompt. Wait for the stream to finish before speaking over it.</p>
+  <h3>Track 1 ? Week 38 close, XLA consequences</h3>
   <table>
     <thead><tr><th>#</th><th>Click</th><th>On screen</th><th>What to say</th></tr></thead>
     <tbody>
-      <tr><td>1</td><td>—</td><td>“Two breaches. Consequence still unknown.” Fabrikam 34%, Litware 38%, target 40%.</td><td>Fabric tells us both customers breached. It cannot tell us what we owe.</td></tr>
-      <tr><td>2</td><td><strong>Read the contracts</strong></td><td>“Foundry IQ is reading the two XLA clauses…”, then “Same target. Different obligations.” Fabrikam: “Service credit of €9,250 under XLA-FAB-01”. Litware: “Remediation plan due, no credit”, by 2 October.</td><td>Same target, same week. One contract owes money, the other a written plan. Open <em>Contract clause</em> to show the cited text.</td></tr>
-      <tr><td>3</td><td><strong>Add Work IQ</strong></td><td>“Work IQ shows what is already underway, and who owns it.” Fabrikam becomes “Follow up on validation”: Finance already drafted the credit note. Litware: the IT director asked for an explanation and nobody answered.</td><td>Work IQ does not change the obligation. It changes who acts next — and stops us asking Finance twice.</td></tr>
-      <tr><td>4</td><td><strong>Add Web IQ</strong></td><td>“Public news adds context to the service review.” Fabrikam opens an R&amp;D hub in Lyon; Litware launched a self-service HR portal.</td><td>Useful for the conversation. It never touches what the contract says.</td></tr>
-      <tr><td>5</td><td><strong>Find who to tell</strong></td><td>“The right person, with the full context.” Camille Laurent (Fabrikam), Priya Shah (Litware).</td><td>The message carries every source. Nobody has to rebuild the case.</td></tr>
-      <tr><td>6</td><td><strong>Send in Teams</strong></td><td>“Sent to Camille Laurent in Teams.”</td><td>From an XLA breach to the right person, in one screen.</td></tr>
-      <tr><td>7</td><td>Switch Foundry IQ off</td><td>“The contractual treatment is not established.”</td><td>Remove the contract and the answer degrades honestly. That is the proof each layer earns its place.</td></tr>
+      <tr><td>1</td><td><strong>Which customers missed their zero-touch XLA in week 38?</strong></td><td>Service Desk Analyst (Fabric): Fabrikam 34.0% (51/150, from 46.0%), Litware 38.0% (19/50, from 48.0%), target 40%.</td><td>Fabric tells us both customers breached. It cannot tell us what we owe.</td></tr>
+      <tr><td>2</td><td><strong>Ask ZavaIQ what the contracts say</strong></td><td>Contracts Agent (Foundry IQ): Fabrikam owes a 9,250 EUR service credit under XLA-FAB-01; Litware owes a written remediation plan by 2 October, no credit.</td><td>Same target, same week. One contract owes money, the other a written plan. Open the cited clause.</td></tr>
+      <tr><td>3</td><td><strong>What's already in motion on our side?</strong></td><td>Work IQ: Finance already drafted the Fabrikam credit note; Litware's IT director asked Priya for an explanation and nobody answered.</td><td>Work IQ does not change the obligation. It changes who acts next.</td></tr>
+      <tr><td>4</td><td><strong>Anything public we should know before the reviews?</strong></td><td>Web IQ: Fabrikam opens a Lyon R&amp;D hub; Litware launched a self-service HR portal.</td><td>Useful for the conversation. It never touches what the contract says.</td></tr>
+      <tr><td>5</td><td><strong>Recommended plan</strong></td><td>The supervisor assembles the plan from all four layers, each step with its source.</td><td>Figures from Fabric, obligations from the contracts, timing from the calendar.</td></tr>
+      <tr><td>6</td><td>? (appears on its own)</td><td>?Approval required?: the credit is 5% of the monthly fee, above the 2% self-approval limit.</td><td>The agent drafts; governance decides who signs.</td></tr>
+      <tr><td>7</td><td><strong>Request approval</strong></td><td>The approval e-mail to the Head of Finance, with every source attached.</td><td>Nothing is issued until it is approved.</td></tr>
     </tbody>
   </table>
-  <p>Finish with <strong>Reset</strong> so the page is ready for the next run.</p>
+  <h3>Track 2 ? Litware answer and remediation plan</h3>
+  <p>Start it from the upcoming task ?Answer Litware about the week 38 drop?: prepare the answer, loop in the service delivery manager, then draft the e-mail to Priya.</p>
+  <p>Before the next run, start a new chat from the left rail.</p>
 </section>
 
 <section id="live">
@@ -382,7 +385,7 @@
       <tr><td>Prepared questions (cover cards, starters, follow-ups)</td><td><span class="chip recorded">recorded</span></td><td>The answer recorded from the live agent appears after a 5 s pause. The presenter owns the framing.</td></tr>
       <tr><td>RTI dashboard, Activator, Operations Agent</td><td><span class="chip live">live</span></td><td>Fed by the injector streaming “now” into the Eventhouse.</td></tr>
       <tr><td>Zava IQ — facts</td><td><span class="chip recorded">example</span></td><td>The week 38 close, from the repository reference, matching the live measures.</td></tr>
-      <tr><td>Foundry supervisor, contracts agent, Foundry IQ, Work IQ, Web IQ, Teams send</td><td><span class="chip sim">staged</span></td><td>Played from versioned files. The clause text is the one bound in the ontology as <code>Xla.clause_text</code>. The short pauses are staging.</td></tr>
+      <tr><td>Foundry supervisor, contracts agent, Foundry IQ, Work IQ, Web IQ, approval e-mail</td><td><span class="chip sim">staged</span></td><td>Played from <code>scenario.json</code>. The clause text is the one bound in the ontology as <code>Xla.clause_text</code>. The short pauses are staging.</td></tr>
     </tbody>
   </table>
   <p>Simple rule: the screen carries no “simulated” labels; if someone asks what is wired, answer with this table.</p>

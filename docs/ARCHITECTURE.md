@@ -73,8 +73,8 @@ flowchart LR
 |---|---|---|
 | **Foundry supervisor** | Dispatches the question to the data agent, the contract agent, Work IQ and Web IQ, and reconciles the answers. Computes nothing | Drawn on the Architecture page; not deployed |
 | **Foundry IQ** | The contract agent `Zava-SD-Contracts` retrieves and cites the applicable XLA clause from a knowledge base over the six signed service agreements | Staged: the clause shown is the ontology's `Xla.clause_text`, transcribed from `fabric/data/world.yaml` |
-| **Work IQ** | What is already underway on the account (mail, Teams, meetings, files) and who owns the next step | Staged from `app-zava-service-desk/src/data/iq-work-context.json` |
-| **Web IQ** | What the customer has announced in public, for the service review | Staged from `app-zava-service-desk/src/data/iq-web-context.json` |
+| **Work IQ** | What is already underway on the account (mail, Teams, meetings, files) and who owns the next step | Staged from the IQ playground `scenario.json` |
+| **Web IQ** | What the customer has announced in public, for the service review | Staged from the IQ playground `scenario.json` |
 | **Fabric IQ** | Service Desk **ontology** + **graph** + **Data Agent** (`ServiceDesk_Analyst`), published as an **MCP** endpoint | Deployed |
 | **Fabric RTI** | Eventhouse (6 live streams), Activator (alerts), Operations Agent (diagnosis) | Deployed |
 | **AgentOps** | Observability of the agent platform itself, **per customer**: zero-touch, HITL escalations, MCP tool failures, latency, tokens, cost per contact | Deployed (RTI dashboard page) |
@@ -306,7 +306,7 @@ assistant rail and IQ storyboard) and re-pointed at the service desk.
   (figures and ontology scope), the contract clause (Foundry IQ: `Zava-SD-Contracts` over the
   Service agreements knowledge base; staged from the ontology's `Xla.clause_text`), Work IQ
   (mail, Teams, meetings and files) and Web IQ (public news), both staged from
-  `src/data/iq-*.json`. The consequence changes with each layer (credit vs remediation
+  `src/features/iq-playground/scenarios/service-desk/scenario.json`. The consequence changes with each layer (credit vs remediation
   plan, then "follow up on validation" once Work IQ shows Finance already drafted the credit
   note), and the last step drafts the message to the person Work IQ identified.
 - **Assistant Zava.** A rail that sends each question to the `ServiceDesk_Analyst` Data Agent

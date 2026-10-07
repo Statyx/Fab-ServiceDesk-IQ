@@ -141,7 +141,7 @@ supervisor delegates the *question* and Fabric returns an *answer*. The **contra
 is a knowledge source** — text comes back and the contracts agent reasons over it.
 
 The Fabric plane is deployed and live. The Foundry plane is **staged**: the console plays
-it from versioned JSON (`app-zava-service-desk/src/data/iq-*.json`) with no Foundry
+it from versioned JSON (`app-zava-service-desk/src/features/iq-playground/scenarios/service-desk/scenario.json`) with no Foundry
 resource, and the screen carries no label about it — the presenter owns that framing, as
 written in the [demo script](docs/demo/DEMO_SCRIPT.html).
 

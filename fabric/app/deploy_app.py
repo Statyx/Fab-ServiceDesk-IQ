@@ -337,8 +337,11 @@ def update_redirects(token: str, app: Dict[str, Any], origin: str) -> None:
 
 
 def verify_host(origin: str) -> None:
+    # The hosting endpoint is private: an anonymous probe gets 401, which still proves it is up.
     for route in ("/", "/blank.html", "/diagnostic"):
         response = requests.get(f"{origin}{route}", timeout=90)
+        if response.status_code == 401:
+            continue
         response.raise_for_status()
         if "<html" not in response.text.lower():
             raise RuntimeError(f"{route} is not the deployed application HTML.")

@@ -26,12 +26,13 @@ before trusting a green result**.
   semantic model, the ontology and the Eventhouse. A second definition of zero-touch
   anywhere else is a bug even when it returns the same number.
 - **The Foundry plane is staged.** The supervisor, the contracts agent, the Foundry IQ
-  knowledge base, Work IQ and Web IQ are played from `src/data/iq-*.json`. No Foundry
+  knowledge base, Work IQ and Web IQ are played from
+  `src/features/iq-playground/scenarios/service-desk/scenario.json`. No Foundry
   resource, scope or environment variable exists, and none should be added quietly.
 - **The screen does not narrate its own staging.** No "simulated", "fictional" or
   "not live" wording on screen: the presenter carries that framing, from
   [the demo script](demo/DEMO_SCRIPT.html). Tests in `domain.test.ts` and
-  `dossier.test.tsx` enforce it on the chain and on the whole Zava IQ walkthrough.
+  `scenario.test.ts` enforce it on the chain and on the whole Zava IQ playground.
 - **The chain diagram must not cross.** Two hops between the same pair of layers cross
   when their rows are in opposite order; a test fails on it. Keep edge labels short
   (about 26 characters) or they overflow the SVG.
@@ -88,5 +89,5 @@ before trusting a green result**.
 - **Deep repository path on Windows**: nested `npx` calls can duplicate `PATH` entries until
   the command line overflows; the deploy script de-duplicates `PATH` before spawning.
 - **Vitest** is narrowed to `src/**`, so it never picks up the Python tree. On a slow
-  machine, run it with `--testTimeout=30000`: the Zava IQ walkthrough tests take several
+  machine, run it with `--testTimeout=30000`: the Zava IQ playground tests take several
   seconds each.

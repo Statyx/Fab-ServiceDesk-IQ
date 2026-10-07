@@ -1,0 +1,695 @@
+{
+  "schemaVersion": 1,
+  "id": "service-desk",
+  "title": "Zava Service Desk — Week 38 close & XLA consequences",
+  "summary": "Two customers missed their zero-touch XLA in week 38. Fabric explains how far it fell, the contracts say what Zava owes, the team's work shows what is already in motion, and Finance approves before anything is issued.",
+  "industry": "Managed IT services",
+  "persona": {
+    "role": "Head of Service Delivery",
+    "goal": "Close week 38: settle what each XLA breach makes Zava owe before the customer reviews.",
+    "approverRole": "Head of Finance"
+  },
+  "trigger": {
+    "kind": "planning-cycle",
+    "description": "Week 38 (14–20 Sep 2026) closed with two customers below their 40.0% zero-touch target.",
+    "detectedBy": "fabric"
+  },
+  "agents": [
+    {
+      "name": "Zava Service Desk Agent",
+      "sub": "Orchestrator · Foundry",
+      "color": "#0f7a6c",
+      "iq": "foundry"
+    },
+    {
+      "name": "Service Desk Analyst",
+      "sub": "Fabric data agent · XLA, tickets & incidents",
+      "color": "#c23fa0",
+      "iq": "fabric"
+    },
+    {
+      "name": "Contracts Agent",
+      "sub": "Foundry IQ · customer contracts",
+      "color": "#2e8fd6",
+      "iq": "foundry"
+    },
+    {
+      "name": "Work context",
+      "sub": "Work IQ · mail, Teams, meetings",
+      "color": "#1c8a56",
+      "iq": "work"
+    },
+    {
+      "name": "Market signals",
+      "sub": "Web IQ · customer announcements",
+      "color": "#b5641f",
+      "iq": "web"
+    }
+  ],
+  "governance": {
+    "approvalThreshold": "Service credits above 2% of the monthly fee are drafted by agents but issued only after Head of Finance approval.",
+    "policySource": "Zava commercial policy — service credits & billing adjustments",
+    "auditRetention": "Every recommendation, source and approval is logged with the week 38 close record."
+  },
+  "artifacts": {
+    "authorization": {
+      "role": "Head of Service Delivery",
+      "approver": "{{approverName}}",
+      "transferPercent": 5,
+      "thresholdPercent": 2,
+      "statusLabel": "Head of Finance approval required"
+    }
+  },
+  "shell": {
+    "conversationHistory": [
+      "Week 38 close — XLA consequences",
+      "Fabrikam VPN 6.1.0 major incident",
+      "Litware remediation plan",
+      "Zero-touch trend — September"
+    ],
+    "suggestedChips": [
+      "Suggested",
+      "Which customers missed their zero-touch XLA in week 38?",
+      "Fabrikam credit terms",
+      "Prepare the Litware answer"
+    ],
+    "openerChip": "Which customers missed their zero-touch XLA in week 38?",
+    "upcomingTasks": [
+      {
+        "title": "Week 38 close — XLA consequences",
+        "subtitle": "Due before the 29 Sep Fabrikam review"
+      },
+      {
+        "title": "Answer Litware about the week 38 drop",
+        "subtitle": "Remediation plan due 2 Oct",
+        "action": "litware-remediation"
+      }
+    ],
+    "tryThese": [
+      {
+        "label": "Reconcile week 38 zero-touch vs XLA",
+        "color": "#c23fa0"
+      },
+      {
+        "label": "Check the XLA clauses",
+        "color": "#2e8fd6"
+      },
+      {
+        "label": "Draft the Finance approval",
+        "color": "#0f7a6c"
+      }
+    ]
+  },
+  "tracks": [
+    {
+      "id": "week-38-close",
+      "label": "Week 38 close — XLA consequences",
+      "scenes": [
+        {
+          "choices": [
+            {
+              "label": "Which customers missed their zero-touch XLA in week 38?",
+              "user": "Which customers missed their zero-touch XLA in week 38?",
+              "assistant": "",
+              "chain": "Service Desk Analyst",
+              "thinkingSteps": [
+                {
+                  "label": "Querying week 38 zero-touch vs XLA target",
+                  "sub": "Fabric · semantic model Zava Service Desk",
+                  "durationMs": 3000
+                },
+                {
+                  "label": "Walking the ontology from each breach",
+                  "sub": "Customer → site → incident → application",
+                  "durationMs": 3000
+                },
+                {
+                  "label": "Checking the ticket stream",
+                  "sub": "Eventhouse · KQL · 14–20 Sep",
+                  "durationMs": 3000
+                }
+              ],
+              "sources": [
+                {
+                  "id": "fab-xla",
+                  "label": "Week 38 zero-touch rate by customer",
+                  "system": "fabric",
+                  "detail": "Service desk semantic model · Live"
+                },
+                {
+                  "id": "fab-onto",
+                  "label": "Fabrikam incident chain",
+                  "system": "fabric",
+                  "detail": "Service desk ontology · Live"
+                },
+                {
+                  "id": "fab-kql",
+                  "label": "Ticket events, week 38",
+                  "system": "fabric",
+                  "detail": "Eventhouse · Live"
+                }
+              ],
+              "report": {
+                "reasoningSteps": 3,
+                "scanSummary": "I checked the week 38 zero-touch rate (14–20 Sep) for every managed-service customer against its 40.0% XLA target. Two customers fell below it, for two very different reasons.",
+                "items": [
+                  {
+                    "title": "Fabrikam Industries — 34.0% zero-touch (target 40.0%)",
+                    "source": "Fabric · Service desk semantic model (Live)",
+                    "quote": "51 of 150 tickets resolved with no human touch, down from 46.0% (23 of 50) the week before.",
+                    "note": "The ontology ties the drop to MI-FAB-0001 (Sev2, open) on site FAB-LYO, Lyon, caused by the Corporate VPN client 6.1.0 — 48 users impacted, 8 of them VIP."
+                  },
+                  {
+                    "title": "Litware Insurance — 38.0% zero-touch (target 40.0%)",
+                    "source": "Fabric · Eventhouse ticket events (Live)",
+                    "quote": "19 of 50 tickets resolved with no human touch, down from 48.0% (24 of 50) the week before.",
+                    "note": "No major incident: a surge of HR Portal access requests that no knowledge article covers, so the resolver agent hands every one to an analyst."
+                  }
+                ],
+                "verdictIntro": "Both customers breached the same 40.0% threshold, but the data alone does not tell us what Zava owes:",
+                "verdictList": [
+                  "Fabrikam — an outage-driven breach, on a much larger ticket volume.",
+                  "Litware — a demand change, not an outage.",
+                  "The contractual consequence of each breach sits in the customer contracts, not in Fabric."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "choices": [
+            {
+              "label": "Ask ZavaIQ what the contracts say",
+              "user": "@ZavaIQ what do the Fabrikam and Litware contracts make us owe for this breach?",
+              "assistant": "The same 40.0% breach triggers two different treatments. Fabrikam's contract owes a service credit of 9,250 EUR; Litware's owes a written remediation plan by 2 October, with no credit.",
+              "chain": "Zava Service Desk Agent → Contracts Agent",
+              "mention": "ZavaIQ",
+              "reflection": "**Fabrikam Industries — CTR-FAB-2026, XLA-FAB-01**\n- \"If the zero-touch resolution rate falls below 40.0% in any ISO week, Zava credits 5% of the monthly service fee for the month containing that week, within the monthly cap of 15%.\"\n- 5% of the 185,000 EUR monthly fee = 9,250 EUR, well inside the 15% cap.\n\n**Litware Insurance — CTR-LIT-2026, XLA-LIT-01**\n- \"If the zero-touch resolution rate falls below 40.0% in any ISO week, Zava delivers a written remediation plan within 10 business days. No service credit applies.\"\n- 10 business days from the 20 September week close = 2 October.",
+              "thinkingSteps": [
+                {
+                  "label": "@ZavaIQ hands your question to Zava Service Desk Agent",
+                  "sub": "The orchestrator picks the right specialist",
+                  "durationMs": 3000
+                },
+                {
+                  "label": "Zava Service Desk Agent → Contracts Agent",
+                  "sub": "Contracts Agent · Foundry IQ — the customer contracts knowledge base",
+                  "durationMs": 3200
+                },
+                {
+                  "label": "Reading the Fabrikam and Litware contracts",
+                  "sub": "XLA schedules — XLA-FAB-01 and XLA-LIT-01",
+                  "durationMs": 3000
+                },
+                {
+                  "label": "Comparing the two treatments",
+                  "sub": "Service credit · remediation plan",
+                  "durationMs": 2800
+                }
+              ],
+              "sources": [
+                {
+                  "id": "ctr-fab",
+                  "label": "CTR-FAB-2026 — Fabrikam Industries",
+                  "system": "foundry",
+                  "detail": "XLA-FAB-01 · Live"
+                },
+                {
+                  "id": "ctr-lit",
+                  "label": "CTR-LIT-2026 — Litware Insurance",
+                  "system": "foundry",
+                  "detail": "XLA-LIT-01 · Live"
+                },
+                {
+                  "id": "fab-xla",
+                  "label": "Week 38 zero-touch rate by customer",
+                  "system": "fabric",
+                  "detail": "Service desk semantic model · Live"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "choices": [
+            {
+              "label": "What's already in motion on our side?",
+              "user": "What's already in motion on our side for these two customers?",
+              "assistant": "Finance has already drafted the 9,250 EUR Fabrikam credit note, and Litware's IT director asked Priya for an explanation on 22 September — nobody has answered yet.",
+              "chain": "Work context",
+              "reflection": "**Who is involved**\n- Camille Laurent — Service Delivery Manager, Fabrikam\n- Hugo Martin — Finance controller\n- Priya Shah — Service Delivery Manager, Litware\n- Oliver Hughes — IT director, Litware Insurance (customer)\n\n**Recent meetings**\n- 29 Sep — Fabrikam quarterly service review with the CIO; the week 38 credit is not on the agenda yet.\n- 1 Oct — Litware monthly service review; the remediation plan is not on the agenda yet.\n\n**Teams threads**\n- Network operations: VPN 6.1.0 rolled back to 6.0.4 on the Lyon pilot ring Wednesday night; MI-FAB-0001 stays open until call quality is back.\n- Oliver Hughes to Priya Shah: \"Our automation rate dropped last week. What happened, and what are you doing about it?\"\n\n**Email trail**\n> \"Draft credit note of 9,250 EUR on the September invoice, sent to Camille for validation. Nothing issued yet.\" — Hugo Martin, 22 Sep\n\n**What this tells us**\n- Fabrikam: asking Finance for the calculation again would duplicate work — the only open step is validation and sign-off.\n- Litware: the contract already sets the answer; Priya can reply to Oliver with the remediation plan date.",
+              "thinkingSteps": [
+                {
+                  "label": "Reading upcoming service reviews",
+                  "sub": "Work IQ · Fabrikam and Litware calendars",
+                  "durationMs": 3000
+                },
+                {
+                  "label": "Scanning Teams threads",
+                  "sub": "Network operations · Litware account channel · since 14 Sep",
+                  "durationMs": 3000
+                },
+                {
+                  "label": "Searching mail",
+                  "sub": "Fabrikam, Litware · Finance and delivery managers",
+                  "durationMs": 2500
+                },
+                {
+                  "label": "Finding the Finance draft",
+                  "sub": "Fabrikam credit note — September invoice",
+                  "durationMs": 2500
+                }
+              ],
+              "sources": [
+                {
+                  "id": "mail-fab",
+                  "label": "Fabrikam week 38 service credit: draft ready",
+                  "system": "email",
+                  "detail": "Hugo Martin · 22 Sep"
+                },
+                {
+                  "id": "file-fab",
+                  "label": "Fabrikam_credit-note_2026-09_XLA-FAB-01.docx",
+                  "system": "email",
+                  "detail": "Finance · Awaiting SDM validation"
+                },
+                {
+                  "id": "teams-vpn",
+                  "label": "VPN 6.1.0 rollback on the Lyon pilot ring",
+                  "system": "teams",
+                  "detail": "Network operations · 22 Sep"
+                },
+                {
+                  "id": "meet-fab",
+                  "label": "Fabrikam Industries — quarterly service review",
+                  "system": "meeting",
+                  "detail": "29 Sep · Camille Laurent"
+                },
+                {
+                  "id": "teams-lit",
+                  "label": "Oliver Hughes — chat with Priya Shah",
+                  "system": "teams",
+                  "detail": "22 Sep · external"
+                },
+                {
+                  "id": "mail-lit",
+                  "label": "HR Portal access requests not covered by a KB article",
+                  "system": "email",
+                  "detail": "Priya Shah · 22 Sep"
+                },
+                {
+                  "id": "meet-lit",
+                  "label": "Litware Insurance — monthly service review",
+                  "system": "meeting",
+                  "detail": "1 Oct · Priya Shah"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "choices": [
+            {
+              "label": "Anything public we should know before the reviews?",
+              "user": "Anything public about Fabrikam or Litware we should know before the service reviews?",
+              "assistant": "Two public signals change how we frame both reviews: Fabrikam is opening a Lyon R&D hub for 300 hybrid engineers in November, and Litware launched a self-service HR portal on 14 September.",
+              "chain": "Market signals",
+              "reflection": "**Fabrikam Industries — 10 Sep**\n- New R&D hub in Lyon, opening November 2026, 300 engineers in a hybrid model.\n- Raise the VPN capacity plan for the Lyon hub at the review — without presenting the announcement as the cause of the breach.\n\n**Litware Insurance — 8 Sep**\n- Self-service HR portal rolled out to all employees from 14 September 2026.\n- It explains the surge of access requests: the remediation plan should propose a knowledge article and an automated access workflow.",
+              "thinkingSteps": [
+                {
+                  "label": "Searching customer announcements",
+                  "sub": "Web · Fabrikam Industries, Litware Insurance",
+                  "durationMs": 3000
+                },
+                {
+                  "label": "Mapping to the week 38 signals",
+                  "sub": "Lyon site VPN · HR Portal access requests",
+                  "durationMs": 3000
+                }
+              ],
+              "sources": [
+                {
+                  "id": "web-fab",
+                  "label": "Fabrikam opens an R&D hub in Lyon",
+                  "system": "web",
+                  "detail": "Public announcement · 10 Sep"
+                },
+                {
+                  "id": "web-lit",
+                  "label": "Litware launches a self-service HR portal",
+                  "system": "web",
+                  "detail": "Public announcement · 8 Sep"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "choices": [
+            {
+              "label": "Recommended plan",
+              "proactive": true,
+              "user": "",
+              "assistant": "Here is how I'd close week 38. The figures come from Fabric, the obligations from the contracts, and the timing from your team's calendar.",
+              "chain": "Zava Service Desk Agent → Service Desk Analyst → Contracts Agent",
+              "sources": [
+                {
+                  "id": "fab-xla",
+                  "label": "Week 38 zero-touch rate by customer",
+                  "system": "fabric",
+                  "detail": "Service desk semantic model · Live"
+                },
+                {
+                  "id": "ctr-fab",
+                  "label": "CTR-FAB-2026 — Fabrikam Industries",
+                  "system": "foundry",
+                  "detail": "XLA-FAB-01 · Live"
+                },
+                {
+                  "id": "ctr-lit",
+                  "label": "CTR-LIT-2026 — Litware Insurance",
+                  "system": "foundry",
+                  "detail": "XLA-LIT-01 · Live"
+                },
+                {
+                  "id": "mail-fab",
+                  "label": "Fabrikam week 38 service credit: draft ready",
+                  "system": "email",
+                  "detail": "Hugo Martin · 22 Sep"
+                },
+                {
+                  "id": "teams-lit",
+                  "label": "Oliver Hughes — chat with Priya Shah",
+                  "system": "teams",
+                  "detail": "22 Sep · external"
+                }
+              ],
+              "scenarios": [
+                {
+                  "id": "wait",
+                  "title": "Scenario 1 — Wait for the service reviews",
+                  "body": "Raise both breaches in person at the 29 September and 1 October reviews and settle them there.",
+                  "supportedBy": "Supported by Work IQ (review calendar)",
+                  "response": "Waiting leaves Oliver's 22 September question unanswered for 9 days and lets the Litware remediation deadline of 2 October arrive one day after the review. The Fabrikam credit note is already drafted — holding it adds nothing. Scenario 2 settles both before the reviews.",
+                  "responseSources": [
+                    {
+                      "id": "teams-lit",
+                      "label": "Oliver Hughes — chat with Priya Shah",
+                      "system": "teams",
+                      "detail": "22 Sep · external"
+                    },
+                    {
+                      "id": "ctr-lit",
+                      "label": "CTR-LIT-2026 — Litware Insurance",
+                      "system": "foundry",
+                      "detail": "XLA-LIT-01 · Live"
+                    },
+                    {
+                      "id": "mail-fab",
+                      "label": "Fabrikam week 38 service credit: draft ready",
+                      "system": "email",
+                      "detail": "Hugo Martin · 22 Sep"
+                    }
+                  ]
+                },
+                {
+                  "id": "recommended",
+                  "title": "Scenario 2 — Recommended",
+                  "badge": "Recommended",
+                  "body": "Fabrikam: release the 9,250 EUR credit already drafted by Finance, after Head of Finance approval, and announce it at the 29 September review with the VPN rollback. Litware: no credit — Priya answers Oliver now and commits the remediation plan for 2 October (HR Portal KB article and access workflow).",
+                  "supportedBy": "Supported by Fabric IQ (XLA & ontology) · Foundry IQ (contracts) · Work IQ (draft & threads) · Web IQ (announcements)"
+                },
+                {
+                  "id": "goodwill",
+                  "title": "Scenario 3 — Goodwill credit for both",
+                  "body": "Apply a 5% credit to both customers to keep the message identical.",
+                  "supportedBy": "Supported by Fabric IQ (XLA)",
+                  "response": "CTR-LIT-2026 is explicit: \"No service credit applies.\" A Litware credit would be an uncontracted concession that needs its own commercial approval, and it sets a precedent for the next breach. The contractual remedy — a remediation plan by 2 October — addresses the real cause.",
+                  "responseSources": [
+                    {
+                      "id": "ctr-lit",
+                      "label": "CTR-LIT-2026 — Litware Insurance",
+                      "system": "foundry",
+                      "detail": "XLA-LIT-01 · Live"
+                    },
+                    {
+                      "id": "fab-xla",
+                      "label": "Week 38 zero-touch rate by customer",
+                      "system": "fabric",
+                      "detail": "Service desk semantic model · Live"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "choices": [
+            {
+              "label": "Approval required",
+              "proactive": true,
+              "autoTriggerOnly": true,
+              "user": "",
+              "assistant": "The Fabrikam credit is 5% of the monthly fee, above the 2% self-approval limit, so it needs sign-off from {{approverName}}, {{approverTitle}}, before it is issued. Would you like me to request the approval on your behalf?",
+              "chain": "Zava Service Desk Agent",
+              "person": {
+                "name": "{{approverName}}",
+                "title": "{{approverTitle}}",
+                "sub": "Zava Finance",
+                "location": "Zava · Paris",
+                "initials": "{{approverInitials}}",
+                "color": "#0f7a6c",
+                "pronoun": "them",
+                "possessive": "their"
+              },
+              "sources": [
+                {
+                  "id": "gov-policy",
+                  "label": "Service credits & billing adjustments",
+                  "system": "governance",
+                  "detail": "Zava commercial policy"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "choices": [
+            {
+              "label": "Request approval from {{approverFirstName}}",
+              "user": "Yes, request approval from {{approverFirstName}}.",
+              "assistant": "Here is the approval request for {{approverFirstName}}. Nothing is issued until it is approved.",
+              "chain": "Zava Service Desk Agent",
+              "emailDraft": {
+                "to": "{{approverName}} <{{approverEmail}}>",
+                "cc": "Camille Laurent; Hugo Martin",
+                "subject": "Approval — Fabrikam week 38 XLA service credit (9,250 EUR)",
+                "bodyParagraphs": [
+                  "Hi {{approverFirstName}},",
+                  "Fabrikam Industries closed week 38 at a 34.0% zero-touch rate (51 of 150 tickets) against its 40.0% XLA target, driven by major incident MI-FAB-0001 on the Lyon site (Corporate VPN client 6.1.0).",
+                  "Under CTR-FAB-2026, XLA-FAB-01, Zava credits 5% of the 185,000 EUR monthly fee: 9,250 EUR, within the 15% monthly cap. Hugo has already drafted the credit note on the September invoice.",
+                  "Could you approve its release? Camille will present it at the 29 September service review with the CIO, together with the VPN rollback.",
+                  "Litware Insurance also breached (38.0%), but its contract sets a remediation plan by 2 October and no credit — no approval needed there.",
+                  "Thanks,\n{{userName}}"
+                ],
+                "references": [
+                  {
+                    "id": "CTR-FAB-2026",
+                    "label": "Fabrikam Industries contract",
+                    "system": "foundry",
+                    "detail": "XLA-FAB-01 — 5% credit, 15% cap"
+                  },
+                  {
+                    "id": "XLA-W38",
+                    "label": "Week 38 zero-touch rate",
+                    "system": "fabric",
+                    "detail": "Service desk semantic model"
+                  },
+                  {
+                    "id": "CN-FAB-2026-09",
+                    "label": "Fabrikam_credit-note_2026-09_XLA-FAB-01.docx",
+                    "system": "email",
+                    "detail": "Draft · Awaiting SDM validation"
+                  }
+                ]
+              },
+              "followupTopic": "the Litware remediation plan"
+            },
+            {
+              "label": "Review approval policy",
+              "user": "",
+              "assistant": "",
+              "chain": "",
+              "opensModal": "approval-policy"
+            },
+            {
+              "label": "No, I'll handle it myself",
+              "user": "No, I'll handle it myself.",
+              "assistant": "Understood. The recommendation, its sources and the drafted credit note are saved with the weekly close record.",
+              "chain": "Zava Service Desk Agent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "litware-remediation",
+      "label": "Litware answer & remediation plan",
+      "scenes": [
+        {
+          "choices": [
+            {
+              "label": "Prepare the Litware answer",
+              "user": "Help me prepare how we answer Oliver Hughes about Litware's week 38 drop.",
+              "assistant": "Litware fell to 38.0% zero-touch, below its 40.0% target, but its contract sets a remediation plan by 2 October rather than a credit. Here are three ways to answer Oliver.",
+              "chain": "Zava Service Desk Agent → Service Desk Analyst → Contracts Agent",
+              "scenarios": [
+                {
+                  "id": "brief",
+                  "title": "Option 1 — Short acknowledgement",
+                  "body": "Acknowledge the drop and say a plan will follow. Quick, but Oliver asked what happened and what we are doing.",
+                  "supportedBy": "Supported by Work IQ (Oliver's question)",
+                  "response": "A holding reply answers neither of Oliver's two questions. The cause is already known — HR Portal access requests with no KB article, after the 14 September portal launch — and the contract fixes the remedy: a written plan by 2 October. Option 2 gives him both now.",
+                  "responseSources": [
+                    {
+                      "id": "teams-lit",
+                      "label": "Oliver Hughes — chat with Priya Shah",
+                      "system": "teams",
+                      "detail": "22 Sep · external"
+                    },
+                    {
+                      "id": "ctr-lit",
+                      "label": "CTR-LIT-2026 — Litware Insurance",
+                      "system": "foundry",
+                      "detail": "XLA-LIT-01 · Live"
+                    },
+                    {
+                      "id": "web-lit",
+                      "label": "Litware launches a self-service HR portal",
+                      "system": "web",
+                      "detail": "Public announcement · 8 Sep"
+                    }
+                  ]
+                },
+                {
+                  "id": "recommended",
+                  "title": "Option 2 — Recommended",
+                  "badge": "Recommended",
+                  "body": "Explain the cause openly (HR Portal access requests with no KB article, following the 14 September portal launch), state the contractual remedy under XLA-LIT-01, and commit the remediation plan for 2 October: a KB article this week and an automated access workflow.",
+                  "supportedBy": "Supported by Fabric IQ (tickets) · Foundry IQ (Litware contract) · Web IQ (HR portal launch)"
+                },
+                {
+                  "id": "review",
+                  "title": "Option 3 — Wait for the 1 October review",
+                  "body": "Cover it in person at the monthly service review.",
+                  "supportedBy": "Supported by Work IQ (review calendar)",
+                  "response": "Oliver asked on 22 September; waiting until 1 October leaves him 9 days without an answer, and the plan is due the next day anyway. Answer now with Option 2 and use the review to walk through the plan.",
+                  "responseSources": [
+                    {
+                      "id": "teams-lit",
+                      "label": "Oliver Hughes — chat with Priya Shah",
+                      "system": "teams",
+                      "detail": "22 Sep · external"
+                    },
+                    {
+                      "id": "meet-lit",
+                      "label": "Litware Insurance — monthly service review",
+                      "system": "meeting",
+                      "detail": "1 Oct · Priya Shah"
+                    },
+                    {
+                      "id": "ctr-lit",
+                      "label": "CTR-LIT-2026 — Litware Insurance",
+                      "system": "foundry",
+                      "detail": "XLA-LIT-01 · Live"
+                    }
+                  ]
+                }
+              ],
+              "sources": [
+                {
+                  "id": "fab-kql",
+                  "label": "Ticket events, week 38",
+                  "system": "fabric",
+                  "detail": "Eventhouse · Live"
+                },
+                {
+                  "id": "ctr-lit",
+                  "label": "CTR-LIT-2026 — Litware Insurance",
+                  "system": "foundry",
+                  "detail": "XLA-LIT-01 · Live"
+                },
+                {
+                  "id": "web-lit",
+                  "label": "Litware launches a self-service HR portal",
+                  "system": "web",
+                  "detail": "Public announcement · 8 Sep"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "choices": [
+            {
+              "label": "Loop in the service delivery manager",
+              "proactive": true,
+              "autoTriggerOnly": true,
+              "user": "",
+              "assistant": "Priya Shah owns the Litware relationship, received Oliver's question and is already chasing the missing knowledge article — would you like me to contact her on your behalf?",
+              "chain": "Work context",
+              "person": {
+                "name": "Priya Shah",
+                "title": "Service Delivery Manager",
+                "sub": "Litware Insurance",
+                "location": "Zava · London",
+                "initials": "PS",
+                "color": "#1c8a56",
+                "pronoun": "her",
+                "possessive": "her"
+              }
+            }
+          ]
+        },
+        {
+          "choices": [
+            {
+              "label": "Yes, draft the email to Priya",
+              "user": "Yes, please draft it.",
+              "assistant": "Here is the draft for Priya.",
+              "chain": "Zava Service Desk Agent",
+              "emailDraft": {
+                "to": "Priya Shah <priya.shah@zavaservicedesk.example>",
+                "cc": "Knowledge team",
+                "subject": "Litware — answer to Oliver and the remediation plan due 2 October",
+                "bodyParagraphs": [
+                  "Hi Priya,",
+                  "Litware Insurance closed week 38 at 38.0% zero-touch (19 of 50 tickets) against its 40.0% target (Fabric). The drop comes from HR Portal access requests that no KB article covers, following the self-service portal launch on 14 September.",
+                  "Under CTR-LIT-2026, XLA-LIT-01, no service credit applies: we owe Litware a written remediation plan within 10 business days, by 2 October.",
+                  "I suggest you answer Oliver now with the cause and that commitment: a KB article this week and an automated access workflow, then walk him through the plan at the 1 October review.",
+                  "Copying the Knowledge team for the article you asked about.",
+                  "Thanks,\n{{userName}}"
+                ],
+                "references": [
+                  {
+                    "id": "CTR-LIT-2026",
+                    "label": "Litware Insurance contract",
+                    "system": "foundry",
+                    "detail": "XLA-LIT-01 — remediation plan, no credit"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "No, I'll talk to her myself",
+              "user": "No, I'll talk to Priya myself.",
+              "assistant": "Sounds good. The recommended answer and its sources are saved with the Litware remediation record.",
+              "chain": "Zava Service Desk Agent"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

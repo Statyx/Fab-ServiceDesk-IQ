@@ -39,7 +39,7 @@ or a threshold in a prompt or in TypeScript. Foundry retrieves and cites the cla
 IQ and Web IQ add context. None of them produces a figure.
 
 The Foundry plane (supervisor, contracts agent, Foundry IQ knowledge base, Work IQ,
-Web IQ) is **staged**: played from `app-zava-service-desk/src/data/iq-*.json`. Do not add a
+Web IQ) is **staged**: played from `app-zava-service-desk/src/features/iq-playground/scenarios/service-desk/scenario.json`. Do not add a
 Foundry resource, scope or environment variable without being asked.
 
 ## Demo UI wording
@@ -48,7 +48,7 @@ This is a demo and the audience knows it. Screens never label the storyline as
 "simulated", "fictional" or "not live", and no page offers a source-mode selector. Staged
 effects (loading pauses, the Teams send) read as the real interaction. The presenter owns
 the framing — it belongs in `docs/demo/DEMO_SCRIPT.html`, not in the UI. Tests in
-`domain.test.ts` and `dossier.test.tsx` enforce it.
+`domain.test.ts` and `scenario.test.ts` enforce it.
 
 ## Before proposing a change
 

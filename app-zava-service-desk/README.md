@@ -18,9 +18,10 @@ Fabric workspace. The repository [README](../README.md) tells the story; the
 | Path | What lives there |
 |---|---|
 | `src/pages/` | one component per screen |
-| `src/domain/` | pure logic — navigation, the chain, openers, the Zava IQ dossier |
+| `src/domain/` | pure logic — navigation, the chain, openers |
 | `src/services/` | Power BI `executeQueries`, the Data Agent, recorded answers, auth |
-| `src/data/` | DAX queries, contracts, recorded answers, the staged `iq-*.json` context |
+| `src/data/` | DAX queries, contracts, recorded answers |
+| `src/features/iq-playground/` | Zava IQ — the Copilot-style playground engine and its staged `scenario.json` |
 | `src/preview/` | fixtures behind `/preview` |
 | `scripts/freeze-questions.ts` | lists the prepared questions for `capture_frozen_answers` |
 | `rayfin/rayfin.yml` | Fabric service configuration — kept tenant-neutral |

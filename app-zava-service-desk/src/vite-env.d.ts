@@ -25,7 +25,7 @@ interface ImportMetaEnv {
   /** Fabric workspace and data agent backing the assistant rail. */
   readonly VITE_ZAVA_WORKSPACE_ID?: string;
   readonly VITE_ZAVA_DATA_AGENT_ID?: string;
-  /** Existing ontology-associated Graph Model, for explicit read-only dossier queries. */
+  /** Existing ontology-associated Graph Model, for explicit read-only Zava IQ queries. */
   readonly VITE_ZAVA_GRAPH_MODEL_ID?: string;
 
   /** Rayfin-hosted auth, used when the app runs outside a Fabric item. */
