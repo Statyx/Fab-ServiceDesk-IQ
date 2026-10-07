@@ -2,7 +2,7 @@
 import { Fragment, useEffect, useState, type ReactNode } from "react";
 import type { AuthorizationStatus, EmailDraft, PersonRef, Report, ScenarioOption, SourceRef, CoworkEvent, CoworkTaskStatus, CoworkTask } from "../types/scenario";
 import { IconCheck, IconChevronDown, IconCopy, IconDownload, IconInfo, IconMail, IconMic, IconMore, IconPlus, IconRefresh, IconSend, IconShield, IconSparkle, IconThumbDown, IconThumbUp } from "./icons";
-import { sourceSystemMeta } from "./sourceMeta";
+import { iqLayerMeta, sourceSystemMeta } from "./sourceMeta";
 export function ReportView({ report }: { report: Report }) {
   return (
     <div>
@@ -865,6 +865,44 @@ export function MessageActionBar({ text }: { text: string }) {
   );
 }
 
+type IqKey = keyof typeof iqLayerMeta;
+const IQ_ORDER: IqKey[] = ["fabric", "foundry", "work", "web"];
+
+/** Distinct IQ layers cited by a set of sources, in a stable order. */
+export function iqLayersOf(sources?: SourceRef[]): IqKey[] {
+  const seen = new Set<string>((sources ?? []).map((s) => sourceSystemMeta[s.system]?.iq));
+  return IQ_ORDER.filter((layer) => seen.has(layer));
+}
+
+/* Shows, under every grounded answer, which layers of enterprise intelligence contributed to it
+   and how many sources each one supplied. */
+export function IqTrace({ sources }: { sources?: SourceRef[] }) {
+  const layers = iqLayersOf(sources);
+  if (layers.length === 0) return null;
+  const count = (layer: IqKey) => (sources ?? []).filter((s) => sourceSystemMeta[s.system]?.iq === layer).length;
+  return (
+    <ul aria-label="Intelligence used" className="mt-3 flex flex-wrap items-center gap-1.5">
+      <li className="text-xs font-medium text-ink-muted">Intelligence used</li>
+      {layers.map((layer) => {
+        const meta = iqLayerMeta[layer];
+        const n = count(layer);
+        return (
+          <li
+            key={layer}
+            title={meta.description}
+            className="flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+            style={{ background: `${meta.color}14`, color: meta.color, border: `1px solid ${meta.color}40` }}
+          >
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: meta.color }} aria-hidden />
+            {meta.label}
+            <span className="font-normal opacity-80">· {n} {n === 1 ? "source" : "sources"}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export function SourceChips({
   sources,
   onSelect,
@@ -925,6 +963,14 @@ export function SourcePanel({ source, onClose }: { source: SourceRef; onClose: (
           </div>
         </div>
         <p className="mt-3 text-sm text-ink">{source.detail}</p>
+        {meta.iq !== "none" && (
+          <div className="mt-4 rounded-lg border border-hairline p-3">
+            <p className="text-xs font-semibold" style={{ color: iqLayerMeta[meta.iq].color }}>
+              {iqLayerMeta[meta.iq].label}
+            </p>
+            <p className="mt-1 text-xs text-ink-muted">{iqLayerMeta[meta.iq].description}</p>
+          </div>
+        )}
       </div>
     </aside>
   );

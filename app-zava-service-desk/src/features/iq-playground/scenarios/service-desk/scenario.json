@@ -350,8 +350,8 @@
               "label": "Recommended plan",
               "proactive": true,
               "user": "",
-              "assistant": "Here is how I'd close week 38. The figures come from Fabric, the obligations from the contracts, and the timing from your team's calendar.",
-              "chain": "Zava Service Desk Agent → Service Desk Analyst → Contracts Agent",
+              "assistant": "Here is how I'd close week 38. The figures come from Fabric, the obligations from the contracts, the timing from your team's mail, chats and calendar, and the outside context from both customers' public announcements.",
+              "chain": "Zava Service Desk Agent → Service Desk Analyst → Contracts Agent → Market signals",
               "sources": [
                 {
                   "id": "fab-xla",
@@ -382,6 +382,18 @@
                   "label": "Oliver Hughes — chat with Priya Shah",
                   "system": "teams",
                   "detail": "22 Sep · external"
+                },
+                {
+                  "id": "web-fab",
+                  "label": "Fabrikam opens an R&D hub in Lyon",
+                  "system": "web",
+                  "detail": "Public announcement · 10 Sep"
+                },
+                {
+                  "id": "web-lit",
+                  "label": "Litware launches a self-service HR portal",
+                  "system": "web",
+                  "detail": "Public announcement · 8 Sep"
                 }
               ],
               "scenarios": [
@@ -469,6 +481,12 @@
                   "label": "Service credits & billing adjustments",
                   "system": "governance",
                   "detail": "Zava commercial policy"
+                },
+                {
+                  "id": "ctr-fab",
+                  "label": "CTR-FAB-2026 — Fabrikam Industries",
+                  "system": "foundry",
+                  "detail": "XLA-FAB-01 · Live"
                 }
               ]
             }
@@ -577,7 +595,7 @@
                   "title": "Option 2 — Recommended",
                   "badge": "Recommended",
                   "body": "Explain the cause openly (HR Portal access requests with no KB article, following the 14 September portal launch), state the contractual remedy under XLA-LIT-01, and commit the remediation plan for 2 October: a KB article this week and an automated access workflow.",
-                  "supportedBy": "Supported by Fabric IQ (tickets) · Foundry IQ (Litware contract) · Web IQ (HR portal launch)"
+                  "supportedBy": "Supported by Fabric IQ (tickets) · Foundry IQ (Litware contract) · Work IQ (Oliver's question) · Web IQ (HR portal launch)"
                 },
                 {
                   "id": "review",
@@ -621,6 +639,12 @@
                   "detail": "XLA-LIT-01 · Live"
                 },
                 {
+                  "id": "teams-lit",
+                  "label": "Oliver Hughes — chat with Priya Shah",
+                  "system": "teams",
+                  "detail": "22 Sep · external"
+                },
+                {
                   "id": "web-lit",
                   "label": "Litware launches a self-service HR portal",
                   "system": "web",
@@ -648,7 +672,21 @@
                 "color": "#1c8a56",
                 "pronoun": "her",
                 "possessive": "her"
-              }
+              },
+              "sources": [
+                {
+                  "id": "teams-lit",
+                  "label": "Oliver Hughes — chat with Priya Shah",
+                  "system": "teams",
+                  "detail": "22 Sep · external"
+                },
+                {
+                  "id": "mail-lit",
+                  "label": "HR Portal access requests not covered by a KB article",
+                  "system": "email",
+                  "detail": "Priya Shah · 22 Sep"
+                }
+              ]
             }
           ]
         },

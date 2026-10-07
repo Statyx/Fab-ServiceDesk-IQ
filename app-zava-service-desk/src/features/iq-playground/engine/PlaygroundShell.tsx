@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import type { Choice, Message, PersonRef, Scenario, ScenarioOption, SourceRef, ThinkingStep, CoworkTaskStatus } from "../types/scenario";
 import { IconAssistant, IconChat, IconChevronDown, IconEdit, IconFolder, IconGrid, IconInfo, IconLibrary, IconMenu, IconMic, IconMore, IconPlus, IconSearch, IconSettings, IconShield, IconSparkle, IconTasks, IconWave } from "./icons";
 import { DEFAULT_DEMO_PROFILE, DemoProfile, getProfileServerSnapshot, getProfileSnapshot, nameInitials, profileTokens, resolveTokens, storeProfile, subscribeProfile } from "./profile";
-import { AgentAvatar, ApprovalPolicyModal, CoworkTaskView, EmailDraftCard, getIdentity, IconClose, MessageActionBar, PersonCard, renderDraftWithMention, renderMarkdown, ReportView, ScenarioCarousel, SourceChips, SourcePanel } from "./cards";
+import { AgentAvatar, ApprovalPolicyModal, CoworkTaskView, EmailDraftCard, getIdentity, IconClose, IqTrace, MessageActionBar, PersonCard, renderDraftWithMention, renderMarkdown, ReportView, ScenarioCarousel, SourceChips, SourcePanel } from "./cards";
 /* ---------- Page ---------- */
 
 export default function PlaygroundShell({ scenario }: { scenario: Scenario }) {
@@ -1159,6 +1159,9 @@ const veloaEvents = scenario.coworkSession?.events ?? [];
                           </>
                         )}
 
+                        {msg.role === "assistant" && (
+                          <IqTrace sources={[...(msg.sources ?? []), ...(msg.emailDraft?.references ?? [])]} />
+                        )}
                         <SourceChips sources={msg.sources} onSelect={setSelectedSource} />
                       </div>
                     );
