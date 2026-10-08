@@ -968,6 +968,25 @@
   font-weight: 500;
   letter-spacing: -0.02em;
 }
+/* The IQ walkthrough is a dense chat surface: about 0.77x the console scale, on top of the
+   115% html dial (0.9x, then a further 0.85x requested after the projector rehearsal).
+   Tailwind v4 size utilities read these variables, so re-declaring them here scales every
+   `text-*` class inside the playground without touching a component. `--text-2xs` is
+   compiled inline, so its utility is restated explicitly; unclassed text follows the
+   container's own font-size. */
+.iq-playground {
+  font-size: 0.85rem;
+  --text-xs: 0.584rem;
+  --text-sm: 0.691rem;
+  --text-base: 0.797rem;
+  --text-lg: 0.85rem;
+  --text-xl: 0.956rem;
+  --text-2xl: 1.116rem;
+  --text-3xl: 1.381rem;
+}
+.iq-playground .text-2xs {
+  font-size: 0.531rem;
+}
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }

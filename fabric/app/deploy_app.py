@@ -30,6 +30,7 @@ bootstrap()
 import argparse
 import json
 import subprocess
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
@@ -291,6 +292,23 @@ def strip_hosted_redirect_uris(text: str) -> str:
                    if not (l.lstrip().startswith("- ") and HOSTED_URI_MARKER in l))
 
 
+def restore_rayfin_yml(path: Path = None, attempts: int = 5, delay: float = 2.0) -> None:
+    """Strip the hosted redirect URI from rayfin.yml. A OneDrive sync can briefly lock the
+    file right after the CLI rewrites it (OSError EINVAL/EACCES), so the write is retried."""
+    path = path or RAYFIN_YML
+    for attempt in range(1, attempts + 1):
+        try:
+            text = path.read_text(encoding="utf-8")
+            cleaned = strip_hosted_redirect_uris(text)
+            if cleaned != text:
+                path.write_text(cleaned, encoding="utf-8")
+            return
+        except OSError:
+            if attempt == attempts:
+                raise
+            time.sleep(delay)
+
+
 def target_deployment(tenant: str, workspace: str, path: Path = None) -> Dict[str, Any]:
     """The active Rayfin deployment record, refused unless it is this tenant and workspace."""
     path = path or APP_DIR / "rayfin" / ".deployments.json"
@@ -387,8 +405,7 @@ def main() -> int:
         rayfin(rayfin_up_args(tenant, workspace, static_hosting=True), env)
     finally:
         if RAYFIN_YML.exists():
-            RAYFIN_YML.write_text(strip_hosted_redirect_uris(
-                RAYFIN_YML.read_text(encoding="utf-8")), encoding="utf-8")
+            restore_rayfin_yml()
 
     print_step(5, total, "Register the hosting redirect and verify the host")
     origin = hosting_origin(target_deployment(tenant, workspace)["hostingUrl"])
