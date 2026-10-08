@@ -233,6 +233,7 @@ fabric/_shared/       paths · platform_env (bootstrap) · helpers (profiles, co
 fabric/data/          world.yaml · schema.py · generate_data.py
 fabric/eventhouse/    inject_event.py
 fabric/data_agent/    mcp_client.py · capture_frozen_answers.py
+fabric/taskflow/      zava_service_desk_taskflow.json · deploy_taskflow.py (validate + import steps)
 fabric/app/           deploy_app.py (phase 3: SPA registration, bindings, rayfin up)
 app-zava-service-desk/  Rayfin console (React + Vite): src/data/queries.ts holds the DAX
 scripts/              check_no_client_leak.py (canonical, byte-identical) · check_repo_leaks.py
@@ -281,11 +282,15 @@ runs them in order (`--from`, `--skip`, `--list`):
     routing rules for live, `since the incident` and live-versus-closed questions): every few-shot is run on
     its live source first, then the agent is published and its MCP endpoint saved to
     `state.json`
+11. Task flow *Zava Service Desk - signal to credit*: `fabric/taskflow/` validates the JSON
+    (ingestion notebook → Lakehouse / Eventhouse → ontology, semantic model, dashboard,
+    alerts → report, Data Agent → console) and checks every mapped item exists
 
 UI-only steps remain, because the APIs do not cover them:
 - Start the Activator rule.
 - In the Operations Agent, bind the knowledge source, the Teams/e-mail action, the playbook
   and the schedule.
+- Import the task flow JSON and attach each item to its task.
 
 The MCP endpoint is `{api}/mcp/workspaces/{ws}/dataagents/{id}/agent`, with a JSON-RPC
 `initialize` → `tools/list` → `tools/call`. It answers from the published version only, so

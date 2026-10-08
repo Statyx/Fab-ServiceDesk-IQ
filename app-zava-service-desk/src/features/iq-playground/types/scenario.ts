@@ -82,12 +82,12 @@ export type Choice = {
   sources?: SourceRef[];
   /** When true, this turn has no user-typed message \u2014 it plays as a proactive system notification. */
   proactive?: boolean;
-  /** When true (with proactive), this turn is not offered as a suggested-reply button \u2014 it can only be
-   * triggered externally (e.g. by clicking a scenario card inside the previous message). */
+  /** When true (with proactive), this turn is not offered as a suggested reply up front. It is unlocked
+   * externally (e.g. by picking the recommended scenario card in the previous message) and then offered
+   * as the next suggested reply. It never plays without a click. */
   autoTriggerOnly?: boolean;
-  /** When true, once this choice's message finishes revealing, automatically continue into the next
-   * scene's proactive/autoTriggerOnly choice (chains consecutive system-notification steps together,
-   * e.g. SAP operational validation \u2192 Compliance Agent governance review). */
+  /** When true, once this choice's message finishes revealing, the next scene's proactive/autoTriggerOnly
+   * choice is unlocked and offered as the next suggested reply (one agent handing off to the next). */
   chainNext?: boolean;
   /** Scenario cards rendered in a horizontally scrolling carousel below the message text. */
   scenarios?: ScenarioOption[];

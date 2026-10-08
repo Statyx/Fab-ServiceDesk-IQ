@@ -116,6 +116,10 @@ const veloaEvents = scenario.coworkSession?.events ?? [];
   const scenarioAutoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Holds the choice currently being typed, so the composer's send timeout always commits the right one.
   const pendingChoiceCommitRef = useRef<Choice | null>(null);
+  // A proactive step unlocked by a scenario pick (or a chainNext hop). It never starts on its own:
+  // it is offered as the next suggested reply and waits for the presenter's click.
+  const [awaitingStep, setAwaitingStep] = useState<Choice | null>(null);
+  const conversationRef = useRef<HTMLDivElement | null>(null);
 
   const scenesData = useMemo(
     () => resolveTokens((tracks.find((t) => t.id === activeTrack) ?? tracks[0]).scenes, tokens),
@@ -130,9 +134,31 @@ const veloaEvents = scenario.coworkSession?.events ?? [];
   }, [started, isFinished, sceneIndex, scenesData]);
 
   const visibleChoices = useMemo(
-    () => currentChoices.filter((c) => !c.autoTriggerOnly),
-    [currentChoices]
+    () => (awaitingStep ? [awaitingStep] : currentChoices.filter((c) => !c.autoTriggerOnly)),
+    [currentChoices, awaitingStep]
   );
+
+  // Keeps the newest content in view while a turn plays out (typing, thinking steps, the answer and
+  // its cards), so the presenter never scrolls by hand mid-answer. Once the turn is done nothing
+  // changes, so scrolling back up to walk through the result stays free.
+  useEffect(() => {
+    const el = conversationRef.current;
+    if (!el) return;
+    const frame = requestAnimationFrame(() => {
+      if (typeof el.scrollTo === "function") {
+        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+      } else {
+        el.scrollTop = el.scrollHeight;
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [messages.length, processingStep, isAssistantTyping, emailSending, awaitingStep, selectedScenarioId]);
+
+  useEffect(() => {
+    const el = conversationRef.current;
+    if (!el || !isAssistantTyping) return;
+    el.scrollTop = el.scrollHeight;
+  }, [assistantDraft, isAssistantTyping]);
 
   const clearAllTimers = () => {
     if (typingRef.current) {
@@ -192,17 +218,13 @@ const veloaEvents = scenario.coworkSession?.events ?? [];
     setPendingChoice(null);
 
     if (choice.chainNext) {
-      // This step is a system notification that should flow straight into the next one (e.g. one
-      // agent handing off to the next) without waiting for a suggested-reply click. Reads scenesData via sceneIndexRef
+      // This step hands off to the next agent. The hand-off is offered as the next suggested reply
+      // rather than played on its own, so the presenter paces every step. Reads scenesData via sceneIndexRef
       // (not the possibly-stale `sceneIndex` closure variable) so back-to-back chained hops each
       // resolve the true current scene instead of looping on the same one.
       const nextScene = scenesData[nextIndex];
       const nextChoice = nextScene?.choices.find((c) => c.autoTriggerOnly);
-      if (nextChoice) {
-        scenarioAutoAdvanceRef.current = setTimeout(() => {
-          startTyping(nextChoice);
-        }, 700);
-      }
+      if (nextChoice) setAwaitingStep(nextChoice);
     }
   };
 
@@ -364,6 +386,9 @@ const veloaEvents = scenario.coworkSession?.events ?? [];
   const startTyping = (choice: Choice) => {
     if (isBusy) return;
     clearAllTimers();
+    setAwaitingStep(null);
+    // Drop focus from the clicked control so a stray Space/Enter can never launch the next step.
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     setPendingChoice(choice);
     pendingChoiceCommitRef.current = choice;
 
@@ -441,13 +466,10 @@ const veloaEvents = scenario.coworkSession?.events ?? [];
       return;
     }
     setSelectedScenarioId(scenario.id);
-    // Selecting the recommended scenario proactively advances the conversation
-    // to the governance review \u2014 no user message is typed for this transition.
+    // Selecting the recommended scenario unlocks the proactive follow-up (governance review, or
+    // looping in the owner). It is offered as the next suggested reply and plays on click only.
     const nextChoice = currentChoices.find((c) => c.autoTriggerOnly);
-    if (!nextChoice) return;
-    scenarioAutoAdvanceRef.current = setTimeout(() => {
-      startTyping(nextChoice);
-    }, 700);
+    if (nextChoice) setAwaitingStep(nextChoice);
   };
 
   const continueMention = () => {
@@ -476,6 +498,7 @@ const veloaEvents = scenario.coworkSession?.events ?? [];
     setApprovalPolicyOpen(false);
     mentionIntroducedRef.current = false;
     pendingChoiceCommitRef.current = null;
+    setAwaitingStep(null);
     setStarted(false);
     setSceneIndex(0);
     sceneIndexRef.current = 0;
@@ -1094,7 +1117,7 @@ const veloaEvents = scenario.coworkSession?.events ?? [];
               </div>
             ) : (
               <>
-                <div className="flex-1 overflow-y-auto px-3 md:px-6 py-4 md:py-6 space-y-4">
+                <div ref={conversationRef} className="flex-1 overflow-y-auto px-3 md:px-6 py-4 md:py-6 space-y-4">
                   {messages.map((msg, i) => {
                     const identity = msg.role === "assistant" ? getIdentity(msg.mention) : null;
                     return (
@@ -1270,6 +1293,7 @@ const veloaEvents = scenario.coworkSession?.events ?? [];
                       {visibleChoices.map((choice) => (
                         <button
                           key={choice.label}
+                          type="button"
                           onClick={() => (choice.opensModal ? viewApprovalPolicy() : startTyping(choice))}
                           className="rounded-lg border border-hairline bg-white px-4 py-2 text-left text-sm hover:bg-surface hover:border-ink/40 transition-colors"
                         >

@@ -1,0 +1,80 @@
+{
+  "tasks": [
+    {
+      "type": "get data",
+      "id": "a1000000-0000-4000-a000-000000000001",
+      "name": "Ingestion - NB_Setup_ServiceDesk",
+      "description": "Ingestion layer. The setup notebook loads the generated CSVs (world.yaml, seed 42) straight into the lakehouse as typed Delta tables, graph edge tables included. No separate transform step: ingestion lands the data ready to model."
+    },
+    {
+      "type": "store data",
+      "id": "a1000000-0000-4000-a000-000000000002",
+      "name": "Lakehouse - LH_ServiceDesk",
+      "description": "Batch layer. Customers, sites, users, devices, applications, tickets, contracts, XLAs and agents, plus the weekly history the zero-touch and credit figures are computed from."
+    },
+    {
+      "type": "track data",
+      "id": "a1000000-0000-4000-a000-000000000003",
+      "name": "Live signals - EH_ServiceDesk",
+      "description": "Eventhouse and KQL database KQL_ServiceDesk. Six live tables (DEM telemetry, tickets, conversations, CSAT, agent traces, gateway logs), history preloaded, then streamed by inject_event."
+    },
+    {
+      "type": "analyze and train data",
+      "id": "a1000000-0000-4000-a000-000000000004",
+      "name": "Ontology - ONT_ServiceDesk",
+      "description": "Fabric IQ ontology and its graph. 13 entity types bound to the lakehouse, TimeSeries on Device and Agent bound to the Eventhouse, so one question crosses batch and live."
+    },
+    {
+      "type": "analyze and train data",
+      "id": "a1000000-0000-4000-a000-000000000005",
+      "name": "Semantic model - SM_ServiceDesk_Analytics",
+      "description": "Direct Lake model. Zero-touch rate, XLA breaches and service credits are defined here once, as named DAX measures: Fabrikam 34.0 percent and 9250 EUR, Litware 38.0 percent and no credit."
+    },
+    {
+      "type": "visualize",
+      "id": "a1000000-0000-4000-a000-000000000006",
+      "name": "Report - RPT_ServiceDesk",
+      "description": "Three pages: Service Desk Overview, Experience and Incidents, XLA and Credits. The human view of the same measures the agent quotes."
+    },
+    {
+      "type": "visualize",
+      "id": "a1000000-0000-4000-a000-000000000007",
+      "name": "Real-Time Dashboard - RTD_ServiceDesk_Operations",
+      "description": "Operations and AgentOps pages over KQL_ServiceDesk, 30 second auto-refresh."
+    },
+    {
+      "type": "track data",
+      "id": "a1000000-0000-4000-a000-000000000008",
+      "name": "Alerts - ACT_ServiceDesk_Alerts and OA_ServiceDesk_Ops",
+      "description": "Activator rule on site VPN latency above 200 ms (5 minute average), sent to Teams, and the Operations Agent that watches the live tables."
+    },
+    {
+      "type": "analyze and train data",
+      "id": "a1000000-0000-4000-a000-000000000009",
+      "name": "Data agent - ServiceDesk_Analyst",
+      "description": "Answers how far zero-touch fell, only with figures computed in Fabric: GQL on the ontology, DAX on the semantic model, KQL on the Eventhouse. Published, with an MCP endpoint."
+    },
+    {
+      "type": "visualize",
+      "id": "a1000000-0000-4000-a000-000000000010",
+      "name": "Console - App-Zava-Service-Desk",
+      "description": "The service desk console. Evaluates the named DAX measures and calls the data agent; it never computes a rate, a credit or a threshold itself."
+    }
+  ],
+  "edges": [
+    {"source": "a1000000-0000-4000-a000-000000000001", "target": "a1000000-0000-4000-a000-000000000002"},
+    {"source": "a1000000-0000-4000-a000-000000000002", "target": "a1000000-0000-4000-a000-000000000004"},
+    {"source": "a1000000-0000-4000-a000-000000000002", "target": "a1000000-0000-4000-a000-000000000005"},
+    {"source": "a1000000-0000-4000-a000-000000000003", "target": "a1000000-0000-4000-a000-000000000004"},
+    {"source": "a1000000-0000-4000-a000-000000000003", "target": "a1000000-0000-4000-a000-000000000007"},
+    {"source": "a1000000-0000-4000-a000-000000000003", "target": "a1000000-0000-4000-a000-000000000008"},
+    {"source": "a1000000-0000-4000-a000-000000000003", "target": "a1000000-0000-4000-a000-000000000009"},
+    {"source": "a1000000-0000-4000-a000-000000000004", "target": "a1000000-0000-4000-a000-000000000009"},
+    {"source": "a1000000-0000-4000-a000-000000000005", "target": "a1000000-0000-4000-a000-000000000006"},
+    {"source": "a1000000-0000-4000-a000-000000000005", "target": "a1000000-0000-4000-a000-000000000009"},
+    {"source": "a1000000-0000-4000-a000-000000000005", "target": "a1000000-0000-4000-a000-000000000010"},
+    {"source": "a1000000-0000-4000-a000-000000000009", "target": "a1000000-0000-4000-a000-000000000010"}
+  ],
+  "name": "Zava Service Desk - signal to credit",
+  "description": "Managed service desk analytics: batch history and live signals, modelled once in Fabric, answered by a data agent and shown in the console. Only Fabric items are mapped; the contracts side of the story is not a Fabric item and stays off this canvas."
+}

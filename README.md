@@ -155,7 +155,7 @@ artifact the code produces.
 | Path | What lives there |
 |---|---|
 | `deploy_all.py` | One-shot idempotent orchestrator, plus the pre-demo warm-up |
-| `fabric/` | Deployment code, one package per workload — `_shared`, `data`, `workspace`, `lakehouse`, `eventhouse`, `ontology`, `graph`, `powerbi`, `rti`, `data_agent`, `app` |
+| `fabric/` | Deployment code, one package per workload — `_shared`, `data`, `workspace`, `lakehouse`, `eventhouse`, `ontology`, `graph`, `powerbi`, `rti`, `data_agent`, `taskflow`, `app` |
 | `app-zava-service-desk/` | The Rayfin console — React + Vite, live DAX, Data Agent assistant, Zava IQ |
 | `docs/` | Architecture, deployment runbook, engineering notes, demo script, screenshots |
 | `tests/` | The offline gate, run before every deploy |
@@ -195,7 +195,7 @@ python deploy_all.py --from ontology        # resume after a failure
 python -m fabric.app.deploy_app             # redeploy the console alone
 ```
 
-A few steps are UI-only (Activator start, Operations Agent bindings). The
+A few steps are UI-only (Activator start, Operations Agent bindings, task flow import). The
 [deployment runbook](docs/DEPLOYMENT.md) lists them, with the MCP calls and the recorded
 answers. Run `python deploy_all.py --warmup` right before the demo, to pay the cold start
 off-stage.

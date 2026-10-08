@@ -47,6 +47,12 @@ before trusting a green result**.
   hangs on the append for large files.
 - **Report definition**: pin `visualContainer` to schema 2.9.0. Version 2.10 and later
   answer 404 at import.
+- **Task flows have no API**: no REST endpoint, no `fab` command, no item type. The JSON is
+  imported in the workspace UI only. Keep it ASCII (UTF-8, no BOM), keep task keys to
+  `type, id, name, description` and edge keys to `source, target`, and use only the safe
+  types (`get data`, `store data`, `track data`, `analyze and train data`, `visualize`,
+  `general`). `develop` and `distribute` can fail the import. The notebook is the
+  ingestion task: do not add a separate "files to Delta" transform task.
 
 ## Data and ontology
 

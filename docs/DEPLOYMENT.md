@@ -65,6 +65,7 @@ Self-checks run along the way:
 | `OA_ServiceDesk_Ops` | Operations Agent | goals and instructions for the live alerts |
 | `ServiceDesk_Analyst` | Data Agent | ontology + semantic model + KQL, published, MCP endpoint |
 | `App-Zava-Service-Desk` | Rayfin app | the service desk console |
+| Task flow *Zava Service Desk - signal to credit* | Workspace task flow (`fabric/taskflow/`) | the pipeline from ingestion to console, one task per item; validated by the `taskflow` step, imported in the UI |
 
 The Foundry plane (supervisor, contracts agent, Foundry IQ knowledge base, Work IQ, Web IQ)
 is **staged**: it is not deployed by this repository, and no Foundry resource, scope or
@@ -84,6 +85,17 @@ The public APIs cannot do these yet:
 
    ```text
    python -m fabric.eventhouse.inject_event --scenario vpn-lyon --loop --interval 30
+   ```
+
+4. **Task flow** — always created. Fabric has no API for task flows, so the `taskflow` step
+   validates `fabric/taskflow/zava_service_desk_taskflow.json`, checks the mapped items exist
+   and prints the assignment table. In the workspace list view: **Task flow** → **Import a
+   task flow** → pick the JSON, then attach each item to its task (paper-clip icon). The
+   notebook `NB_Setup_ServiceDesk` is the ingestion task; there is no separate transform task.
+
+   ```text
+   python -m fabric.taskflow.deploy_taskflow            # validate + check items + print the steps
+   python -m fabric.taskflow.deploy_taskflow --offline  # validate only
    ```
 
 ## Ask the Data Agent over MCP
