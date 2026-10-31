@@ -17,11 +17,9 @@ the contract says what Zava owes.**
 > [`fabric/data/world.yaml`](fabric/data/world.yaml). No real customer, GUID or endpoint
 > appears anywhere in this repository.
 
-<!-- HERO VISUAL — drop the teaser video here once recorded: upload it in a GitHub comment
-     and paste the bare https://github.com/user-attachments/assets/<id> URL on its own line.
-     Do not commit large media to the repo. -->
+[![Watch the Zava Service Desk demo](docs/images/zava-iq.png)](marketing/video/Fab-ServiceDesk-IQ-Demo.mp4)
 
-![Zava IQ — from a breach to the right person](docs/images/zava-iq.png)
+**[Watch or download the demo](marketing/video/Fab-ServiceDesk-IQ-Demo.mp4)** — 4 min 09 s · English.
 
 AI agents resolve tickets on their own. Running a whole service desk on them — six
 customers, under contract — needs one trusted context. This demo answers a question that
@@ -191,6 +189,7 @@ artifact the code produces.
 | [`fabric/`](fabric) | One package per workload: `_shared`, `data`, `workspace`, `lakehouse`, `eventhouse`, `ontology`, `graph`, `powerbi`, `rti`, `data_agent`, `taskflow`, `app` |
 | [`app-zava-service-desk/`](app-zava-service-desk) | The Rayfin console — React + Vite, live DAX, Data Agent assistant, Zava IQ |
 | [`docs/`](docs) | Architecture, deployment runbook, engineering notes, demo script, screenshots |
+| [`marketing/video/`](marketing/video) | The published English demo video |
 | [`tests/`](tests) | The offline gate, run before every deploy |
 | [`scripts/`](scripts) | Repository leak guard, also run in CI |
 | [`config.example.yaml`](config.example.yaml) · [`state.example.json`](state.example.json) | Templates for the git-ignored tenant configuration |
@@ -345,6 +344,7 @@ Open a pull request once the [quality gate](#quality-gate) is green.
 | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Deploy steps, items, UI-only steps, the console, `state.json` |
 | [`docs/ENGINEERING-NOTES.md`](docs/ENGINEERING-NOTES.md) | Failure modes and the workarounds that hold them |
 | [`docs/demo/DEMO_SCRIPT.html`](docs/demo/DEMO_SCRIPT.html) | Screen by screen, what to say, live vs staged, plan B |
+| [`marketing/video/Fab-ServiceDesk-IQ-Demo.mp4`](marketing/video/Fab-ServiceDesk-IQ-Demo.mp4) | Recorded English walkthrough: Fabric figures, contract obligations, work and public context, comparison and Finance approval |
 
 ---
 
